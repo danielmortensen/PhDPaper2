@@ -1,0 +1,7 @@
+\section{Battery State of Charge}
+\begin{enumerate}
+	\item Define state of charge variables (one for each s and c variable)
+	\item Define relationship between SOC variables.  SOC that correspond to c, are equal to SOC from the previous s - delta.  the next c = s + chargeSOCDifference.
+	\item Use big-M to increase the SOC when charging. Use $\sigma$ to know when a stop is selected for charging and increase by the delta in c and s variables
+	\item Introduce SOC constraints that prohibit stranding.
+\end{enumerate}

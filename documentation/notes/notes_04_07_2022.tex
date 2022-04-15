@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{amsmath, amsfonts}
+\usepackage{mathtools}
+\begin{document}
+Let $t_0$ and $t_1$ be the start and ending times for a charging interval respectively. Define two constraints such that
+\begin{align}
+	k_0\cdot\Delta T + r_0&= t_0 \\
+	k_1\cdot\Delta T + r_1&= t_1 \\
+	k_1, k_0 \in \mathbb{Z}.
+\end{align}
+We desire to find binary vectors $\mathbf{s}_0$, $\mathbf{s}$, and $\mathbf{s_1}$ which act as selectors for times where a bus is on-ramping, charging, and off-ramping respectively. The on-ramping charging, and off-ramping periods will be used to represent power use from $k_0$ to $k_0 + 1$, $k_0 + 1$ to $k_1$ and $k_1$ to $k_1 + 1$ respectively. 
+\par Let $\mathbf{i}$ be a vector of one-based integer indices such that $\mathbf{i}_d = d \ \forall d \in (1,\text{nTime})$. The values in $\mathbf{s}_0$ can be defined by the constraint
+\begin{align}
+	k_0 &= \mathbf{s}_0^T\mathbf{i} \\
+	1 &= \mathbf{1}^T\mathbf{s}_0 \\
+	\mathbf{s}_0 &\in \{0,1\}.
+\end{align}
+Similarly, the values for $\mathbf{s_1}$ can be defined as
+\begin{align}
+	k_1 &= \mathbf{s}_1^T\mathbf{i}\\
+	1 &= \mathbf{1}^T\mathbf{s}_1 \\
+	\mathbf{s}_1 &\in \{0,1\}.
+\end{align}
+The final piece is to define $\mathbf{s}$. The set of constraints can be described as follows: 
+\begin{align}
+	\mathbf{1}^T\mathbf{s} &= k_1 - k_0 - 1 \\
+	\mathbf{s}_i\mathbf{i}_i &\le k_1 + M(1 - \mathbf{s}_i)\\
+	\mathbf{s}_i\mathbf{i}_i &\ge k_0 - M(1 - \mathbf{s}_i)\\ 
+	\mathbf{s}_i\mathbf{i}_i &\le 0 + M\mathbf{s}_i\\
+	\mathbf{s}_i\mathbf{i}_i &\ge 0 - M\mathbf{s}_i,
+\end{align}
+where $M$ is $2\cdot\text{nTime}$.
+\par We next define the average per use for each charger during an interval. The on-ramp intervals can be constrained as
+\begin{align}
+	p_0 &= \frac{\text{powerRate}\cdot r_0}{\Delta T}\\
+	p_1 &= \frac{\text{powerRate}\cdot r_1}{\Delta T}\\
+	p &= \text{powerRate},
+\end{align}
+where $p_0$, $p_1$, and $p$ represent the average power rate for the on-ramping, off-ramping, and charging intervals respectively.
+The total average power use is calculated as 
+\begin{align}\label{eqn:totalPower}
+	\mathbf{p}_{\text{total}} = \mathbf{p} + \mathbf{s}_0\cdot p_0 + \mathbf{s}\cdot p + \mathbf{s}_1\cdot p_1
+\end{align}
+where $\mathbf{p}$ is the average power of the uncontrolled loads.
+\par Note, however that the results from equation \ref{eqn:totalPower} contain a bilinear form.  This can be expressed as a second order cone where
+\begin{align}\label{eqn:powerCone} 
+	\mathbf{s}_0^i\cdot p_0 + \mathbf{s}_1^i\cdot p_1 = \begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix}^T
+		\begin{bmatrix}0 & 0 & \frac{1}{2} & 0\\
+			0 & 0 & 0 & \frac{1}{2}\\
+			       \frac{1}{2} & 0 & 0 & 0\\ 
+			       0 & \frac{1}{2} & 0 & 0\\ 
+		\end{bmatrix}
+\begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix}.
+\end{align}
+However, because equality for a second order cone constraint is non-convex, we expand equation \ref{eqn:powerCone} to include an in equality.  Because the maximum power will be included in the cost function, the optimizer will minimize and push the values that matter against the constraint giving equality. This yields
+\begin{align}
+\mathbf{s}_0^i\cdot p_0 + \mathbf{s}_1^i\cdot p_1 \ge \begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix}^T
+		\begin{bmatrix}0 & 0 & \frac{1}{2} & 0\\
+			0 & 0 & 0 & \frac{1}{2}\\
+			       \frac{1}{2} & 0 & 0 & 0\\ 
+			       0 & \frac{1}{2} & 0 & 0\\ 
+		\end{bmatrix}
+\begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix},  
+\end{align}
+and consequently,
+\begin{align}
+	\mathbf{p}_{\text{total}}^i \ge \mathbf{p}^i + \mathbf{s}^ip_i + \begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix}^T
+		\begin{bmatrix}0 & 0 & \frac{1}{2} & 0\\
+			0 & 0 & 0 & \frac{1}{2}\\
+			       \frac{1}{2} & 0 & 0 & 0\\ 
+			       0 & \frac{1}{2} & 0 & 0\\ 
+		\end{bmatrix}
+\begin{bmatrix}\mathbf{s}_0^i \\ \mathbf{s}_1^i \\ p_0 \\ p_1 \end{bmatrix}
+\end{align}
+Which gives us a (non-convex?) Mixed Integer Quadratically Constrained Problem (MIQCP) (can solve with Gurobi?).
+\end{document}

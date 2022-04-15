@@ -1,0 +1,53 @@
+\newpage temp \newpage
+\section{Problem Formulation}
+Solving the bus charge problem requires knowing when, and on which charger a bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.
+\input{media/formulation/busTime1}
+\par Each bus follows a schedule and is in the station during predefined times. When a bus is in the station, it is available to charge.  Bus availability is described in terms of it's arrival and departure times, where the bus's $n^{\text{th}}$ stop begins at arrival time $n$, or $a_n$ and terminates at the $n^{\text{th}}$ departure time, $d_n$ (see Fig. \ref{fig:busTime2}). 
+\input{media/formulation/busTime2}
+\par A bus can be assigned to charge for a time interval where the bus is in the station. The charge start time during the $n^{\text{th}}$ stop is denoted $c_n$ and the stop-charge time is denoted $s_n$ as shown in Fig. \ref{fig:busTime3}. 
+\input{media/formulation/busTime3}
+The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
+\begin{align}
+	a_{ij} &< c_{ij} \\
+	c_{ij} &< s_{ij} \\
+	s_{ij} &< d_{ij}
+\end{align}
+Which can be expressed in standard form as
+\begin{align}
+	-c_{ij} &< -a_{ij}\\
+	c_{ij} - s_{ij} &< 0\\
+	s_{ij} &< d_{ij}
+\end{align}
+and finally, 
+\begin{align}\label{eqn:timeConstraint}
+	\begin{bmatrix} -1 & 0 \\
+	                 1 & -1 \\
+		0 & 1\end{bmatrix} \begin{bmatrix} c_{ij} \\ s_{ij}\end{bmatrix} \le \begin{bmatrix}-a_{ij} \\ 0 \\ d_{ij} \end{bmatrix}.
+\end{align}
+
+\par A charge plan can be formulated by reserving time slots at chargers when buses need to charge (see Fig. \ref{fig:busTime4}).
+\input{media/formulation/busTime4}
+	Note how there are several decisions that go into the charge schedule, which is made up to which bus charges at which charger at which time. 
+	\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. $\sigma_{ijk}$ is necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $j$ is less than $d_{i^{'}j^{'}}$ for bus $j^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
+	\input{media/formulation/potentialOverlap}
+	
+	\begin{align}\label{eqn:overlapConstraints1}
+	c_{i^{'}j^{'}} > s_{ij}.
+\end{align}
+However, this constraint is only necessary when both bus stops are designated for charging. This can be remedied as
+	\begin{align}\label{eqn:overlapConstraints2}
+		c_{i^{'}j^{'}} - s_{ij} > M\left[(\sigma_{i^{'}j^{'}k^{'}} + \sigma_{ijk}) - 2\right]
+	\end{align}
+	Where $M = 2\cdot\text{nTime}$. When $(\sigma_{i^{'}j^{'}k^{'}} + \sigma_{ijk}) < 2$, then equation \ref{eqn:overlapConstraints2} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$ and when $\sigma_{i^{'}j^{'}k^{'}} = \sigma_{ijk} = 1$, equation \ref{eqn:overlapConstraints2} simplifies to equation \ref{eqn:overlapConstraints1}. Equation \ref{eqn:overlapConstraints1} can be expressed in standard form as 
+	\begin{align}\label{eqn:overlapConstraints3}
+		c_{i^{'}j^{'}} - s_{ij} - M\sigma_{i^{'}j^{'}k^{'}} - M\sigma_{ijk} &\ge -2M \\
+		-c_{i^{'}j^{'}} + s_{ij} + M\sigma_{i^{'}j^{'}k^{'}} + M\sigma_{ijk} &\le 2M \\
+		\begin{bmatrix} -1 & 1 & M & M\end{bmatrix} \begin{bmatrix}c_{i^{'}j^{'}}\\ s_{ij} \\ \sigma_{i^{'}j^{'}k^{'}}\\ \sigma{ijk} \end{bmatrix} &\le 2M
+	\end{align}
+	The constraints in equation \ref{eqn:overlapConstraints3} can be repeated for all instances where overlap is possible and concatenated into a single matrix such that
+	\begin{equation}
+		A\mathbf{y} \le \mathbf{1}\cdot 2M
+	\end{equation}
+
+
+

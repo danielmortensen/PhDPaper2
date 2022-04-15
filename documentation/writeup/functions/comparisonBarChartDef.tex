@@ -1,0 +1,12 @@
+\newcommand\makeComparisonBarChart[4]{%
+	\pgfplotstableread[col sep=comma]{#1}\table
+	\begin{tikzpicture}
+		\begin{axis}[SmallBarPlot, xticklabels from table={\table}{type}, ylabel=#2]
+			\addplot [fill=blue!20, bar width=0.2] table [x expr=\coordindex*0.6 + 0.3, y=baseline]{\table};
+			\addlegendentry{Baseline}
+			\addplot [fill=red!20, bar width=0.2] table [x expr=\coordindex*0.6 + 0.3, y=optimized]{\table};
+			\addlegendentry{Optimized}
+			\legend{#3, #4}
+		\end{axis}
+	\end{tikzpicture} 
+}

@@ -1,0 +1,56 @@
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{flushend}
+\usepackage{amsmath,amsfonts}
+\usepackage{array}
+\usepackage{textcomp}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{math}
+\usetikzlibrary{shapes}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.7}
+\usepgfplotslibrary{dateplot}
+\setcounter{MaxMatrixCols}{20}
+\usepackage{subfig}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\usepackage{balance}
+\usepackage[backend=bibtex, style=numeric]{biblatex}
+\bibliography{busCharge}
+
+% import custom function definitions
+\usepackage{ifthen}
+\input{functions/pgf_setup.tex}
+\input{functions/comparisonBarChartDef.tex} 
+\input{functions/comparisonTimeSeriesDef.tex}
+
+%\bibliographystyle{ieeetr}
+\begin{document}
+\title{A Continuous Approach to Minimize Cost for Charging Electric Bus Fleets}
+\author{Daniel Mortensen, Jacob Gunther, Greg Droge, Alexander Brown, Justin Whitaker\thanks{}}
+
+\markboth{Transactions on Intelligent Transportation Systems}%
+{}
+
+\maketitle 
+\input{1_abstract.tex}
+\input{2_introduction.tex}
+\input{3_literature.tex}
+\input{4_formulation.tex}
+\input{5_battery.tex}
+\input{6_uncontrolled}
+\input{7_objective.tex}
+\input{8_results.tex}
+\input{9_future.tex}
+%\newpage
+\printbibliography
+\end{document}
+
+

@@ -1,0 +1,39 @@
+\newcommand\makeComparisonTotalPower[5]{%
+
+\pgfplotstableread[col sep=comma]{#1}\firstTable
+\pgfplotstableread[col sep=comma]{#2}\secondTable
+\begin{tikzpicture}
+	\begin{axis}[SmallTimeSeriesPlot, xlabel=Time (hr:min), ylabel=#3, ymax=150, legend style={nodes={scale=0.7}}]
+		\filldraw[fill=gray!40, opacity=0.3](625,0) rectangle (917,150);
+
+		\addplot[blue, smooth] table [x = {time}, y = {facilitiesOut}]{\firstTable};
+		\addplot[red, smooth] table [x = {time}, y = {facilitiesOut}]{\secondTable};
+
+		\addplot[draw=green!20!black,fill=green!40!cyan!40, mark=pentagon*, only marks, mark size=3pt, y filter/.expression={y==0 ? nan:y}] table [x={time}, y={maxFacilitiesOut}]{\firstTable};
+	        \addplot[draw=red,fill=green!10!orange!40, mark=pentagon*, only marks, mark size=3pt, y filter/.expression={y==0 ? nan:y}] table [x={time}, y={maxOnPeakOut}]{\firstTable};
+
+		\addlegendimage{line width=10pt, color=gray!40, draw opacity=0.5}; 
+	        \addplot[draw=green!20!black,fill=green!40!cyan!40, mark=pentagon*, only marks, mark size=3pt, y filter/.expression={y==0 ? nan:y}] table [x={time}, y={maxFacilitiesOut}]{\secondTable};
+		\addplot[draw=red,fill=green!10!orange!40, mark=pentagon*, only marks, mark size=3pt, y filter/.expression={y==0 ? nan:y}] table [x={time}, y={maxOnPeakOut}]{\secondTable};   
+
+	        \legend{#4, #5, Maximum Overall Average Power, Maximum On-Peak Average Power, On-Peak Time};
+	\end{axis} 
+\end{tikzpicture}
+
+}
+
+\newcommand\makeComparisonPower[5]{%
+	\pgfplotstableread[col sep=comma]{#1}\firstTable
+	\pgfplotstableread[col sep=comma]{#2}\secondTable
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[SmallTimeSeriesPlot, ymin=-1, ymax=110, xlabel=Time (hr:min), ylabel=#3, legend style={nodes={scale=0.7}}]
+			\addplot[blue, smooth] table [x = {time}, y = {meanBusPower}]{\firstTable};
+			\addplot[red, smooth] table [x = {time}, y = {meanBusPower}]{\secondTable};
+			\addplot[brown, smooth] table [x = {time}, y = {loadPower}]{\firstTable};
+			\filldraw[fill=gray!40, opacity=0.3](625,0) rectangle (917,120);
+			\addlegendimage{line width=10pt, color=gray!40, draw opacity=0.5}
+			\legend{#4, #5, Uncontrolled Load, On-Peak Time}
+		\end{axis} 
+	\end{tikzpicture} 
+}
