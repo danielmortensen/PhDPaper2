@@ -28,7 +28,13 @@ and finally,
 \par A charge plan can be formulated by reserving time slots at chargers when buses need to charge (see Fig. \ref{fig:busTime4}).
 \input{media/formulation/busTime4}
 	Note how there are several decisions that go into the charge schedule, which is made up to which bus charges at which charger at which time. 
-	\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. $\sigma_{ijk}$ is necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $j$ is less than $d_{i^{'}j^{'}}$ for bus $j^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
+	\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, we also constraint $\sigma$ such that
+	\begin{equation}
+		\begin{aligned}
+			\sum_k \sigma_{ijk} \le 1 \ \forall i,j
+		\end{aligned}
+	\end{equation}
+	$\sigma_{ijk}$ is necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $j$ is less than $d_{i^{'}j^{'}}$ for bus $j^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
 	\input{media/formulation/potentialOverlap}
 	
 	\begin{align}\label{eqn:overlapConstraints1}
