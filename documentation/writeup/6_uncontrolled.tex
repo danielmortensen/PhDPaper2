@@ -2,70 +2,116 @@
 Next, we desire to integrate the charge decisions with uncontrolled loads.  These loads are sampled discretly and so the results for the power use must be converted into a compatible format.  To start, define
 \begin{equation}
 	\begin{aligned}
-		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&\ge c_{ij} \\
-		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&\le c_{ij} \\
-		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&\ge s_{ij} \\
-		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&\le s_{ij} \\
+		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
+		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{stop}}_{ij} < &\Delta T.
 	\end{aligned}
-\end{equation}
+\end{equation} 
+which can be expressed in standard form as 
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}\Delta T & 1 & -1 & 0 & 0 & 0\\ 0 & 0 & 0 & \Delta T & 1 & -1\end{bmatrix} \begin{bmatrix}k_{ij}^{\text{start}} \\ r_{ij}^{\text{start}} \\ c_{ij} \\ k_{ij}^{\text{end}} \\ r_{ij}^{\text{end}} \\ s_{ij}\end{bmatrix} = \begin{bmatrix}0 \\ 0 \end{bmatrix}. \\
+\end{aligned} \end{equation}
 We desire to find binary vectors $\mathbf{s}^{\text{up}}_{ij}$, $\mathbf{s}^{\text{on}}_{ij}$, and $\mathbf{s}^{\text{off}}_{ij}$ which act as selectors for times indices where bus $i$ connects to, charges, and disconnects from a charger during the $j^{\text{th}}$ stop respectively. The on-ramping charging, and off-ramping periods will be used to represent power use from $k^{\text{start}}_{ij}$ to $k^{\text{end}}_{ij} + 1$, $k^{\text{start}}_{ij} + 1$ to $k^{\text{end}}_{ij}$ and $k^{\text{end}}_{ij}$ to $k^{\text{end}}_{ij} + 1$ respectively. 
 \par Let $\mathbf{f}$ be a vector of one-based integer indices such that $\mathbf{f}_w = w \ \forall w \in (1,\text{nTime})$. The values in $\mathbf{s}^{\text{up}}_{ij}$ can be defined by the constraint
-\begin{equation}\begin{aligned}
+\begin{equation}\label{eqn:idxStart}\begin{aligned}
 	k^{\text{start}}_{ij} &= \mathbf{f}^T\mathbf{s}^{\text{up}}_{ij} \\
 	1 &= \mathbf{1}^T\mathbf{s}^{\text{up}}_{ij} \\
 	\mathbf{s}^{\text{up}}_{ij} &\in \{0,1\}.
 \end{aligned} \end{equation}
 Similarly, the values for $\mathbf{s}^{\text{off}}_{ij}$ can be defined as
-\begin{equation} \begin{aligned}
+\begin{equation} \label{eqn:idxEnd}\begin{aligned}
 	k^{\text{stop}}_{ij} &= \mathbf{f}^T\mathbf{s}^{\text{off}}_{ij}\\ 
 	1 &= \mathbf{1}^T\mathbf{s}^{\text{off}}_{ij} \\
 	\mathbf{s}^{\text{off}}_{ij} &\in \{0,1\}.
 \end{aligned} \end{equation}
-The final piece is to define $\mathbf{s}$. The set of constraints can be described as follows: 
+
+Equations \ref{eqn:idxStart} and \ref{eqn:idxEnd} can be expressed in standard form as
 \begin{equation} \begin{aligned}
+	\begin{bmatrix}0 & \mathbf{0}^T & -1 & \mathbf{f}^T \\ -1 & \mathbf{f}^T & 0 & \mathbf{0}^T \end{bmatrix} \begin{bmatrix} k_{ij}^{\text{start}} \\ \mathbf{s}_{ij}^{\text{up}} \\ k_{ij}^{\text{stop}} \\ \mathbf{s}_{ij}^{\text{off}} \end{bmatrix} = \begin{bmatrix}0 \\ 0 \end{bmatrix}
+\end{aligned} \end{equation}
+The final piece is to define $\mathbf{s}$. The set of constraints can be described as follows: 
+\begin{equation} \label{eqn:idxMiddle}\begin{aligned}
 	\mathbf{1}^T\mathbf{s}^{\text{on}}_{ij} &= k^{\text{end}}_{ij} - k^{\text{start}}_{ij} - 1 \\
 	s_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\
 	s_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\ 
 \end{aligned} \end{equation}
 where $M$ is $2\cdot\text{nTime}$.
+Equation \ref{eqn:idxMiddle} can also be expressed in standard form as
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 \end{bmatrix} \begin{bmatrix}\mathbf{s}_{ij} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \end{bmatrix} = -1
+\end{aligned} \end{equation}
+and
+\begin{equation}\begin{aligned}
+	s_w\left (f_w + M \right) - k_{ij}^{\text{end}} &\le M \\
+	s_w\left (M - f_w\right) + k_{ij}^{\text{start}} &\le M 
+\end{aligned}\end{equation}
+which implies that
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}f_w + M & -1 & 0\\ M - f_w & 0 & 1 \end{bmatrix} \begin{bmatrix}s_w \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \end{bmatrix} \le \begin{bmatrix} M \\ M \end{bmatrix} \forall s_w \ \in \mathbf{s}_{ij}^{\text{on}}
+\end{aligned}\end{equation}
 \par We next define the average per use for each charger during an interval. The on-ramp intervals can be constrained as
-\begin{align}
+\begin{equation}\begin{aligned}
 	p^{\text{on-ramp}}_{ij} &= \frac{\text{power}\cdot (\Delta T - r^{\text{start}}_{ij})}{\Delta T}\\
 	p^{\text{off-ramp}}_{ij} &= \frac{\text{power}\cdot r^{\text{stop}}_{ij}}{\Delta T}\\
 	p &= \text{power},
-\end{align}
+\end{aligned}\end{equation}
+or in standard form as
+\begin{equation}
+	\begin{bmatrix} 1 & \frac{\text{power}}{\Delta T} & 0 & 0 \\ 0 & 0 & 1 & -\frac{\text{power}}{\Delta T}\end{bmatrix} \begin{bmatrix} p^{\text{on-ramp}}_{ij} \\ r_{ij}^{\text{start}} \\ p^{\text{off-ramp}}_{ij} \\ r^{\text{stop}}_{ij} \end{bmatrix} = \begin{bmatrix} \text{power} \\ 0\end{bmatrix}
+\end{equation}
 where $p_{ij}^{\text{on-ramp}}$, $p_{ij}^{\text{off-ramp}}$, and $p$ represent the average power for the on-ramping, off-ramping, and charging intervals respectively. The total average power use is calculated as 
 \begin{align}\label{eqn:totalPower}
 	\mathbf{p}_{\text{total}} = \mathbf{p} + \sum_{ij} \mathbf{s}^{\text{up}}_{ij}\cdot p^{\text{on-ramp}}_{ij} + \mathbf{s}^{\text{on}}_{ij}\cdot p + \mathbf{s}^{\text{off}}_{ij}\cdot p^{\text{off-ramp}}_{ij}
 \end{align}
 where $\mathbf{p}$ is the average power of the uncontrolled loads.
 \par Note, however that the results from equation \ref{eqn:totalPower} contain a bilinear form. The first bilnear expression in  equation \ref{eqn:totalPower} can be rewritten as 
-\begin{equation}
-	\begin{aligned}
-		p_w &\ge p^{\text{on-ramp}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-		p_w &\le p^{\text{on-ramp}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-		p_w &\ge -Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-		p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}
-	\end{aligned}
-\end{equation}
+\begin{equation} \label{eqn:onPower}\begin{aligned}
+	p_w &\ge p^{\text{on-ramp}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
+	p_w &\le p^{\text{on-ramp}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
+	p_w &\ge -Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
+	p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}
+\end{aligned} \end{equation}
 and similarly the second as, 
-\begin{equation} \begin{aligned}
+\begin{equation} \label{eqn:offPower} \begin{aligned}
 	p_w &\ge p^{\text{off-ramp}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
 		p_w &\le p^{\text{off-ramp}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
 		p_w &\ge -Ms_w \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
-		p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
+		p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}.
 \end{aligned} \end{equation} 
-
-An expression for the total power used can then be derived as
+Both Equations \ref{eqn:onPower} and \ref{eqn:offPower} can be written in standard form as
+\begin{equation} \begin{aligned}
+	-p_w + p_{ij}^{\text{on-ramp}} + s_wM &\le M \\
+	p_w - p_{ij}^{\text{on-ramp}} + s_wM &\le M \\ 
+	-p_w -Ms_w &\le 0 \\
+	p_w -Ms_w &\le 0
+\end{aligned} \end{equation} 
+or 
+\begin{equation}\begin{aligned} 
+	\begin{bmatrix}
+		-1 & 1 & M \\
+		1  & -1 & M \\
+		-1 & 0 & -M \\
+		1 & 0 & -M 
+		\end{bmatrix}	\begin{bmatrix} p_w \\ p_{ij}^{\text{on-ramp}} \\ s_w\end{bmatrix}  \le \begin{bmatrix} M \\ M \\ 0 \\ 0\end{bmatrix}\forall s_w \in \mathbf{s}_{ij}^{\text{up}}, p_w \in \mathbf{p}_{ij}^{\text{off}}
+\end{aligned}\end{equation}
+and
+\begin{equation}\begin{aligned} 
+	\begin{bmatrix}
+		-1 & 1 & M \\
+		1  & -1 & M \\
+		-1 & 0 & -M \\
+		1 & 0 & -M 
+		\end{bmatrix}	\begin{bmatrix} p_w \\ p_{ij}^{\text{off-ramp}} \\ s_w\end{bmatrix} \le \begin{bmatrix} M \\ M \\ 0 \\ 0\end{bmatrix}\forall s_w \in \mathbf{s}_{ij}^{\text{off}}, p_w \in \mathbf{p}_{ij}^{\text{on}}
+\end{aligned}\end{equation} 
+An expression for the total power used can then be expressed as
 \begin{equation}
 	\begin{aligned}
 		\mathbf{p}_{\text{total}} = \mathbf{p} + \sum_{ij} \mathbf{p}^{\text{up}}_{ij} + \mathbf{p}^{\text{off}}_{ij} + \mathbf{s}^{\text{on}}_{ij}\cdot p
 	\end{aligned}
 \end{equation}
-TODO: 
-\begin{enumerate}
-	\item Figure out notation for each bus and how to integrate it into this framework
-	\item flush out constraints and get into matrix/standard form
-\end{enumerate}
+and in standard form as
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}1 & -1 & 1_{ij}^{\text{up}} & 1_{ij}^{\text{off}} & 1_{ij}^{\text{on}}\cdot p  \end{bmatrix}\begin{bmatrix} p^{\text{total}}_w \\ p_w \\ \mathbf{p}_{ijw}^{\text{up}} \\ \mathbf{p}_{ijw}^{\text{off}} \\ \mathbf{s}_{ijw}^{\text{on}}\end{bmatrix} = 0
+\end{aligned} \end{equation}
+

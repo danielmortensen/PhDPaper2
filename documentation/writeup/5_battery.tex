@@ -1,7 +1,62 @@
 \section{Battery State of Charge}
-\begin{enumerate}
-	\item Define state of charge variables (one for each s and c variable)
-	\item Define relationship between SOC variables.  SOC that correspond to c, are equal to SOC from the previous s - delta.  the next c = s + chargeSOCDifference.
-	\item Use big-M to increase the SOC when charging. Use $\sigma$ to know when a stop is selected for charging and increase by the delta in c and s variables
-	\item Introduce SOC constraints that prohibit stranding.
-\end{enumerate}
+TODO:
+\begin{itemize}
+	\item find variable for power and substitute
+	\item make arrows for delta give space between arrow tip and box
+	\item begin more thorough pass through on text and explaining where things go
+\end{itemize}
+BEBs must also maintain their state of charge above a minimum threshold. Let $h_{ij+1}$ be the state of charge for bus $i$ at the beginning of stop $j$. Each bus has an initial state of charge defined by $h_{i0}$ as shown in figure \ref{fig:hPlacement}. 
+\input{media/5_battery/hPlacement}
+This can be constrained as
+\begin{equation}
+	d_{i0} = \text{initialSoc}_{i} \ \forall i.
+\end{equation}
+\input{media/5_battery/delta}
+The transition from one start to the next is computed as
+\begin{equation}
+	h_{ij} = h_{ij-1} - \delta_i + \left(\sum_k\sigma_{ijk}\right )\text{power}\cdot(d_{ij} - a_{ij}) 
+\end{equation}
+but because this introduces a bilinear term, we can alternatively express this constraint as
+\begin{equation} \begin{aligned}
+	h_{ij} & \le h_{ij-1} - \delta_i + \text{power}\cdot(d_{ij} - a_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij} & \ge h_{ij-1} - \delta_i + \text{power}\cdot(d_{ij} - a_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij} & \le h_{ij-1} - \delta_i - M\sum_k\sigma_{ijk}\\
+	h_{ij} & \ge h_{ij-1} - \delta_i + M\sum_k\sigma_{ijk}\\
+\end{aligned} \end{equation}
+Which can be expressed in standard form as
+\begin{equation} \begin{aligned}
+	h_{ij} - h_{ij-1} - \text{power}\cdot d_{ij} + \text{power}\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
+	-h_{ij} + h_{ij-1} + \text{power}\cdot d_{ij} - \text{power}\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
+	h_{ij} - h_{ij-1} + M\sum_k\sigma_{ijk} &\le -\delta_i \\
+	-h_{ij} + h_{ij-1} + M\sum_k\sigma_{ijk} & \le \delta_i \\
+\end{aligned} \end{equation}
+and finally,
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}1  & -1 & -\text{power} & \text{power}   & -M_k \\
+		       -1 & 1  & \text{power}  & -\text{power}  & -M_k \\
+		       1  & -1 & 0             & 0              & M_k  \\
+		       -1 & 1  & 0             & 0              & M_k  \\
+	\end{bmatrix}
+	\begin{bmatrix}h_{ij} \\ h_{ij-1} \\ d_{ij} \\ a_{ij} \\ \sigma_{ijk} \end{bmatrix} \le 
+		\begin{bmatrix}-\delta_i - M \\ \delta_i - M \\ -\delta_i \\ \delta_i \end{bmatrix}
+\end{aligned} \end{equation}
+If the bus end the day in the station (as is common), there is one final state of charge value that is computed as above without a route discharge parameter as
+\begin{equation}
+\begin{bmatrix}1  & -1 & -\text{power} & \text{power}   & -M_k \\
+		       -1 & 1  & \text{power}  & -\text{power}  & -M_k \\
+		       1  & -1 & 0             & 0              & M_k  \\
+		       -1 & 1  & 0             & 0              & M_k  \\
+	\end{bmatrix}
+	\begin{bmatrix}h_{ij} \\ h_{ij-1} \\ d_{ij} \\ a_{ij} \\ \sigma_{ijk} \end{bmatrix} \le 
+		\begin{bmatrix}- M \\ - M \\ 0 \\ 0 \end{bmatrix}.
+\end{equation}
+Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above some minimum threshold, denoted $h_{\text{min}}$. These constraints are given as
+\begin{equation}
+	-h_{ij} \le -h_{\text{min}} \ \forall i,j
+\end{equation}
+or 
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}0 & \hdots & 0 & 1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
+		H\mathbf{y} &\le \mathbf{b}_h
+\end{aligned} \end{equation}
+
