@@ -12,28 +12,40 @@ This can be constrained as
 	d_{i0} = \text{initialSoc}_{i} \ \forall i.
 \end{equation}
 \input{media/5_battery/delta}
-The transition from one start to the next is computed as
+The transition from one start to the next is computed as the sum of battery effects due to charging and discharging. The discharge from operating the bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge, denoted $\Delta$, is modeled linearly such that
 \begin{equation}
-	h_{ij} = h_{ij-1} - \delta_i + \left(\sum_k\sigma_{ijk}\right )\text{power}\cdot(d_{ij} - a_{ij}) 
+	\Delta = \Delta T\cdot p
+\end{equation}
+where $p$ is the energy rate, or power, of the chargers. The total change in state of charge from $h_{ij-1}$ to $h_{ij}$ can be expressed as
+\begin{equation}
+	h_{ij} = h_{ij-1} + \Delta T\cdot p - \delta_i.
+\end{equation}
+The value for $\Delta T$ can also be expressed in terms of the difference between $a_{ij}$ and $d_{ij}$ such that
+\begin{equation}
+	h_{ij} = h_{ij-1} + p\cdot \left ( d_{ij} - a_{ij} \right ) - \delta_i.
+\end{equation}
+This is only the case, however, if the bus is assigned to a charger at stop $j$, otherwise the net increase is zero. This piecewise behavior can be modeled by using the charger selection variables, $\sigma_{ijk}$ such that
+\begin{equation}
+	h_{ij} = h_{ij-1} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(d_{ij} - a_{ij}) 
 \end{equation}
 but because this introduces a bilinear term, we can alternatively express this constraint as
 \begin{equation} \begin{aligned}
-	h_{ij} & \le h_{ij-1} - \delta_i + \text{power}\cdot(d_{ij} - a_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij} & \ge h_{ij-1} - \delta_i + \text{power}\cdot(d_{ij} - a_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij} & \le h_{ij-1} - \delta_i + p\cdot(d_{ij} - a_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij} & \ge h_{ij-1} - \delta_i + p\cdot(d_{ij} - a_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
 	h_{ij} & \le h_{ij-1} - \delta_i - M\sum_k\sigma_{ijk}\\
 	h_{ij} & \ge h_{ij-1} - \delta_i + M\sum_k\sigma_{ijk}\\
 \end{aligned} \end{equation}
 Which can be expressed in standard form as
 \begin{equation} \begin{aligned}
-	h_{ij} - h_{ij-1} - \text{power}\cdot d_{ij} + \text{power}\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
-	-h_{ij} + h_{ij-1} + \text{power}\cdot d_{ij} - \text{power}\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
+	h_{ij} - h_{ij-1} - p\cdot d_{ij} + p\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
+	-h_{ij} + h_{ij-1} + p\cdot d_{ij} - p\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
 	h_{ij} - h_{ij-1} + M\sum_k\sigma_{ijk} &\le -\delta_i \\
 	-h_{ij} + h_{ij-1} + M\sum_k\sigma_{ijk} & \le \delta_i \\
 \end{aligned} \end{equation}
 and finally,
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}1  & -1 & -\text{power} & \text{power}   & -M_k \\
-		       -1 & 1  & \text{power}  & -\text{power}  & -M_k \\
+	\begin{bmatrix}1  & -1 & -p & p   & -M_k \\
+		       -1 & 1  & p  & -p  & -M_k \\
 		       1  & -1 & 0             & 0              & M_k  \\
 		       -1 & 1  & 0             & 0              & M_k  \\
 	\end{bmatrix}
@@ -42,8 +54,8 @@ and finally,
 \end{aligned} \end{equation}
 If the bus end the day in the station (as is common), there is one final state of charge value that is computed as above without a route discharge parameter as
 \begin{equation}
-\begin{bmatrix}1  & -1 & -\text{power} & \text{power}   & -M_k \\
-		       -1 & 1  & \text{power}  & -\text{power}  & -M_k \\
+\begin{bmatrix}1  & -1 & -p & p   & -M_k \\
+		       -1 & 1  & p  & -p  & -M_k \\
 		       1  & -1 & 0             & 0              & M_k  \\
 		       -1 & 1  & 0             & 0              & M_k  \\
 	\end{bmatrix}
