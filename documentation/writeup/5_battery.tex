@@ -1,74 +1,88 @@
 \section{Battery State of Charge}
-TODO:
-\begin{itemize}
-	\item find variable for power and substitute
-	\item make arrows for delta give space between arrow tip and box
-	\item begin more thorough pass through on text and explaining where things go
-\end{itemize}
 BEBs must also maintain their state of charge above a minimum threshold. Let $h_{ij+1}$ be the state of charge for bus $i$ at the beginning of stop $j$. Each bus has an initial state of charge defined by $h_{i0}$ as shown in figure \ref{fig:hPlacement}. 
 \input{media/5_battery/hPlacement}
 This can be constrained as
-\begin{equation}
-	d_{i0} = \text{initialSoc}_{i} \ \forall i.
+\begin{equation}\label{eqn:initialSoc0}
+	d_{i0} = \eta_{i} \ \forall i.
 \end{equation}
+where $\eta_{i}$ is the initial state of charge for bus $i$.
+Equation \ref{eqn:initialSoc0} can be expressedin standard form such that
+\begin{equation} \begin{aligned}
+	\begin{bmatrix}0 & 0 & \hdots & 0 & 1_i& 0 \end{bmatrix}\mathbf{y} &= \eta_i \ \forall i \\
+		A_{\text{eq1}}\mathbf{y} &= \mathbf{b}_{\text{eq1}}
+\end{aligned} \end{equation}
 \input{media/5_battery/delta}
-The transition from one start to the next is computed as the sum of battery effects due to charging and discharging. The discharge from operating the bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge, denoted $\Delta$, is modeled linearly such that
+\par The transition from one start to the next is computed as the sum of battery effects due to charging and discharging. The discharge from operating the bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge, denoted $\Delta$, follows a linear charge model such that 
 \begin{equation}
 	\Delta = \Delta T\cdot p
 \end{equation}
-where $p$ is the energy rate, or power, of the chargers. The total change in state of charge from $h_{ij-1}$ to $h_{ij}$ can be expressed as
+where $p$ is the energy rate, or power, of the chargers. The total change in state of charge from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 \begin{equation}
-	h_{ij} = h_{ij-1} + \Delta T\cdot p - \delta_i.
+	h_{ij+1} = h_{ij} + \Delta T\cdot p - \delta_i.
 \end{equation}
 The value for $\Delta T$ can also be expressed in terms of the difference between $a_{ij}$ and $d_{ij}$ such that
 \begin{equation}
-	h_{ij} = h_{ij-1} + p\cdot \left ( d_{ij} - a_{ij} \right ) - \delta_i.
+	h_{ij+1} = h_{ij} + p\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i.
 \end{equation}
 This is only the case, however, if the bus is assigned to a charger at stop $j$, otherwise the net increase is zero. This piecewise behavior can be modeled by using the charger selection variables, $\sigma_{ijk}$ such that
 \begin{equation}
-	h_{ij} = h_{ij-1} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(d_{ij} - a_{ij}) 
+	h_{ij+1} = h_{ij} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(s_{ij} - c_{ij}) 
 \end{equation}
 but because this introduces a bilinear term, we can alternatively express this constraint as
 \begin{equation} \begin{aligned}
-	h_{ij} & \le h_{ij-1} - \delta_i + p\cdot(d_{ij} - a_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij} & \ge h_{ij-1} - \delta_i + p\cdot(d_{ij} - a_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij} & \le h_{ij-1} - \delta_i - M\sum_k\sigma_{ijk}\\
-	h_{ij} & \ge h_{ij-1} - \delta_i + M\sum_k\sigma_{ijk}\\
+	h_{ij+1} & \le h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij+1} & \ge h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij+1} & \le h_{ij} - \delta_i - M\sum_k\sigma_{ijk}\\
+	h_{ij+1} & \ge h_{ij} - \delta_i + M\sum_k\sigma_{ijk}\\
 \end{aligned} \end{equation}
 Which can be expressed in standard form as
 \begin{equation} \begin{aligned}
-	h_{ij} - h_{ij-1} - p\cdot d_{ij} + p\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
-	-h_{ij} + h_{ij-1} + p\cdot d_{ij} - p\cdot a_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
-	h_{ij} - h_{ij-1} + M\sum_k\sigma_{ijk} &\le -\delta_i \\
-	-h_{ij} + h_{ij-1} + M\sum_k\sigma_{ijk} & \le \delta_i \\
+	 h_{ij+1} - h_{ij} - p\cdot s_{ij} + p\cdot c_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
+	-h_{ij+1} + h_{ij} + p\cdot s_{ij} - p\cdot c_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
+	 h_{ij+1} - h_{ij} + M\sum_k\sigma_{ijk} &\le -\delta_i \\
+	-h_{ij+1} + h_{ij} + M\sum_k\sigma_{ijk} & \le \delta_i \\
 \end{aligned} \end{equation}
 and finally,
-\begin{equation} \begin{aligned}
+\begin{equation} \label{eqn:socDynamic1} \begin{aligned}
 	\begin{bmatrix}1  & -1 & -p & p   & -M_k \\
 		       -1 & 1  & p  & -p  & -M_k \\
 		       1  & -1 & 0             & 0              & M_k  \\
 		       -1 & 1  & 0             & 0              & M_k  \\
 	\end{bmatrix}
-	\begin{bmatrix}h_{ij} \\ h_{ij-1} \\ d_{ij} \\ a_{ij} \\ \sigma_{ijk} \end{bmatrix} \le 
-		\begin{bmatrix}-\delta_i - M \\ \delta_i - M \\ -\delta_i \\ \delta_i \end{bmatrix}
+	\begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \\ \sigma_{ijk} \end{bmatrix} &\le 
+		\begin{bmatrix}-\delta_i - M \\ \delta_i - M \\ -\delta_i \\ \delta_i \end{bmatrix} \ \forall i,j \\
+			A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j
 \end{aligned} \end{equation}
-If the bus end the day in the station (as is common), there is one final state of charge value that is computed as above without a route discharge parameter as
-\begin{equation}
-\begin{bmatrix}1  & -1 & -p & p   & -M_k \\
-		       -1 & 1  & p  & -p  & -M_k \\
-		       1  & -1 & 0             & 0              & M_k  \\
-		       -1 & 1  & 0             & 0              & M_k  \\
-	\end{bmatrix}
-	\begin{bmatrix}h_{ij} \\ h_{ij-1} \\ d_{ij} \\ a_{ij} \\ \sigma_{ijk} \end{bmatrix} \le 
-		\begin{bmatrix}- M \\ - M \\ 0 \\ 0 \end{bmatrix}.
+If the bus ends the day in the station (as is common), there is one final state of charge value that is computed as above without a route discharge parameter. Let $\mathcal{S}$ be the set of all $i,j$ where $h_{ij+1}$ describes the final state of charge value for bus $i$. Equation \ref{eqn:socDynamic1} can be reexpressed as 
+\begin{equation}\label{eqn:socDynamic2} 
+	\mathbf{b}_{ij} = 
+	\begin{dcases}
+		% first case
+		\begin{bmatrix} -\delta_i - M \\
+			         \delta_i - M \\
+		                -\delta_i     \\
+		                 \delta_i 
+		\end{bmatrix} & \forall i,j \ni h_{ij+1} \notin \mathcal{S} \\
+		% second case
+		\omit \hfil$\begin{bmatrix} - M \\
+		                - M \\
+		                  0 \\
+		                  0 
+		\end{bmatrix}$\hfil & \forall i,j \ni h_{ij+1} \in \mathcal{S}.
+	\end{dcases}
 \end{equation}
+The constraints outlined in equations \ref{eqn:socDynamic1} and \ref{eqn:socDynamic2} for each $i,j$ can be vertically concatenated to form
+\begin{equation}\label{eqn:socDynamic3} \begin{aligned}
+	A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j \\
+	A_{\text{ineq4}}\mathbf{y} &\le \mathbf{b}_{\text{ineq4}}
+\end{aligned} \end{equation}
 Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above some minimum threshold, denoted $h_{\text{min}}$. These constraints are given as
 \begin{equation}
 	-h_{ij} \le -h_{\text{min}} \ \forall i,j
 \end{equation}
 or 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}0 & \hdots & 0 & 1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
-		H\mathbf{y} &\le \mathbf{b}_h
+	\begin{bmatrix}0 & \hdots & 0 & -1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
+		A_{\text{ineq5}}\mathbf{y} &\le \mathbf{b}_{\text{ineq5}}
 \end{aligned} \end{equation}
 

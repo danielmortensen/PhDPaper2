@@ -28,14 +28,14 @@
 	\draw[dashed, line width=0.5pt] (h0High) -- (h0Low.center);
 
 	\node(delta1) at (0.275\textwidth,1){$\delta_i$};
-	\draw[->, line width=1pt] (delta1.west) -- (avail1.east);
-	\draw[->, line width=1pt] (delta1.east) -- (avail2.west);
+	\draw[->, line width=1pt, shorten >=3pt] (delta1.west) -- (avail1.east);
+	\draw[->, line width=1pt, shorten >=3pt] (delta1.east) -- (avail2.west);
 	\node(delta2) at (0.505\textwidth,1){$\delta_i$}; 
-	\draw[->, line width=1pt] (delta2.west) -- (avail2.east);
-	\draw[->, line width=1pt] (delta2.east) -- (avail3.west);
+	\draw[->, line width=1pt, shorten >=3pt] (delta2.west) -- (avail2.east);
+	\draw[->, line width=1pt, shorten >=3pt] (delta2.east) -- (avail3.west);
 	\node(delta3) at (0.73\textwidth,1){$\delta_i$}; 
-	\draw[->, line width=1pt] (delta3.west) -- (avail3.east);
-	\draw[->, line width=1pt] (delta3.east) -- (avail4.west);
+	\draw[->, line width=1pt, shorten >=3pt] (delta3.west) -- (avail3.east);
+	\draw[->, line width=1pt, shorten >=3pt] (delta3.east) -- (avail4.west);
 \end{tikzpicture}
 \caption{Placement for $\delta_i$}
 \label{fig:hPlacement}
