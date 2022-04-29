@@ -1,4 +1,20 @@
 \section{Objective Function}
+This work adopts the objective function developed in <insert reference to our prior paper here>, which implements the rate schedule from <insert reference to rocky mountain power>. 
 \begin{enumerate}
-	\item integrate objective function from previous paper 
+	\item give brief overview of what this section covers including energy cost for on/off peak powers, facilities charges, and on-peak power charges. Give description of on and off peak hours, and their relationship to the schedule.
+	\item describe how average power is converted to energy 
+		\begin{enumerate}
+			\item include general description
+			\item Use the average power computed in the previous section, we can use a vector with $\Delta$ T (or $\frac{1}{4}$ in this case as we let all values be 15 minute intervals) times the rate for the on or off peak interval (whichever applies). 
+		\end{enumerate} 
+	\item power
+		\begin{enumerate}
+			\item State that we set our $\Delta$ T from the last section to 15 minutes.
+			\item describe how to find the max over the 15 minute average be setting 2 additional slack variables (one for on-peak, and one for all-time) and making it less than each value over the interval and letting the optimiser squash things down. Add the power variables to the expression for $\mathbf{y}$ in the first section.
+			\item formalize the constraints for the on-peak power and facilities (all-time) power.  
+		\end{enumerate}
+	\item schedule
+		\begin{enumerate}
+			\item describe rate schedule from rocky mountain power and how this can be expressed in linear form.  Give final formulation for the problem.
+		\end{enumerate}
 \end{enumerate}
