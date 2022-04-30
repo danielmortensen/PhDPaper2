@@ -7,9 +7,9 @@ The charge scheduling framework described in this paper is formulated as a const
 \end{matrix} \end{equation}
 where $\mathbf{y}$, $A_{\text{eq}}$, $A_{\text{ineq}}$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
 \begin{equation}
-	\mathbf{y} = \begin{bmatrix}\mathbf{\sigma} \\ \mathbf{c} \\ \mathbf{s} \\ \mathbf{h} \\ \mathbf{k} \\ \mathbf{r} \\ \mathbf{p}\end{bmatrix},
+	\mathbf{y} = \begin{bmatrix}\mathbf{\sigma} \\ \mathbf{c} \\ \mathbf{s} \\ \mathbf{h} \\ \mathbf{k} \\ \mathbf{r} \\ \mathbf{p} \\ q_{\text{on}} \\ q_{\text{all}}\end{bmatrix},
 \end{equation}
-where $\mathbf{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, and $\mathbf{p}$ will be developed through the course of this paper.
+where $\mathbf{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, $\mathbf{p}$, $q_{\text{on}}$, and $q_{\text{all}}$ will be developed through the course of this paper.
 \subsection{Setup}
 \par Solving the bus charge problem requires knowing when, and on which charger a bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.
 \input{media/4_formulation/busTime1}

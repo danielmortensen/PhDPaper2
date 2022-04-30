@@ -85,4 +85,13 @@ or
 	\begin{bmatrix}0 & \hdots & 0 & -1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
 		A_{\text{ineq5}}\mathbf{y} &\le \mathbf{b}_{\text{ineq5}}
 \end{aligned} \end{equation}
-
+\par The final constraint has to do with the assumption that we are modeling one day and want to repeat the cost to predict the expected cost over a month. In order to do this, the state of charge at the end of the day must equal the state of charge at the beginning. Let $h_{i,\text{end}}$ be the final daily state of charge for bus $i$. This is constrained to be the same as the beginning state of charge as
+\begin{equation} \label{eqn:hEqual1} \begin{aligned}
+	h_{i0} &= h_{i,\text{end}} \ \forall i \\
+	h_{i0} - h_{i,\text{end}} &= 0 \ \forall i.  
+\end{aligned} \end{equation}
+However, because equality for two continuous variables is computationally demanding, the constraint in equation \ref{eqn:hEqual1} can also be expressed as 
+\begin{equation} \begin{aligned}
+	h_{i0} - h_{i,\text{end}} \le 0.
+\end{aligned} \end{equation}
+Because the final state of charge is dependent on the amount of power used to charge, and power/energy use is penalized (see section \ref{sec:objective}), the optimization process will force the final state of charge down until is nearly equal to the initial.

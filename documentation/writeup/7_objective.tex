@@ -1,20 +1,102 @@
-\section{Objective Function}
-This work adopts the objective function developed in <insert reference to our prior paper here>, which implements the rate schedule from <insert reference to rocky mountain power>. 
-\begin{enumerate}
-	\item give brief overview of what this section covers including energy cost for on/off peak powers, facilities charges, and on-peak power charges. Give description of on and off peak hours, and their relationship to the schedule.
-	\item describe how average power is converted to energy 
-		\begin{enumerate}
-			\item include general description
-			\item Use the average power computed in the previous section, we can use a vector with $\Delta$ T (or $\frac{1}{4}$ in this case as we let all values be 15 minute intervals) times the rate for the on or off peak interval (whichever applies). 
-		\end{enumerate} 
-	\item power
-		\begin{enumerate}
-			\item State that we set our $\Delta$ T from the last section to 15 minutes.
-			\item describe how to find the max over the 15 minute average be setting 2 additional slack variables (one for on-peak, and one for all-time) and making it less than each value over the interval and letting the optimiser squash things down. Add the power variables to the expression for $\mathbf{y}$ in the first section.
-			\item formalize the constraints for the on-peak power and facilities (all-time) power.  
-		\end{enumerate}
-	\item schedule
-		\begin{enumerate}
-			\item describe rate schedule from rocky mountain power and how this can be expressed in linear form.  Give final formulation for the problem.
-		\end{enumerate}
-\end{enumerate}
+\section{Objective Function\label{sec:objective}}
+This work adopts the objective function developed in \textcolor{red}{insert reference to our prior paper here}, which implements the rate schedule from \textcolor{red}{insert reference to rocky mountain power}. The rate schedule in \textcolor{red}{insert reference to rocky mountain power rate schedule} is based off of two primary components: power, and energy.  
+\par Power is billed per kW for the highest 15 minute average power over a desired period of time. It is common practice for power providers to designate "on-peak" periods when power is generally in high demand, and "off-peak" hours for all other time periods. 
+\par The rate schedule given in \textcolor{red}{insert reference to rocky mountain here} assesses a fee for a users maximum average power during on-peak hours called the demand charge, and a user's overall maximum average power, called a facilities charge as shown in figure \ref{fig:charges}. 
+\par Energy fees are also assessed per kWh of energy consumed with a higher rate for energy consumed during on-peak hours and a lower rate for energy consumed during off-peak hours.
+\input{media/7_objective/charges.tex}
+\subsection{Power Charges}
+It is necessary to compute the maximum power both overall and for on-peak periods. In section \ref{sec:uncontrolled}, $\Delta T$ was used to denote the time offset between power samples and that each power reading would reflect the average power used in the previous interval. 
+\par In this section, $\Delta T$ is set to 15 minutes, making $\mathbf{p}_{\text{total}}$ an expression of the 15 minute average power. Next, let $\mathcal{S}_{\text{on}}$ be the set of all indices belonging to on-peak time periods such that $j\in \mathcal{S}_{\text{on}} \Rightarrow p_j^{\text{total}} $ represents a 15 minute average during an on-peak interval.  Additionally, let $q_{\text{on}}$ be the maximum on-peak average power.  The constriants for determining the maximum on-peak average are defined as
+\begin{equation} \begin{aligned}
+	p_j^{\text{total}} &\le q_{\text{on}} \ \forall j \in \mathcal{S}_{\text{on}} \\
+	p_j^{\text{total}} - q_{\text{on}} &\le 0 \ \forall j \in \mathcal{S}_{\text{on}}\\
+	\begin{bmatrix}0 & \hdots & 0 & 1_j & 0 & \hdots & 0 & -1_{\text{on}} & 0 \end{bmatrix}\mathbf{y} &\le 0 \forall j\in \mathcal{S}_{on} \\
+		A_{\text{ineq9}} &\le \mathbf{0}.
+\end{aligned} \end{equation}
+Because an increased value in $q_{\text{on}}$ is directly related to an increase in cost, the optimizer will minimize $q_{\text{on}}$ until it is equal to the maximum value in $\{p_j^{\text{total}} \ \forall j \in \mathcal{S}_{\text{on}}\}$. A similar proceedure can be used to derive a set of constraints for the overall maximum average power, denoted $q_{\text{all}}$, and is represented as
+\begin{equation} 
+	A_{\text{ineq10}}\mathbf{y} \le  \mathbf{0}.
+\end{equation}
+The charges for power are then expressed as 
+\begin{equation} \begin{aligned}
+	\text{power cost} &= q_{\text{on}}\cdot u_{\text{p-on}} + q_{\text{all}} \cdot u_{\text{p-all}} \\
+	                  &= \begin{bmatrix}u_{\text{p-on}} & 0 & \hdots & 0 & u_{\text{p-all}} \end{bmatrix}\mathbf{y} \\
+		          &= \mathbf{u}_{\text{p}}^T\mathbf{y}
+\end{aligned}\end{equation}
+where $u_{\text{p-on}}$ is the rate per kW for on-peak power use, or the demand charge and $u_{\text{p-all}}$ is the rate per kW for the overall maximum 15 minute average.
+\subsection{Energy Charges}
+Energy is defined as the integral of power over a length of time.  Because the values for power given in this work reflect an average power, the energy over a given period can be computed by multiplying the average power by the change in time, or $\Delta T$ such that
+\begin{equation}\begin{aligned}
+	\text{Total Energy} = \mathbf{1}^T\mathbf{p}_{\text{total}}\cdot \Delta T.
+\end{aligned}\end{equation}
+However, because the energy is billed for on-peak and off-peak time periods, we define two binary vectors $\mathbf{1}_{\text{on}}$ and $\mathbf{1}_{\text{off}}$ such that $1^{\text{on}}_j = 1$ when $p_j^{\text{total}}$ represents an average power from an on-peak time period and $1_{\text{off}} = 1$ when $p_j^{\text{total}}$ represents the average power usage for an off-peak interval. The on-peak and off-peak energy can be computed as
+\begin{equation}\begin{aligned}
+	\text{On-Peak Energy} = \mathbf{1}_{\text{on}}^T\mathbf{p}_{\text{total}}\cdot\Delta T\\
+	\text{Off-Peak Energy} = \mathbf{1}_{\text{off}}^T\mathbf{p}_{\text{total}}\cdot\Delta T.
+\end{aligned}\end{equation}
+Let $u_{\text{e-on}}$ and $u_{\text{e-off}}$ represent the on-peak and off-peak energy rates respectively. The total cost for energy is computed as
+\begin{equation} \begin{aligned}
+	\text{Energy Cost} &= \mathbf{1}_{\text{on}}^T\mathbf{p}_{\text{total}}\cdot u_{\text{e-on}}\cdot\Delta T + \mathbf{1}_{\text{off}}^T\mathbf{p}_{\text{total}}\cdot u_{\text{e-off}}\cdot\Delta T \\
+			   &= \left(\mathbf{1}_{\text{on}}\cdot u_{\text{e-on}}\cdot\Delta T \right )^T\mathbf{p}_{\text{total}} + \left(\mathbf{1}_{\text{off}}\cdot u_{\text{e-off}}\cdot\Delta T \right )^T\mathbf{p}_{\text{total}} \\
+			   &= \mathbf{u}_{\text{e-on}}^T\mathbf{p}_{\text{total}} + \mathbf{u}_{\text{e-off}}^T\mathbf{p}_{\text{total}} \\
+			   &= \left(\mathbf{u}_{\text{e-on}} + \mathbf{u}_{\text{e-off}}\right )^T\mathbf{p}_{\text{total}}\\
+			   &= \mathbf{\tilde{u}}_{\text{e}}^T\mathbf{p}_{\text{total}} \\
+			   &= \mathbf{u}_{\text{e}}^T\mathbf{y}
+\end{aligned} \end{equation}
+\subsection{Cost Function and Final Problem}
+The entire cost function is given as the sum of the energy and power costs such that
+\begin{equation}\begin{aligned}
+	\text{Cost} &= \mathbf{u}_{\text{p}}^T\mathbf{y} + \mathbf{u}_{\text{e}}^T\mathbf{y} \\
+	            &= \left( \mathbf{u}_{\text{p}} + \mathbf{u}_{\text{e}} \right )^T\mathbf{y} \\
+		    &= \mathbf{g}^T\mathbf{y}
+\end{aligned}\end{equation}
+The complete problem can now be formulated as
+\begin{equation}\begin{matrix}
+	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
+	\begin{bmatrix}
+		A_{\text{eq1}} \\ 
+		A_{\text{eq2}} \\
+		A_{\text{eq3}} \\
+		A_{\text{eq4}} \\
+		A_{\text{eq5}} \\
+		A_{\text{eq6}}
+	\end{bmatrix}\mathbf{y} = 
+	\begin{bmatrix}
+		\mathbf{b}_{\text{eq1}} \\
+		\mathbf{b}_{\text{eq2}} \\
+		\mathbf{b}_{\text{eq3}} \\
+		\mathbf{b}_{\text{eq4}} \\
+		\mathbf{b}_{\text{eq5}} \\
+		\mathbf{b}_{\text{eq6}} \\
+	\end{bmatrix}, \ 
+	 \begin{bmatrix}
+		A_{\text{ineq1}} \\
+		A_{\text{ineq2}} \\
+		A_{\text{ineq3}} \\
+		A_{\text{ineq4}} \\
+		A_{\text{ineq5}} \\
+		A_{\text{ineq6}} \\
+		A_{\text{ineq7}} \\
+		A_{\text{ineq8}} \\
+		A_{\text{ineq9}} \\
+		A_{\text{ineq10}}\\
+	 \end{bmatrix}\mathbf{y} \le 
+	 \begin{bmatrix}
+		\mathbf{b}_{\text{ineq1}} \\
+		\mathbf{b}_{\text{ineq2}} \\
+		\mathbf{b}_{\text{ineq3}} \\
+		\mathbf{b}_{\text{ineq4}} \\
+		\mathbf{b}_{\text{ineq5}} \\
+		\mathbf{b}_{\text{ineq6}} \\
+		\mathbf{b}_{\text{ineq7}} \\
+		\mathbf{b}_{\text{ineq8}} \\
+		\mathbf{b}_{\text{ineq9}} \\
+		\mathbf{b}_{\text{ineq10}}\\
+	 \end{bmatrix}
+\end{matrix} \end{equation}
+or 
+\begin{equation}\begin{matrix}
+	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
+	A_{\text{eq}}\mathbf{y} = \mathbf{b}_{\text{eq}}, \ A_{\text{ineq}}\mathbf{y} \le \mathbf{b}_{\text{ineq}},
+\end{matrix} \end{equation}
+
