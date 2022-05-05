@@ -8,7 +8,7 @@ basePath = '../data/';
 
 if doClean
     % get files of data
-    collectPath = fullfile(basePath,'collects'); 
+    collectPath = fullfile(basePhtopath,'collects'); 
     directories = dir(collectPath);
     isBusData = contains([string({directories.name})],"bus_data");
     directories = directories(isBusData);
@@ -106,142 +106,6 @@ if exportToFile
     end
     writetable(socTable,'busSoc2.csv');
     yaml.dumpFile('Waypoints2.yaml',result,'block');
-
-% 
-%     % convert SOC from percent to kWh.  Assume maximum capacity of 500 kWh.
-%     dataNewFlyer.SOC = dataNewFlyer.SOC*500/100;
-% 
-%     % define discharge per meter traveled (on average)
-%     discharge_per_meter = -0.001775155271245; %kWh/meter
-% 
-%     % get data for bus 18151
-%     data18151 = dataNewFlyer(dataNewFlyer.BusID == 18151,:);
-%     data15013 = dataUta(dataUta.BusID == 15013,:);
-%     SOC15013 = zeros(size(data15013.Lat));
-%     SOC15013(1) = 90*5; % start the SOC at 90 percent
-%     SOC15013(2:end) = cumsum(data15013.distance(2:end))*discharge_per_meter + SOC15013(1);
-%     data15013.SOC = SOC15013;
-% 
-%     % convert to waypoints yaml
-%     result = struct;
-%     [result, nAdditions] = addBusToResult(result,18151,data18151,0);
-%     result = addBusToResult(result,15013,data15013,nAdditions);
-%     yaml.dumpFile('Waypoints.yaml',result,'block');
-% 
-%     % convert to SOC.csv
-%     SOCTable = appendSocTable(data18151);
-%     SOCTable = appendSocTable(data15013, SOCTable);
-%     SOCTable = unique(SOCTable,'rows');
-%     SOCTable = sortrows(SOCTable,{'Bus ID','Time'});
-%     writetable(SOCTable, 'BusSOC.csv');
-% 
-%     % find parameters for charge rates
-%     hubSOC = data18151(12:87,:);
-%     overheadSOC = data18151(255:277,:);
-%     [hubSocResample, hubSocTx] = resample(hubSOC.SOC,hubSOC.Time,1/60);
-%     [ohdSocResample, ohdSocTx] = resample(overheadSOC.SOC, overheadSOC.Time,1/60);
-% 
-%     % find charge rate for depot charging exponential model
-%     rhs = hubSocResample(2:end) - 450;
-%     lhs = hubSocResample(1:end-1) - 450;
-%     aBar = mean(rhs./lhs);
-%     aHubRate = log(aBar)/60;
-% 
-%     % find charge rate for overhead chargign exponential model
-%     rhs = ohdSocResample(2:end) - 450;
-%     lhs = ohdSocResample(1:end-1) - 450;
-%     aBar = rhs./lhs;
-%     aBar(1) = [];
-%     aBar(end-7:end) = [];
-%     aBar = mean(aBar);
-%     aOhcBar = log(aBar)/60;
-% 
-%     % verify aHubRate
-%     figure; scatter(ohdSocTx, ohdSocResample,'filled'); hold on;
-%     ohdSocResample(1) = [];
-%     ohdSocTx(1) = [];
-%     cSoc = ohdSocResample(1);
-%     approxOhdSoc = zeros(size(ohdSocResample));
-%     approxOhdSoc(1) = cSoc;
-%     aRate = -20.33e-4;
-%     for iVal = 1:numel(ohdSocResample) - 1
-%         nSoc = exp(aRate*60)*(cSoc - 450) + 450;
-%         approxOhdSoc(iVal + 1) = nSoc;
-%         cSoc = nSoc;
-%     end
-%     plot(ohdSocTx, approxOhdSoc, 'linewidth',2);
-% 
-%     % extract linear portion of hub samples
-%     linHub = hubSocResample(1:14);
-%     linHubTx = hubSocTx(1:14);
-%     linOhd = ohdSocResample(1:13);
-%     linOhdTx = ohdSocTx(1:13);
-%     pHub = polyfit(datenum(linHubTx),linHub,1);
-%     pOhd = polyfit(datenum(linOhdTx), linOhd,1);
-%     rateSecondHub = pHub(1)/(3600*24);
-%     rateSecondOhd = pOhd(1)/(3600*24);
-%     plot(ohdSocTx, datenum(ohdSocTx)*pOhd(1) + pOhd(2),'linewidth',2); ylim([360,460]);
-%     legend('Original','CCCV','Linear');
-
-
-end
-
-function data = addSocColumn(data)
-fprintf('temp\n');
-end
-
-function currTable = appendSocTable(data, currTable)
-data = filterToOneDay(data);
-Charge = data.SOC;
-Time = data.Time.Hour*3600 + data.Time.Minute*60 + data.Time.Second;
-BusID = ones(size(data.Time))*data.BusID(1);
-newTable = table(Charge, Time, BusID, 'VariableNames',{'Charge','Time','Bus ID'});
-
-if nargin == 2
-    currTable = [currTable; newTable];
-else
-    currTable = newTable;
-end
-end
-
-function data = filterToOneDay(data)
-diff = data.Time.Hour(1:end-1) - data.Time.Hour(2:end);
-idx = find(diff > 12) + 1;
-if ~isempty(idx)
-    data = data(idx:end,:);
-end
-diff = data.Time.Hour(1:end-1) - data.Time.Hour(2:end);
-idx = find(diff > 12) + 1;
-if ~isempty(idx)
-    data = data(1:idx,:);
-end
-end
-
-function [results, nAdditions] = addBusToResult(results, busId, data, offset)
-
-% filter data values before and after midnight.
-data = filterToOneDay(data);
-
-% format data as yaml file
-nData = size(data,1);
-fieldBusId = sprintf('Bus_%i',busId);
-for iData = 1:nData
-    fieldWaypoint = sprintf('Waypoint_%i',iData + offset);
-    currData = data(iData,:);
-    timeSeconds = currData.Time.Hour*3600 + currData.Time.Minute*60 + currData.Time.Second;
-    results.(fieldBusId).(fieldWaypoint).position.lat = currData.Lat;
-    results.(fieldBusId).(fieldWaypoint).position.lon = currData.Lon;
-    results.(fieldBusId).(fieldWaypoint).position.alt = 0;
-    results.(fieldBusId).(fieldWaypoint).time = timeSeconds;
-    if currData.Time.Hour < 4 || currData.Time.Hour >= 22
-        results.(fieldBusId).(fieldWaypoint).type = int32(1);
-    elseif currData.inHub == 1
-        results.(fieldBusId).(fieldWaypoint).type = int32(0);
-    else
-        results.(fieldBusId).(fieldWaypoint).type = int32(2);
-    end
-end
-nAdditions = nData;
 end
 
 function displayBusInfo(data)
@@ -283,15 +147,6 @@ for iBus = 1:nBus
 end
 end
 
-function data = addDistanceColumn(data)
-lla = [data.Lat data.Lon, zeros(size(data.Lon))];    
-    ecef = lla2ecef(lla);
-    diff = ecef(2:end,:) - ecef(1:end-1,:);
-    diffMag = sqrt(diff(:,1).^2 + diff(:,2).^2 + diff(:,3).^2);
-    diffMag = [0; diffMag];     
-    data.distance = diffMag;
-end
-
 function data = addInHubColumn(data)
 busId = unique(data.BusID);
 nBus = numel(busId);
@@ -301,52 +156,6 @@ for iBus = 1:nBus
     busIdx = data.BusID == busId(iBus);
     data.inHub(busIdx) = isInHub(data(busIdx,:).Lat, data(busIdx,:).Lon);
 end
-end
-
-function data = resampleToTenHz(data)
-busId = unique(data.BusID);
-nBus = numel(busId);
-allLat = [];
-allLon = [];
-allSoc = [];
-allTime = [];
-allBusId = [];
-for iBus = 1:nBus
-    
-    % extract values from table
-    busData = data(data.BusID == busId(iBus),:);
-    busData = sortrows(busData,'Time');
-    lat = busData.Lat;
-    lon = busData.Lon;
-    soc = busData.SOC;
-    time = busData.Time;
-    if size(busData,1) > 1
-        % resample values to 10 Hz
-        [~, outTime] = resample(lat, time, 10);
-        temp = interp1(time,lat, outTime,'linear');
-        if ~any(isnan(soc))
-            soc = resample(soc,time,10,'linear');
-        else
-            soc = nan([numel(lat),1]);
-        end
-        [lon, time] = resample(lon,time,10,'linear');
-    else
-
-    end
-
-    % store values
-    allLat = [allLat; lat];                                                %#ok
-    allLon = [allLon; lon];                                                %#ok
-    allSoc = [allSoc; soc];                                                %#ok
-    allTime = [allTime; time];                                             %#ok
-    allBusId = [allBusId; ones([numel(lat),1])*busId(iBus)];               %#ok
-end
-Lat = allLat;
-Lon = allLon;
-Time = allTime;
-BusID = allBusId;
-SOC = allSoc;
-data = table(Lat, Lon, Time, BusID, SOC);
 end
 
 function isInOut = isInHub(lat, lon)
@@ -368,28 +177,6 @@ isIn = double(isinterior(shape, lat, lon));
 % isInOut = conv(isIn8,ones([1,80])/80,'same');
 % isInOut = conv(isInOut,ones([1,640])/640,'same') > 0;
 isInOut = isIn;
-end
-
-function [left, right, all] = myFilter(data)
-winHalfWidth = 80;
-zpData = [zeros([winHalfWidth,1]); data; zeros([winHalfWidth,1])];
-sumData = cumsum(zpData); 
-result = zeros(size(data));
-left = zeros(size(data));
-right = zeros(size(data));
-all = zeros(size(data));
-for iData = 1:numel(data)
-    start = iData;
-    middle = iData + winHalfWidth;
-    final = iData + winHalfWidth*2;
-    left(iData) = sumData(middle) - sumData(start);
-    right(iData) = sumData(final) - sumData(middle);
-    all(iData) = sumData(final) - sumData(start);
-end
-end
-
-function plotPoints(points, color)
-scatter(1:numel(points), points, 10, color, 'filled'); hold on; plot(points, 'Color',color); shg
 end
 
 function shape = getShape()
@@ -438,6 +225,7 @@ for iFile = 1:nFileUta
     else
         dataTable = fileTable;
     end
+    fprintf('cleaned UTA file %i of %i\n',iFile,nFileUta);
 end
 
 % sort by bus index and then by time

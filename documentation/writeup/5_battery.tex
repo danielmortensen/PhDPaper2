@@ -1,22 +1,19 @@
 \section{Battery State of Charge}
-BEBs must also maintain their state of charge above a minimum threshold. Let $h_{ij+1}$ be the state of charge for bus $i$ at the beginning of stop $j$. Each bus has an initial state of charge defined by $h_{i0}$ as shown in figure \ref{fig:hPlacement}. 
+BEBs must also maintain their state of charge above a minimum threshold, denoted $h_{\text{min}}$. Let $h_{ij+1}$ be the state of charge for bus $i$ at the beginning of stop $j$. Each bus has an initial state of charge defined by $h_{i0}$ as shown in figure \ref{fig:hPlacement}. 
 \input{media/5_battery/hPlacement}
 This can be constrained as
 \begin{equation}\label{eqn:initialSoc0}
-	d_{i0} = \eta_{i} \ \forall i.
+	h_{i0} = \eta_{i} \ \forall i.
 \end{equation}
 where $\eta_{i}$ is the initial state of charge for bus $i$.
-Equation \ref{eqn:initialSoc0} can be expressedin standard form such that
+Equation \ref{eqn:initialSoc0} can be expressed in standard form such that
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}0 & 0 & \hdots & 0 & 1_i& 0 \end{bmatrix}\mathbf{y} &= \eta_i \ \forall i \\
-		A_{\text{eq1}}\mathbf{y} &= \mathbf{b}_{\text{eq1}}
+		\tilde{A}_1\mathbf{y} &= \tilde{\mathbf{b}}_1
 \end{aligned} \end{equation}
 \input{media/5_battery/delta}
-\par The transition from one start to the next is computed as the sum of battery effects due to charging and discharging. The discharge from operating the bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge, denoted $\Delta$, follows a linear charge model such that 
-\begin{equation}
-	\Delta = \Delta T\cdot p
-\end{equation}
-where $p$ is the energy rate, or power, of the chargers. The total change in state of charge from $h_{ij}$ to $h_{ij+1}$ can be expressed as
+\par The transition from $h_{ij}$ to $h_{ij+1}$ is computed as the sum of battery effects due to charging and discharging. The discharge from operating bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge follows a linear charge model such that the increase is equal to the energy rate, denoted $p$, times the time spent charging, denoted $\Delta_{\text{sc}}$.
+The total change from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 \begin{equation}
 	h_{ij+1} = h_{ij} + \Delta T\cdot p - \delta_i.
 \end{equation}
@@ -25,10 +22,10 @@ The value for $\Delta T$ can also be expressed in terms of the difference betwee
 	h_{ij+1} = h_{ij} + p\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i.
 \end{equation}
 This is only the case, however, if the bus is assigned to a charger at stop $j$, otherwise the net increase is zero. This piecewise behavior can be modeled by using the charger selection variables, $\sigma_{ijk}$ such that
-\begin{equation}
+\begin{equation}\label{eqn:bilinear}
 	h_{ij+1} = h_{ij} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(s_{ij} - c_{ij}) 
 \end{equation}
-but because this introduces a bilinear term, we can alternatively express this constraint as
+but because equation \ref{eqn:bilinear} introduces a bilinear term, the behavior or $h$ is alternatively expressed as
 \begin{equation} \begin{aligned}
 	h_{ij+1} & \le h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
 	h_{ij+1} & \ge h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
@@ -53,7 +50,7 @@ and finally,
 		\begin{bmatrix}-\delta_i - M \\ \delta_i - M \\ -\delta_i \\ \delta_i \end{bmatrix} \ \forall i,j \\
 			A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j
 \end{aligned} \end{equation}
-If the bus ends the day in the station (as is common), there is one final state of charge value that is computed as above without a route discharge parameter. Let $\mathcal{S}$ be the set of all $i,j$ where $h_{ij+1}$ describes the final state of charge value for bus $i$. Equation \ref{eqn:socDynamic1} can be reexpressed as 
+If the bus ends the day in the station (as is common), there is one final $h$ value that is computed without a route discharge parameter. Let $\mathcal{S}$ be the set of all $i,j$ where $h_{ij+1}$ describes the final state of charge value for bus $i$. Equation \ref{eqn:socDynamic1} can be reexpressed as 
 \begin{equation}\label{eqn:socDynamic2} 
 	\mathbf{b}_{ij} = 
 	\begin{dcases}
@@ -71,19 +68,19 @@ If the bus ends the day in the station (as is common), there is one final state 
 		\end{bmatrix}$\hfil & \forall i,j \ni h_{ij+1} \in \mathcal{S}.
 	\end{dcases}
 \end{equation}
-The constraints outlined in equations \ref{eqn:socDynamic1} and \ref{eqn:socDynamic2} for each $i,j$ can be vertically concatenated to form
+The constraints for each $i,j$ outlined in equations \ref{eqn:socDynamic1} and \ref{eqn:socDynamic2} can be vertically concatenated to form
 \begin{equation}\label{eqn:socDynamic3} \begin{aligned}
 	A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j \\
-	A_{\text{ineq4}}\mathbf{y} &\le \mathbf{b}_{\text{ineq4}}
+	A_4\mathbf{y} &\le \mathbf{b}_4
 \end{aligned} \end{equation}
-Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above some minimum threshold, denoted $h_{\text{min}}$. These constraints are given as
+Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above the minimum threshold, $h_{\text{min}}$. These constraints are given as
 \begin{equation}
 	-h_{ij} \le -h_{\text{min}} \ \forall i,j
 \end{equation}
 or 
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}0 & \hdots & 0 & -1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
-		A_{\text{ineq5}}\mathbf{y} &\le \mathbf{b}_{\text{ineq5}}
+		A_5\mathbf{y} &\le \mathbf{b}_5
 \end{aligned} \end{equation}
 \par The final constraint has to do with the assumption that we are modeling one day and want to repeat the cost to predict the expected cost over a month. In order to do this, the state of charge at the end of the day must equal the state of charge at the beginning. Let $h_{i,\text{end}}$ be the final daily state of charge for bus $i$. This is constrained to be the same as the beginning state of charge as
 \begin{equation} \label{eqn:hEqual1} \begin{aligned}

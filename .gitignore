@@ -3,3 +3,4 @@ data_management/data/
 *.fdb_latexmk
 documentation/writeup/build/
 *__pycache__*
+*.asv

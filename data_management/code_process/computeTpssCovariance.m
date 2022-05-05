@@ -1,6 +1,6 @@
 basedir = '/home/daniel/PhD/paper2/data_management/data/processed_tpss/';
-otputDir = fullfile(basedidatar,'TPSSMat.mat');
-outputCovDir = fullfile(basedir,'TPSS_Cov.mat');
+otputDir = fullfile(basedir,'TPSSMat.mat');
+outputCovDir = fullfile(basedir,'TPSS_Cov15.mat');
 
 % load data from .csv and convert to matrix
 if ~isfile(otputDir)
@@ -32,17 +32,16 @@ ii = bsxfun(@plus,[0,ii(end,1:end-1)],ii);
 m1 = data(t);
 data1 = m1(ii);
 
-% resample from 0.5s to 5 minute intervals
+% resample from 0.5s to 15 minute intervals
 fsIn = 2;
-fsOut = 1/300;
+fsOut = 1/900;
 [p,q] = rat(fsOut/fsIn);
 nInData = size(data);
 dataIsNan = isnan(data);
 data(dataIsNan) = 0;
 dataResample = zeros(nInData(1),nInData(2)*p/q);
 kernel = ones([1,q/p])*p/q;
-for iData = 1:nInData(1)
-    
+for iData = 1:nInData(1)    
     average = conv(data(iData,:),kernel,'same');
     dataResample(iData,:) = average(1:q/p:end);
 end

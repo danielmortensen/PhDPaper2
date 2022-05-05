@@ -1,9 +1,11 @@
 \begin{figure*}
 	\centering
 	\begin{tabular}{c | c c c}
-		Charge Type & On-Peak               & Off-Peak               & Both \\ \hline
+		            & On-Peak               & Off-Peak               & Both \\ \hline
 		Energy      & On-Peak Energy Charge & Off-Peak Energy Charge & None \\
-		Power       & Demand Charge         & None                   & Facilities Charge 
+		Energy Rate & $u_{\text{e-on}}$     & $u_{\text{e-off}}$     & None \\
+		Power       & Demand Charge         & None                   & Facilities Charge \\
+		Power Rate  & $u_{\text{p-on}}$     & None                   & $u_{\text{p-all}}$
 	\end{tabular}
 	\caption{Description of the assumed billing structure}
 	\label{fig:charges}

@@ -1,21 +1,21 @@
 \newpage temp \newpage
 \section{Continuous Problem Formulation}
 The charge scheduling framework described in this paper is formulated as a constrained optimization problem that can be solved as a Mixed Integer Linear Program (MILP) of the form
-\begin{equation}\begin{matrix}
+\begin{equation}\label{eqn:MILP}\begin{matrix}
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
-	A_{\text{eq}}\mathbf{y} = \mathbf{b}_{\text{eq}}, \ A_{\text{ineq}}\mathbf{y} \le \mathbf{b}_{\text{ineq}},
+	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b},
 \end{matrix} \end{equation}
-where $\mathbf{y}$, $A_{\text{eq}}$, $A_{\text{ineq}}$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
+where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
 \begin{equation}
 	\mathbf{y} = \begin{bmatrix}\mathbf{\sigma} \\ \mathbf{c} \\ \mathbf{s} \\ \mathbf{h} \\ \mathbf{k} \\ \mathbf{r} \\ \mathbf{p} \\ q_{\text{on}} \\ q_{\text{all}}\end{bmatrix},
 \end{equation}
 where $\mathbf{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, $\mathbf{p}$, $q_{\text{on}}$, and $q_{\text{all}}$ will be developed through the course of this paper.
+\par The cost function in equation \ref{eqn:MILP} models a realistic billing structure used by \textcolor{red}{reference to rocky mountain power schedule 8} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints encorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
 \par Solving the bus charge problem requires knowing when, and on which charger a bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.
 \input{media/4_formulation/busTime1}
-\par Each bus follows a schedule and is in the station during predefined times. When a bus is in the station, it is available to charge.  Bus availability is described in terms of it's arrival and departure times, where the bus's $n^{\text{th}}$ stop begins at arrival time $n$, or $a_n$ and terminates at the $n^{\text{th}}$ departure time, $d_n$ (see Fig. \ref{fig:busTime2}). 
-\input{media/4_formulation/busTime2}
-\par A bus can be assigned to charge for a time interval where the bus is in the station. The charge start time during the $n^{\text{th}}$ stop is denoted $c_n$ and the stop-charge time is denoted $s_n$ as shown in Fig. \ref{fig:busTime3}. 
+\par Each bus follows a schedule made up of a series of arrival and departure times, where the bus's $n^{\text{th}}$ stop begins at arrival time $a_n$ and terminates at departure time $d_n$ (see Fig. \ref{fig:busTime3}). 
+\par A bus can be assigned to charge anytime the bus is in the station. The charge start time during the $n^{\text{th}}$ stop is denoted $c_n$ and the stop-charge time is denoted $s_n$ as shown in Fig. \ref{fig:busTime3}. 
 \input{media/4_formulation/busTime3}
 \subsection{Constraints}
 The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
@@ -41,13 +41,13 @@ and finally,
 	\begin{bmatrix}-1_c & 0 & \hdots & 0    \\
                         1_c & 0 & \hdots & -1_d \\
 		0   & 0 & \hdots & 1_d \end{bmatrix}\mathbf{y} &\le \begin{bmatrix} -a \\ 0 \\ d\end{bmatrix} \ \forall i,j \\
-			A_{\text{ineq1}} &\le \mathbf{b}_{\text{ineq1}},
+			A_1 &\le \mathbf{b}_1,
 \end{aligned} \end{equation}
-	where $A_{\text{ineq1}}$ and $\mathbf{b}_{\text{ineq1}}$ stack the constraints given in equation \ref{eqn:timeConstraint} for all $i,j$.
+	where $A_1$ and $\mathbf{b}_1$ stack the constraints given in equation \ref{eqn:timeConstraint} for all $i,j$.
 \par A charge plan can be formulated by reserving time slots at chargers when buses need to charge (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
-	Note how there are several decisions that go into the charge schedule, which is made up to which bus charges at which charger at which time. 
-	\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, we also constraint $\sigma$ such that
+	Note how there are several decisions that go into the charge schedule, namely when and to which charger a bus will connect. 
+\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, we also constraint $\sigma$ such that
 \begin{equation}
 	\begin{aligned}
 		\sum_k \sigma_{ijk} \le 1 \ \forall i,j
@@ -55,10 +55,10 @@ and finally,
 \end{equation} 
 or in standard form as 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} \end{bmatrix}^T \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
-		A_{\text{ineq2}} & \le \mathbf{b}_{\text{ineq2}}. 
+	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
+		A_2 & \le \mathbf{b}_2.
 \end{aligned} \end{equation}
-The variable $\sigma_{ijk}$ is necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
+The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
 
 \begin{align}\label{eqn:overlapConstraints1}
@@ -66,23 +66,18 @@ c_{i^{'}j^{'}} > s_{ij}.
 \end{align}
 However, this constraint is only necessary when both bus stops are designated for charging. This can be remedied as
 	\begin{align}\label{eqn:overlapConstraints2}
-		c_{i^{'}j^{'}} - s_{ij} > M\left[(\sigma_{i^{'}j^{'}k^{'}} + \sigma_{ijk}) - 2\right]
+		c_{i^{'}j^{'}} - s_{ij} > M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] \ \forall k
 	\end{align}
-	Where $M = 2\cdot\text{nTime}$. When $(\sigma_{i^{'}j^{'}k^{'}} + \sigma_{ijk}) < 2$, then equation \ref{eqn:overlapConstraints2} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$ and when $\sigma_{i^{'}j^{'}k^{'}} = \sigma_{ijk} = 1$, equation \ref{eqn:overlapConstraints2} simplifies to equation \ref{eqn:overlapConstraints1}. Equation \ref{eqn:overlapConstraints1} can be expressed in standard form as 
+	Where $M = 2\cdot\text{nTime}$. When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, equation \ref{eqn:overlapConstraints2} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$. When $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, equation \ref{eqn:overlapConstraints2} simplifies to equation \ref{eqn:overlapConstraints1}. Equation \ref{eqn:overlapConstraints2} can be expressed in standard form as 
 	\begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
-		c_{i^{'}j^{'}} - s_{ij} - M\sigma_{i^{'}j^{'}k^{'}} - M\sigma_{ijk} &\ge -2M \\
-		-c_{i^{'}j^{'}} + s_{ij} + M\sigma_{i^{'}j^{'}k^{'}} + M\sigma_{ijk} &\le 2M \\
+		-c_{i^{'}j^{'}} + s_{ij} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} &\le 2M  \ \forall k\\
 	\end{aligned}\end{equation}
 	and finally as
 	\begin{equation}\begin{aligned} 
-		\begin{bmatrix} -1 & 1 & M & M\end{bmatrix} \begin{bmatrix}c_{i^{'}j^{'}}\\ s_{ij} \\ \sigma_{i^{'}j^{'}k^{'}}\\ \sigma_{ijk} \end{bmatrix} &\le 2M \ \forall i,j
+		\begin{bmatrix} -1 & 1 & M & M\end{bmatrix} \begin{bmatrix}c_{i^{'}j^{'}}\\ s_{ij} \\ \sigma_{i^{'}j^{'}k}\\ \sigma_{ijk} \end{bmatrix} &\le 2M \ \forall k
 	\end{aligned} \end{equation}
 	The constraints in equation \ref{eqn:overlapConstraints3} can be repeated for all instances where overlap is possible and concatenated into a single matrix such that
 	\begin{equation}\begin{aligned} 
-		A_{\text{ineq3}}\mathbf{y} &\le \mathbf{1}\cdot 2M \\
-		A_{\text{ineq3}}\mathbf{y} & \le \mathbf{b}_{\text{ineq3}}\\
+		A_3\mathbf{y} & \le \mathbf{1}\cdot 2M \\
+		A_3\mathbf{y} & \le \mathbf{b}_3 \\
 	\end{aligned} \end{equation} 
-	TODO:
-	\begin{enumerate}
-		\item add constraint to make the end SOC the same as the initial SOC
-	\end{enumerate}
