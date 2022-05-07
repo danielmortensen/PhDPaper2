@@ -74,6 +74,7 @@ for iBus = 1:nBus
 end % 182 values in this constraint
 sigma.type = 'B';
 sigmaFinal = finalIdx;
+
 %validate sigma
 assert(isValid(sigma.val, sigmaStart, sigmaFinal));
 
