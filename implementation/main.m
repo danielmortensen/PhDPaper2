@@ -1,5 +1,111 @@
 param = getSimulationParam();
 varInfo = getVarInfo(param);
+const = struct;
+const = getConst1(param,varInfo,const);
+const = getConst2(param,varInfo,const);
+
+function Const = getConst1(param,var,Const)
+
+% preallocate for constraints
+nVal = sum(param.routes.nRoute)*4;
+nConst = sum(param.routes.nRoute)*3;
+iConst = 1;
+iA = 1;
+A = nan([nVal,3]);
+b = nan([nConst,1]);
+
+% define sparse matrix for constraints
+for iBus = 1:param.bus.nBus
+nRoute = param.routes.nRoute(iBus);
+for iRoute = 1:nRoute
+
+    % define constraint indices
+    c = var.val.c.val(iBus,iRoute);
+    a = param.routes.tArrival(iBus,iRoute);
+
+    % define constraint parameters
+    s = var.val.s.val(iBus,iRoute);
+    d = param.routes.tDepart(iBus,iRoute);
+
+    % first constraint
+    A(iA + 0,:) = [iConst, c, -1];
+    b(iConst) = -a;
+
+    % second constraint
+    A(iA + 1,:) = [iConst + 1,c, 1];
+    A(iA + 2,:) = [iConst + 1,s, -1];
+    b(iConst + 1) = 0;
+
+    % third constraint
+    A(iA + 3,:) = [iConst + 2,s,1];
+    b(iConst + 2) = d;
+
+    % update index variables
+    iA = iA + 4;
+    iConst = iConst + 3;
+end
+end
+
+% assert that the number of constraints and values is as expected
+assert(sum(isnan(A(:))) == 0);
+assert(sum(isnan(b)) == 0);
+
+% package constraints
+Const.Constraint1.A = A;
+Const.Constraint1.b = b;
+Const.Constraint1.info = "Constraint for SOC variable placement that" + ...
+    " requires all start and end times to be in the bus availability time" + ...
+    " and that the start time be before the end time.";
+Const.Constraint1.eq = repmat('<',[nConst,1]);
+end
+
+function Const = getConst2(param,var,Const)
+
+% define constraint dimensions
+nConstr = sum(param.routes.nRoute);
+nCharger = param.charger.nCharger;
+nVal = nConstr*nCharger;
+
+% preallocate
+A = nan([nVal,3]);
+b = nan([nConstr,1]);
+
+% define constraints
+iConstr = 1;
+iVal = 1;
+for iBus = 1:param.bus.nBus
+    nRoute = param.routes.nRoute(iBus);
+    for iRoute = 1:nRoute
+        for iCharger = 1:nCharger
+            sigma = var.val.sigma.val(iBus,iRoute,iCharger);
+            A(iVal,:) = [iConstr, sigma, 1];
+            iVal = iVal + 1;
+        end
+        b(iConstr) = 1;
+        iConstr = iConstr + 1;
+    end
+end
+
+% verify that all is as expected
+assert(sum(isnan(A(:))) == 0);
+assert(sum(isnan(b)) == 0);
+
+% package constraint
+Const.Constraint2.A = A;
+Const.Constraint2.b = b;
+Const.Constraint2.info = "Constrans the sum of the charge indicators for " + ...
+    "each bus to be one for each stop.  This ensures that each bus cannot" + ...
+    "charge on two chargers at once.";
+Const.Constraint2.eq = repmat('<',[nConstr,1]);
+end
+
+function Const = getConst3(param,var,Const)
+overlap = getOverlappingIndices(param);
+end
+
+function idx = getOverlappingIndices(param)
+fprintf('temp\n');
+end
 
 function param = getSimulationParam()
 % define input parameters
@@ -59,6 +165,7 @@ function varInfo = getVarInfo(param)
 startIdx = 1;
 nBus = param.bus.nBus;
 nRoute = param.routes.nRoute;
+nStops = sum(nRoute);
 
 % sigma
 sigmaStart = startIdx;
@@ -76,7 +183,9 @@ sigma.type = 'B';
 sigmaFinal = finalIdx;
 
 %validate sigma
-assert(isValid(sigma.val, sigmaStart, sigmaFinal));
+nSigmaExpect = param.charger.nCharger*nStops;
+assert(isValid(sigma.val, sigmaStart, sigmaFinal, nSigmaExpect));
+
 
 % p
 pStart = startIdx;
@@ -102,7 +211,8 @@ p.type = 'C';
 pFinal = startIdx - 1;
 
 % validate p
-assert(isValid(p.val,pStart,pFinal));
+nPExpect = (nStops*2 + 1)*param.maxTimeIdx;
+assert(isValid(p.val ,pStart, pFinal, nPExpect));
 
 % c
 cStart = startIdx;
@@ -114,7 +224,8 @@ for iBus = 1:nBus
 end % c containts 91 values
 c.type = 'C';
 cFinal = startIdx - 1;
-assert(isValid(c.val,cStart,cFinal));
+nCExpect = nStops;
+assert(isValid(c.val,cStart,cFinal,nCExpect));
 
 % s
 sStart = startIdx;
@@ -126,7 +237,8 @@ for iBus = 1:nBus
 end % s containts 91 values
 s.type = 'C';
 sFinal = finalIdx;
-assert(isValid(s.val,sStart,sFinal));
+nSExpect = nStops;
+assert(isValid(s.val,sStart,sFinal,nSExpect));
 
 % h
 hStart = startIdx;
@@ -138,7 +250,8 @@ for iBus = 1:nBus
 end % s containts 97 values
 h.type = 'C';
 hFinal = finalIdx;
-assert(isValid(h.val,hStart,hFinal));
+nHExpect = nStops + nBus;
+assert(isValid(h.val,hStart,hFinal,nHExpect));
 
 % k
 kStart = startIdx;
@@ -153,7 +266,8 @@ for iBus = 1:nBus
 end % both k.start and k.final both have 91 values each
 k.type = 'I';
 kFinal = finalIdx2;
-assert(isValid(k.val,kStart,kFinal));
+nKExpect = nStops*2;
+assert(isValid(k.val,kStart,kFinal,nKExpect));
 
 % r
 rStart = startIdx;
@@ -168,7 +282,8 @@ for iBus = 1:nBus
 end % both r.start and r.final both have 91 values each
 r.type = 'C';
 rFinal = finalIdx2;
-assert(isValid(r.val,rStart,rFinal));
+nRExpect = nStops*2;
+assert(isValid(r.val,rStart,rFinal,nRExpect));
 
 % s2
 s2Start = startIdx;
@@ -190,14 +305,16 @@ startIdx = finalIdx3 + 1;
 end %s2.onRamp,s2.offRamp, and s2.center each contain 8736 values
 s2.type = 'B';
 s2Final = finalIdx3;
-assert(isValid(s2.val,s2Start,s2Final));
+nS2Expect = param.maxTimeIdx*3*nStops;
+assert(isValid(s2.val,s2Start,s2Final,nS2Expect));
 
 qStart = startIdx;
 q.val.onPeak = startIdx;
 q.val.all = startIdx + 1;
 q.type = 'C';
 qFinal = startIdx + 1;
-assert(isValid(q,qStart,qFinal));
+nQExpect = 2;
+assert(isValid(q,qStart,qFinal,nQExpect));
 
 % verify starting and ending positions
 assert(sigmaStart == 1);
@@ -221,11 +338,10 @@ varInfo.val.r = r;
 varInfo.val.s2 = s2;
 varInfo.val.q = q;
 varInfo.nVar = startIdx + 1;
-assert(isValid(varInfo.val,1,varInfo.nVar));
+assert(isValid(varInfo.val,1,varInfo.nVar,varInfo.nVar));
 end
 
-
-function result = isValid(data,start,final)
+function result = isValid(data, start, final, nExpect)
 % get all data from data struct
 values = getDataFromStruct(data);
 
@@ -239,8 +355,11 @@ result2 = sum(values) - (final - start + 1)*(start + final)/2 == 0;
 % make sure data is all contained between the start and end values.
 result3 = final - start + 1 == numel(values);
 
+% make sure that the number of values is correct
+result4 = nUnique == nExpect;
+
 % and all results for final outcome
-result = result1 & result2 & result3;
+result = result1 & result2 & result3 & result4;
 end
 
 function data = getDataFromStruct(input)
