@@ -64,11 +64,20 @@ for iBus = 1:sim.bus.nBus
         b(iConst + 1) =  delta - M;
         b(iConst + 2) = -delta;
         b(iConst + 3) =  delta;
+        eq(iConst:iConst + 3) = '<';
         iConst = iConst + 4;
     end
 end
+
+% sanity checks
 assert(~any(isnan(A(:))));
 assert(~any(isnan(b)));
 assert(iConst - 1 == nConst);
 assert(iVal -1 == nVal);
+
+% package constraints
+Const.Constraint4.A = A;
+Const.Constraint4.b = b;
+Const.Constraint4.info = "Constraints for state of charge";
+Const.Constraint4.eq = eq;
 end
