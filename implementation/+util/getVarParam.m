@@ -30,6 +30,8 @@ nMaxTime = param.maxTimeIdx;
 p.val.onRamp = nan([nBus,maxStops,param.maxTimeIdx]);
 p.val.offRamp = nan([nBus,maxStops,param.maxTimeIdx]);
 p.val.total = nan([param.maxTimeIdx,1]);
+p.val.onRampAvg = nan([nBus,maxStops]);
+p.val.offRampAvg = nan([nBus,maxStops]);
 for iBus = 1:nBus
     finalIdx1 = startIdx + nRoute(iBus)*nMaxTime - 1;
     finalIdx2 = finalIdx1 + nRoute(iBus)*nMaxTime;
@@ -43,12 +45,20 @@ end % p.onRamp and p.offRamp together contain 17472 values
 
 p.val.total(1:end) = startIdx:startIdx + nMaxTime - 1;
 startIdx = startIdx + nMaxTime;
+for iBus = 1:nBus
+    finalIdx1 = startIdx + nRoute(iBus) - 1;
+    startIdx2 = finalIdx1 + 1;
+    finalIdx2 = startIdx2 + nRoute(iBus) - 1;
+    p.val.onRampAvg(iBus,1:nRoute(iBus)) = startIdx:finalIdx1;
+    p.val.offRampAvg(iBus,1:nRoute(iBus)) = startIdx2:finalIdx2;
+    startIdx = finalIdx2 + 1;
+end
 p.type = 'C';
 % p.total contains 96 values
 pFinal = startIdx - 1;
 
 % validate p
-nPExpect = (nStops*2 + 1)*param.maxTimeIdx;
+nPExpect = (nStops*2 + 1)*param.maxTimeIdx + nStops*2;
 assert(isValid(p.val ,pStart, pFinal, nPExpect));
 
 % c

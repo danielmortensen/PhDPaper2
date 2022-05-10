@@ -1,3 +1,4 @@
+addpath('../');
 sim = testGetParam();
 var = getVarParam(sim);
 Const = struct;
