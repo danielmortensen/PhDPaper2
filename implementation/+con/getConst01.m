@@ -1,5 +1,4 @@
-
-function Const = getConst1(param,var,Const)
+function Const = getConst01(param,var,Const)
 
 % preallocate for constraints
 nVal = sum(param.routes.nRoute)*4;

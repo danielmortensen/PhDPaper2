@@ -1,8 +1,14 @@
 function param = getSimParam()
+
 % define input parameters
-dirData = '/home/daniel/PhD/paper2/data_management/data/';
-dirGridload = fullfile(dirData,'processed_tpss/TPSS_Cov15.mat');
-dirRoutes = fullfile(dirData,'processed/routesTable.csv'); 
+if ispc
+    dirData = '\\wsl.localhost\ubuntu\home\dmortensen\paper2\PhDPaper2\data_management\data';
+else
+    dirData = '/home/daniel/PhD/paper2/data_management/data/';
+end
+
+dirGridload = fullfile(dirData,'processed_tpss','TPSS_Cov15.mat');
+dirRoutes = fullfile(dirData,'processed','routesTable.csv');
 MBattery = 450; % battery capacity in kWh
 MTime = 24*60*60; % maximum time index
 soc0 = 85*MBattery/100; % initial soc in kWh

@@ -1,4 +1,4 @@
-function Const = getConst6(sim,var,Const)
+function Const = getConst06(sim,var,Const)
 % define function parameters
 nConst = sum(sim.routes.nRoute) + sim.bus.nBus;
 nVal = nConst;

@@ -1,4 +1,4 @@
-function Const = getConst2(param,var,Const)
+function Const = getConst02(param,var,Const)
 
 % define constraint dimensions
 nConstr = sum(param.routes.nRoute);

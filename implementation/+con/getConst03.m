@@ -1,4 +1,4 @@
-function Const = getConst3(param,var,Const)
+function Const = getConst03(param,var,Const)
 nConstr = sum(param.routes.nRoute)^2*param.charger.nCharger;
 nVal = nConstr*4;
 

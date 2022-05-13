@@ -1,4 +1,4 @@
-function Const = getConst9(sim, var, Const)
+function Const = getConst09(sim, var, Const)
 nAllRoute = sum(sim.routes.nRoute);
 nAllTime = sim.maxTimeIdx;
 M = nAllTime*2;

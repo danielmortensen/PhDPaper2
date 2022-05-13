@@ -1,4 +1,4 @@
-function Const = getConst5(sim,var,Const)
+function Const = getConst05(sim,var,Const)
 % define function variables
 nConst = sim.bus.nBus;
 nVal = nConst*2;

@@ -1,4 +1,4 @@
-function Const = getConst7(sim,var,Const)
+function Const = getConst07(sim,var,Const)
 
 % define function variables
 nConst = sum(sim.routes.nRoute)*4;

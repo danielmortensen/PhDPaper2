@@ -1,4 +1,4 @@
-function Const = getConst8(sim,var,Const)
+function Const = getConst08(sim,var,Const)
 % define function variables
 nAllRoute = sum(sim.routes.nRoute);
 nConst = 4*nAllRoute;

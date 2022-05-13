@@ -1,4 +1,4 @@
-function Const = getConst4(sim,var,Const)
+function Const = getConst04(sim,var,Const)
 nConst = 4*(sum(sim.routes.nRoute)) + sim.bus.nBus;
 nVal = (nConst - sim.bus.nBus)*(3 + sim.charger.nCharger) + sim.bus.nBus;
 A = nan([nVal,3]);
