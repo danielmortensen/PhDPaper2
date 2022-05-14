@@ -7,7 +7,7 @@ eq = nan([nConst,1]);
 iVal = 1;
 iConst = 1;
 p = sim.charger.chargeRate;
-M = sim.bus.maxBattery*5;
+M = sim.bus.maxBattery;
 for iBus = 1:sim.bus.nBus
     % extract sub-variables
     nRoute = sim.routes.nRoute(iBus);

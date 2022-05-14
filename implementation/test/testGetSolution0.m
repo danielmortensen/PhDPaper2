@@ -32,8 +32,8 @@ for iBus = 1:nBus
 
         % compute synthetic charge start and stop times
         diff = d - a;
-        c = a + diff*0.1;
-        s = d - diff*0.1;
+        c = a + diff/2 - 10;
+        s = d - diff/2 + 10;
 
         % compute the integer and remainder versions       
         k0 = floor(c/dt);
