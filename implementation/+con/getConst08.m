@@ -40,6 +40,8 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraints
 Const.Constraint8.A = A;
@@ -47,4 +49,7 @@ Const.Constraint8.b = b;
 Const.Constraint8.eq = repmat('=',[nConst,1]);
 Const.Constraint8.info = "Convert to binary indices from s and r for on " + ...
     " and off ramping";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

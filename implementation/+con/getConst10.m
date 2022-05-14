@@ -25,8 +25,8 @@ for iBus = 1:sim.bus.nBus
         A(iVal + 1,:) = [iConst + 0, r0, p/deltaT];
         b(iConst) = p;
 
-        A(iVal + 2,:) = [iConst + 1,  p1, 1       ];
-        A(iVal + 3,:) = [iConst + 1, -r1, p/deltaT];
+        A(iVal + 2,:) = [iConst + 1, p1,  1       ];
+        A(iVal + 3,:) = [iConst + 1, r1, -p/deltaT];
         b(iConst + 1) = 0;
 
         iVal = iVal + 4;
@@ -39,6 +39,8 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint10.A = A;
@@ -46,4 +48,7 @@ Const.Constraint10.b = b;
 Const.Constraint10.eq = repmat('=',[nConst,1]);
 Const.Constraint10.info = "constriants for partial average power when " + ...
     "discretizing values";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

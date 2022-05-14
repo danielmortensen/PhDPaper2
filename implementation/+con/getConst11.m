@@ -46,10 +46,15 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b)) == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint11.A = A;
 Const.Constraint11.b = b;
 Const.Constraint11.eq = repmat('<',[nConst,1]);
 Const.Constraint11.info = "constriants for discretized on-ramp average power";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

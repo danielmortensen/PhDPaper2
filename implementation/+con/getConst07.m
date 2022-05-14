@@ -46,6 +46,8 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint7.A = A;
@@ -53,4 +55,7 @@ Const.Constraint7.b = b;
 Const.Constraint7.eq = eq;
 Const.Constraint7.info = "Constraint for the descritization of s and c " + ...
     "using r and k";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

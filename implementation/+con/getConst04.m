@@ -74,10 +74,15 @@ assert(~any(isnan(A(:))));
 assert(~any(isnan(b)));
 assert(iConst - 1 == nConst);
 assert(iVal -1 == nVal);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraints
 Const.Constraint4.A = A;
 Const.Constraint4.b = b;
 Const.Constraint4.info = "Constraints for state of charge";
 Const.Constraint4.eq = eq;
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

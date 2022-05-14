@@ -1,11 +1,11 @@
 function Const = getConst03(param,var,Const)
-nConstr = sum(param.routes.nRoute)^2*param.charger.nCharger;
-nVal = nConstr*4;
+nConst = sum(param.routes.nRoute)^2*param.charger.nCharger;
+nVal = nConst*4;
 
 % preallocate
 A = nan([nVal,3]);
-b = nan([nConstr,1]);
-debug = nan([nConstr,4]);
+b = nan([nConst,1]);
+debug = nan([nConst,4]);
 % define constraints when needed
 iConstr = 1;
 iA = 1;
@@ -42,12 +42,19 @@ end
 A(any(isnan(A),2),:) = [];
 b(isnan(b)) = [];
 debug(any(isnan(debug),2),:) = [];
+nConst = size(b,1);
+nVal = size(A,1);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint3.A = A;
 Const.Constraint3.b = b;
 Const.Constraint3.info = "constrains all buses that charge at the same " + ...
     "time to charge on different chargers.";
-Const.Constraint3.eq = repmat('<',[nConstr,1]);
+Const.Constraint3.eq = repmat('<',[nConst,1]);
 Const.Constraint3.debug = debug;
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

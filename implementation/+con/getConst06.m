@@ -26,6 +26,8 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint6.A = A;
@@ -33,4 +35,7 @@ Const.Constraint6.b = b;
 Const.Constraint6.eq = repmat('<',[nConst,1]);
 Const.Constraint6.info = "constrain that all state of charge variables " + ...
     "be greater than some minimum value";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

@@ -22,10 +22,15 @@ assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraints
 Const.Constraint14.A = A;
 Const.Constraint14.b = b;
 Const.Constraint14.eq = repmat('<',[nConst,1]);
 Const.Constraint14.info = "lower bounds constraint for max average total power";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

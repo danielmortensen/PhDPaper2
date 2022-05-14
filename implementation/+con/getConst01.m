@@ -43,6 +43,8 @@ end
 % assert that the number of constraints and values is as expected
 assert(sum(isnan(A(:))) == 0);
 assert(sum(isnan(b)) == 0);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraints
 Const.Constraint1.A = A;
@@ -51,4 +53,7 @@ Const.Constraint1.info = "Constraint for SOC variable placement that" + ...
     " requires all start and end times to be in the bus availability time" + ...
     " and that the start time be before the end time.";
 Const.Constraint1.eq = repmat('<',[nConst,1]);
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

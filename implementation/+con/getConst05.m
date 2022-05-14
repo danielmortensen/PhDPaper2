@@ -24,9 +24,15 @@ assert(sum(isnan(b),'all') == 0);
 assert(sum(isnan(A(:)),'all') == 0);
 assert(size(A,1) == nVal);
 assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraints
 Const.Constraint5.A = A;
 Const.Constraint5.b = b;
 Const.Constraint5.eq = repmat('<',[nConst,1]);
 Const.Constraint5.info = "Constrains the first SOC to be less than the last";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
+end

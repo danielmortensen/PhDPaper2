@@ -2,15 +2,15 @@ function Const = getConst09(sim, var, Const)
 nAllRoute = sum(sim.routes.nRoute);
 nAllTime = sim.maxTimeIdx;
 M = nAllTime*2;
-nConstr = (1 + nAllTime*2)*nAllRoute;
+nConst = (1 + nAllTime*2)*nAllRoute;
 nVal = (5*nAllTime + 2)*nAllRoute;
 
 iVal = 1;
 iConstr = 1;
 
 A = nan([nVal,3]);
-b = nan([nConstr,1]);
-eq = nan([nConstr, 1]);
+b = nan([nConst,1]);
+eq = nan([nConst, 1]);
 
 for iBus = 1:sim.bus.nBus
     for iRoute = 1:sim.routes.nRoute(iBus)
@@ -50,11 +50,16 @@ end
 assert(sum(isnan(A(:)),'all') == 0);
 assert(sum(isnan(b),'all') == 0);
 assert(size(A,1) == nVal);
-assert(size(b,1) == nConstr);
+assert(size(b,1) == nConst);
+assert(all(A(:,1) > 0));
+assert(all(A(:,2) > 0));
 
 % package constraint
 Const.Constraint9.A = A;
 Const.Constraint9.b = b;
 Const.Constraint9.eq = eq;
 Const.Constraint9.info = "constrain values of 'on' periods for s2.center";
+Const.nConst = Const.nConst + 1;
+Const.nAllVal = Const.nAllVal + nVal;
+Const.nAllCon = Const.nAllCon + nConst;
 end

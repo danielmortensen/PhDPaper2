@@ -16,12 +16,13 @@ for iBus = 1:nBus
     sigma.val(iBus,1:nRoute(iBus),:) = idx;
     startIdx = finalIdx + 1;
 end % 182 values in this constraint
-sigma.type = 'B';
 sigmaFinal = finalIdx;
+sigma.type = repmat('B',[sigmaFinal - sigmaStart + 1,1]);
 
 %validate sigma
 nSigmaExpect = param.charger.nCharger*nStops;
 assert(isValid(sigma.val, sigmaStart, sigmaFinal, nSigmaExpect));
+assert(numel(sigma.type) == nSigmaExpect);
 
 
 % p
@@ -53,13 +54,14 @@ for iBus = 1:nBus
     p.val.offRampAvg(iBus,1:nRoute(iBus)) = startIdx2:finalIdx2;
     startIdx = finalIdx2 + 1;
 end
-p.type = 'C';
 % p.total contains 96 values
 pFinal = startIdx - 1;
+p.type = repmat('C',[pFinal - pStart + 1,1]);
 
 % validate p
 nPExpect = (nStops*2 + 1)*param.maxTimeIdx + nStops*2;
 assert(isValid(p.val ,pStart, pFinal, nPExpect));
+assert(numel(p.type) == nPExpect);
 
 % c
 cStart = startIdx;
@@ -69,10 +71,11 @@ for iBus = 1:nBus
     c.val(iBus,1:nRoute(iBus)) = startIdx:finalIdx;
     startIdx = finalIdx + 1;
 end % c containts 91 values
-c.type = 'C';
 cFinal = startIdx - 1;
+c.type = repmat('C',[cFinal - cStart + 1,1]);
 nCExpect = nStops;
 assert(isValid(c.val,cStart,cFinal,nCExpect));
+assert(numel(c.type) == nCExpect);
 
 % s
 sStart = startIdx;
@@ -82,10 +85,11 @@ for iBus = 1:nBus
     s.val(iBus,1:nRoute(iBus)) = startIdx:finalIdx;
     startIdx = finalIdx + 1;
 end % s containts 91 values
-s.type = 'C';
 sFinal = finalIdx;
+s.type = repmat('C',[sFinal - sStart + 1,1]);
 nSExpect = nStops;
 assert(isValid(s.val,sStart,sFinal,nSExpect));
+assert(numel(s.type) == nSExpect);
 
 % h
 hStart = startIdx;
@@ -95,10 +99,11 @@ for iBus = 1:nBus
     h.val(iBus,1:nRoute(iBus) + 1) = startIdx:finalIdx;
     startIdx = finalIdx + 1;
 end % s containts 97 values
-h.type = 'C';
 hFinal = finalIdx;
+h.type = repmat('C',[hFinal - hStart + 1,1]);
 nHExpect = nStops + nBus;
 assert(isValid(h.val,hStart,hFinal,nHExpect));
+assert(numel(h.type) == nHExpect);
 
 % k
 kStart = startIdx;
@@ -111,10 +116,11 @@ for iBus = 1:nBus
     k.val.final(iBus,1:nRoute(iBus)) = finalIdx1 + 1:finalIdx2;
     startIdx = finalIdx2 + 1;
 end % both k.start and k.final both have 91 values each
-k.type = 'I';
 kFinal = finalIdx2;
+k.type = repmat('I',[kFinal - kStart + 1,1]);
 nKExpect = nStops*2;
 assert(isValid(k.val,kStart,kFinal,nKExpect));
+assert(numel(k.type) == nKExpect);
 
 % r
 rStart = startIdx;
@@ -127,10 +133,11 @@ for iBus = 1:nBus
     r.val.final(iBus,1:nRoute(iBus)) = finalIdx1 + 1:finalIdx2;
     startIdx = finalIdx2 + 1;
 end % both r.start and r.final both have 91 values each
-r.type = 'C';
 rFinal = finalIdx2;
+r.type = repmat('C',[rFinal - rStart + 1,1]);
 nRExpect = nStops*2;
 assert(isValid(r.val,rStart,rFinal,nRExpect));
+assert(numel(r.type) == nRExpect);
 
 % s2
 s2Start = startIdx;
@@ -150,18 +157,20 @@ s2.val.offRamp(iBus,1:nCurRoute,:) = reshape(startIdx2:finalIdx2,sz);
 s2.val.center(iBus,1:nCurRoute,:) = reshape(startIdx3:finalIdx3,sz);
 startIdx = finalIdx3 + 1;
 end %s2.onRamp,s2.offRamp, and s2.center each contain 8736 values
-s2.type = 'B';
 s2Final = finalIdx3;
+s2.type = repmat('B',[s2Final - s2Start + 1,1]);
 nS2Expect = param.maxTimeIdx*3*nStops;
 assert(isValid(s2.val,s2Start,s2Final,nS2Expect));
+assert(numel(s2.type) == nS2Expect);
 
 qStart = startIdx;
 q.val.onPeak = startIdx;
 q.val.all = startIdx + 1;
-q.type = 'C';
 qFinal = startIdx + 1;
+q.type = repmat('C',[qFinal - qStart + 1,1]);
 nQExpect = 2;
 assert(isValid(q,qStart,qFinal,nQExpect));
+assert(numel(q.type) == nQExpect);
 
 % verify starting and ending positions
 assert(sigmaStart == 1);
@@ -185,6 +194,15 @@ varInfo.val.r = r;
 varInfo.val.s2 = s2;
 varInfo.val.q = q;
 varInfo.nVar = startIdx + 1;
+varInfo.type = [sigma.type;
+                p.type;
+                c.type;
+                s.type;
+                h.type;
+                k.type;
+                r.type;
+                s2.type;
+                q.type];
 assert(isValid(varInfo.val,1,varInfo.nVar,varInfo.nVar));
 end
 
