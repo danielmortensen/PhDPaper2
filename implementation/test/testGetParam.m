@@ -31,9 +31,9 @@ depart2 = [5.75*3600 9.5*3600  12.5*3600 24*3600];
 depart3 = [6.75*3600 9.25*3600 13.5*3600 24*3600];
 tDepart = [depart1; depart2; depart3];
 
-delta1 = [10 20 30 0];
-delta2 = [40 50 60 0];
-delta3 = [70 80 90 0];
+delta1 = [1 2 3 0];
+delta2 = [4 5 6 0];
+delta3 = [7 8 9 0];
 dSoc = [delta1; delta2; delta3];
 
 param.deltaT = dTime;

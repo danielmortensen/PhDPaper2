@@ -40,6 +40,7 @@ assert(all(A(:,2) > 0));
 Const.Constraint13.A = A;
 Const.Constraint13.b = b;
 Const.Constraint13.eq = repmat('=',[nConst,1]);
+Const.Constraint13.info = "Compute final average power";
 Const.nConst = Const.nConst + 1;
 Const.nAllVal = Const.nAllVal + nVal;
 Const.nAllCon = Const.nAllCon + nConst;

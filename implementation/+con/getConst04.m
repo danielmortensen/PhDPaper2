@@ -7,7 +7,7 @@ eq = nan([nConst,1]);
 iVal = 1;
 iConst = 1;
 p = sim.charger.chargeRate;
-M = sim.bus.maxBattery;
+M = sim.bus.maxBattery*5;
 for iBus = 1:sim.bus.nBus
     % extract sub-variables
     nRoute = sim.routes.nRoute(iBus);
@@ -51,17 +51,17 @@ for iBus = 1:sim.bus.nBus
         iVal = iVal + 12;
         for iCharger = 1:sim.charger.nCharger  
             sigma = var.val.sigma.val(iBus,iRoute,iCharger);
-            A(iVal + 0,:) = [iConst + 0, sigma, -M];
-            A(iVal + 1,:) = [iConst + 1, sigma, -M];
-            A(iVal + 2,:) = [iConst + 2, sigma,  M];
-            A(iVal + 3,:) = [iConst + 3, sigma,  M];
+            A(iVal + 0,:) = [iConst + 0, sigma,  M];
+            A(iVal + 1,:) = [iConst + 1, sigma,  M];
+            A(iVal + 2,:) = [iConst + 2, sigma, -M];
+            A(iVal + 3,:) = [iConst + 3, sigma, -M];
             iVal = iVal + 4;
         end   
 
         % define b
         delta = sim.routes.discharge(iBus,iRoute);
-        b(iConst + 0) = -delta - M;
-        b(iConst + 1) =  delta - M;
+        b(iConst + 0) =  M - delta;
+        b(iConst + 1) =  delta + M;
         b(iConst + 2) = -delta;
         b(iConst + 3) =  delta;
         eq(iConst:iConst + 3) = '<';

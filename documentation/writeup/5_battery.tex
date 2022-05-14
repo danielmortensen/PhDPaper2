@@ -25,29 +25,29 @@ This is only the case, however, if the bus is assigned to a charger at stop $j$,
 \begin{equation}\label{eqn:bilinear}
 	h_{ij+1} = h_{ij} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(s_{ij} - c_{ij}) 
 \end{equation}
-but because equation \ref{eqn:bilinear} introduces a bilinear term, the behavior or $h$ is alternatively expressed as
+but because equation \ref{eqn:bilinear} introduces a bilinear term, the behavior of $h$ is alternatively expressed as
 \begin{equation} \begin{aligned}
-	h_{ij+1} & \le h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij+1} & \ge h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij+1} & \le h_{ij} - \delta_i - M\sum_k\sigma_{ijk}\\
-	h_{ij+1} & \ge h_{ij} - \delta_i + M\sum_k\sigma_{ijk}\\
+	h_{ij+1} & \le h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij+1} & \ge h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
+	h_{ij+1} & \le h_{ij} - \delta_i + M\sum_k\sigma_{ijk}\\
+	h_{ij+1} & \ge h_{ij} - \delta_i - M\sum_k\sigma_{ijk}\\
 \end{aligned} \end{equation}
 Which can be expressed in standard form as
 \begin{equation} \begin{aligned}
-	 h_{ij+1} - h_{ij} - p\cdot s_{ij} + p\cdot c_{ij} - M\sum_k\sigma_{ijk} &\le -\left(\delta_i + M\right) \\
-	-h_{ij+1} + h_{ij} + p\cdot s_{ij} - p\cdot c_{ij} - M\sum_k\sigma_{ijk} &\le \delta_i - M \\
-	 h_{ij+1} - h_{ij} + M\sum_k\sigma_{ijk} &\le -\delta_i \\
-	-h_{ij+1} + h_{ij} + M\sum_k\sigma_{ijk} & \le \delta_i \\
+	 h_{ij+1} - h_{ij} - p\cdot s_{ij} + p\cdot c_{ij} + M\sum_k\sigma_{ijk} &\le M - \delta_i \\ 
+	-h_{ij+1} + h_{ij} + p\cdot s_{ij} - p\cdot c_{ij} + M\sum_k\sigma_{ijk} &\le \delta_i + M \\
+	 h_{ij+1} - h_{ij} - M\sum_k\sigma_{ijk} &\le -\delta_i \\
+	-h_{ij+1} + h_{ij} - M\sum_k\sigma_{ijk} & \le \delta_i \\
 \end{aligned} \end{equation}
 and finally,
 \begin{equation} \label{eqn:socDynamic1} \begin{aligned}
-	\begin{bmatrix}1  & -1 & -p & p   & -M_k \\
-		       -1 & 1  & p  & -p  & -M_k \\
-		       1  & -1 & 0             & 0              & M_k  \\
-		       -1 & 1  & 0             & 0              & M_k  \\
+	\begin{bmatrix}1  & -1 & -p & p   & M_k \\
+		       -1 & 1  & p  & -p  & M_k \\
+		       1  & -1 & 0             & 0              & -M_k  \\
+		       -1 & 1  & 0             & 0              & -M_k  \\
 	\end{bmatrix}
 	\begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \\ \sigma_{ijk} \end{bmatrix} &\le 
-		\begin{bmatrix}-\delta_i - M \\ \delta_i - M \\ -\delta_i \\ \delta_i \end{bmatrix} \ \forall i,j \\
+		\begin{bmatrix}M -\delta_i \\ \delta_i + M \\ -\delta_i \\ \delta_i \end{bmatrix} \ \forall i,j \\
 			A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j
 \end{aligned} \end{equation}
 If the bus ends the day in the station (as is common), there is one final $h$ value that is computed without a route discharge parameter. Let $\mathcal{S}$ be the set of all $i,j$ where $h_{ij+1}$ describes the final state of charge value for bus $i$. Equation \ref{eqn:socDynamic1} can be reexpressed as 
@@ -55,14 +55,14 @@ If the bus ends the day in the station (as is common), there is one final $h$ va
 	\mathbf{b}_{ij} = 
 	\begin{dcases}
 		% first case
-		\begin{bmatrix} -\delta_i - M \\
-			         \delta_i - M \\
+		\begin{bmatrix} M -\delta_i \\
+			         \delta_i + M \\
 		                -\delta_i     \\
 		                 \delta_i 
 		\end{bmatrix} & \forall i,j \ni h_{ij+1} \notin \mathcal{S} \\
 		% second case
-		\omit \hfil$\begin{bmatrix} - M \\
-		                - M \\
+		\omit \hfil$\begin{bmatrix} M \\
+		                M \\
 		                  0 \\
 		                  0 
 		\end{bmatrix}$\hfil & \forall i,j \ni h_{ij+1} \in \mathcal{S}.
