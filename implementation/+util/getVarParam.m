@@ -109,16 +109,27 @@ assert(numel(h.type) == nHExpect);
 kStart = startIdx;
 k.val.start = nan([nBus,maxStops]);
 k.val.final = nan([nBus,maxStops]);
+k.val.equal = nan([nBus,maxStops]);
+iK = 1;
 for iBus = 1:nBus
+    startIdx1 = startIdx;
     finalIdx1 = startIdx + nRoute(iBus) - 1;
-    finalIdx2 = finalIdx1 + nRoute(iBus);
-    k.val.start(iBus,1:nRoute(iBus)) = startIdx:finalIdx1;
-    k.val.final(iBus,1:nRoute(iBus)) = finalIdx1 + 1:finalIdx2;
-    startIdx = finalIdx2 + 1;
+    startIdx2 = finalIdx1 + 1;
+    finalIdx2 = startIdx2 + nRoute(iBus) - 1;
+    startIdx3 = finalIdx2 + 1;
+    finalIdx3 = startIdx3 + nRoute(iBus) - 1;
+    k.val.start(iBus,1:nRoute(iBus)) = startIdx1:finalIdx1;
+    k.val.final(iBus,1:nRoute(iBus)) = startIdx2:finalIdx2;
+    k.val.equal(iBus,1:nRoute(iBus)) = startIdx3:finalIdx3;
+    k.type(iK + 0*nRoute(iBus):iK + 1*nRoute(iBus) - 1) = 'I';
+    k.type(iK + 1*nRoute(iBus):iK + 2*nRoute(iBus) - 1) = 'I';
+    k.type(iK + 2*nRoute(iBus):iK + 3*nRoute(iBus) - 1) = 'B';
+    iK = iK + 3*nRoute(iBus);
+    startIdx =finalIdx3 + 1;
 end % both k.start and k.final both have 91 values each
-kFinal = finalIdx2;
+kFinal = finalIdx3;
 k.type = repmat('I',[kFinal - kStart + 1,1]);
-nKExpect = nStops*2;
+nKExpect = nStops*3;
 assert(isValid(k.val,kStart,kFinal,nKExpect));
 assert(numel(k.type) == nKExpect);
 

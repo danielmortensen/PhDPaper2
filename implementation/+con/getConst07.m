@@ -1,8 +1,8 @@
 function Const = getConst07(sim,var,Const)
 
 % define function variables
-nConst = sum(sim.routes.nRoute)*4;
-nVal = 2*nConst;
+nConst = sum(sim.routes.nRoute)*6;
+nVal = (3 + 3 + 1 + 1 + 1 + 1)*nConst/6;
 deltaT = sim.deltaT;
 
 % preallocate
@@ -28,16 +28,28 @@ for iBus = 1:sim.bus.nBus
         A(iVal + 3,:) = [iConst + 1, k1, deltaT];
         A(iVal + 4,:) = [iConst + 1, r1,  1    ];
         A(iVal + 5,:) = [iConst + 1, s,  -1    ];
+
         A(iVal + 6,:) = [iConst + 2, r0, -1    ];
-        A(iVal + 7,:) = [iConst + 3, r1,  1    ];
+        A(iVal + 8,:) = [iConst + 3, r0,  1    ];
+        A(iVal + 7,:) = [iConst + 4, r1, -1    ];
+        A(iVal + 9,:) = [iConst + 5, r1,  1    ];
 
-        eq(iConst:iConst + 1) = '=';
-        b(iConst:iConst+1) = 0;
-        eq(iConst + 2:iConst + 3) = '<';
-        b(iConst + 2:iConst + 3) = [-deltaT; deltaT];
+        eq(iConst + 0) = '=';
+        eq(iConst + 1) = '='; 
+        b(iConst + 0) = 0;
+        b(iConst + 1) = 0;
+        
+        eq(iConst + 2) = '<';
+        eq(iConst + 3) = '<'; 
+        eq(iConst + 4) = '<';
+        eq(iConst + 5) = '<';
+        b(iConst + 2) = 0;
+        b(iConst + 3) = deltaT; 
+        b(iConst + 4) = 0;
+        b(iConst + 5) = deltaT;
 
-        iVal = iVal + 8;
-        iConst = iConst + 4;
+        iVal = iVal + 10;
+        iConst = iConst + 6;
     end
 end
 

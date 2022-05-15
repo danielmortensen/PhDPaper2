@@ -3,7 +3,7 @@ nAllRoute = sum(sim.routes.nRoute);
 nAllTime = sim.maxTimeIdx;
 M = nAllTime*2;
 nConst = (1 + nAllTime*2)*nAllRoute;
-nVal = (5*nAllTime + 2)*nAllRoute;
+nVal = (5*nAllTime + 3)*nAllRoute;
 
 iVal = 1;
 iConstr = 1;
@@ -17,13 +17,15 @@ for iBus = 1:sim.bus.nBus
         % first constraint
         k1 = var.val.k.val.final(iBus,iRoute);
         k0 = var.val.k.val.start(iBus,iRoute);
+        kq = var.val.k.val.equal(iBus,iRoute);
         s2 = var.val.s2.val.center(iBus,iRoute,:);
 
-        A(iVal + 0,:) = [iConstr, k0, -1];
-        A(iVal + 1,:) = [iConstr, k1,  1];
-        b(iConstr) = 1; % paper says -1, but it needs to be +1 here.
+        A(iVal + 0,:) = [iConstr, k0,  1];
+        A(iVal + 1,:) = [iConstr, k1, -1];
+        A(iVal + 2,:) = [iConstr, kq,  1];
+        b(iConstr) = 0;
         eq(iConstr) = '=';        
-        iVal = iVal + 2;
+        iVal = iVal + 3;
 
         for iTime = 1:nAllTime
             s = s2(iTime);

@@ -15,5 +15,6 @@ Const = con.getConst13(sim,var,Const);
 Const = con.getConst14(sim,var,Const);
 Const = con.getConst15(sim,var,Const);
 Const = con.getConst16(sim,var,Const);
+Const = con.getConst17(sim,var,Const);
 Const = con.getObjective(sim,var,Const);
 end

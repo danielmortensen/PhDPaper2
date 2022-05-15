@@ -25,8 +25,10 @@ which can be expressed in standard form and zero padded such that
 \end{aligned} \end{equation}
 and 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix} 0 & -1 & 0 & 0 & 0 & 0\\
-		        0 &  0 & 0 & 0 & 1 & 0\\
+	\begin{bmatrix} 0 & -1 & 0 & 0 &  0 & 0\\
+			0 &  1 & 0 & 0 &  0 & 0\\
+		        0 &  0 & 0 & 0 & -1 & 0\\
+			0 &  0 & 0 & 0 &  1 & 0\\
 	\end{bmatrix} 
 	\begin{bmatrix} k_{ij}^{\text{start}} \\
 		        r_{ij}^{\text{start}} \\
@@ -35,7 +37,9 @@ and
 			r_{ij}^{\text{end}}   \\
 			s_{ij}
 	\end{bmatrix} &\le 
-	\begin{bmatrix} -\Delta T \\
+	\begin{bmatrix}  0\\
+			\Delta T \\
+			0 \\
 			\Delta T
 	\end{bmatrix} \ \forall i,j \\ 
 	A_5\mathbf{y} &\le \mathbf{b}_5.  
@@ -75,11 +79,22 @@ Equations \ref{eqn:idxStart} and \ref{eqn:idxEnd} can be expressed in standard f
 \end{aligned} \end{equation}
 The final piece is to define $\mathbf{s}^{\text{on}}$. The set of constraints can be described as follows: 
 \begin{equation} \label{eqn:idxMiddle}\begin{aligned}
-	\mathbf{1}^T\mathbf{s}^{\text{on}}_{ij} &= k^{\text{end}}_{ij} - k^{\text{start}}_{ij} - 1 \\
+	\mathbf{1}^T\mathbf{s}^{\text{on}}_{ij} &= k^{\text{end}}_{ij} - k^{\text{start}}_{ij} - k_{ij}^{\text{eq}} \\
 	s_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\
 	s_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\ 
 \end{aligned} \end{equation}
-where $M$ is $2\cdot\text{nTime}$.
+where $M$ is $2\cdot\text{nTime}$. The variable $k_{ij}^{\text{eq}}$ is defined as
+\begin{equation}\begin{aligned}
+	k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - M k_{ij}^{\text{eq}} \le 0 \\
+	-k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + M k_{ij}^{\text{eq}} \le M .
+\end{aligned}\end{equation}
+The variable $k_{ij}^{\text{eq}}$ is a binary decision variable which indicates if $k_{ij}^{\text{start}} == k_{ij}^{\text{end}}$.  When this is the case, the value of $k_{ij}^{\text{eq}} = 0$, otherwise it is equal to $1$. 
+TODO:
+\begin{enumerate}
+	\item flush out where this comes from (i.e. when they are the same value and the two different linear relationhsips.)
+	\item flush out math.  Start with the two equality values and show how this is derived. 
+	\item combine these values in standard/linear/matrix form and encorporate into the current constraint.
+\end{enumerate}
 Equation \ref{eqn:idxMiddle} can also be expressed in standard form as
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 \end{bmatrix} \begin{bmatrix}\mathbf{s}_{ij} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \end{bmatrix} = -1

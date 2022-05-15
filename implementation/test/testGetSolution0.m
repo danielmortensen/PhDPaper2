@@ -14,7 +14,11 @@ k0All = var.val.k.val.start;
 k1All = var.val.k.val.final;
 r0All = var.val.r.val.start;
 r1All = var.val.r.val.final;
+kqAll = var.val.k.val.equal;
 dt = sim.deltaT;
+p = sim.charger.chargeRate;
+p1All = var.val.p.val.offRampAvg;
+p0All = var.val.p.val.onRampAvg;
 for iBus = 1:nBus
     for iRoute = 1:nRoute(iBus)
 
@@ -25,6 +29,9 @@ for iBus = 1:nBus
         k1Idx = k1All(iBus,iRoute);
         r0Idx = r0All(iBus,iRoute);
         r1Idx = r1All(iBus,iRoute);
+        kqIdx = kqAll(iBus,iRoute);
+        p0Idx = p0All(iBus,iRoute);
+        p1Idx = p1All(iBus,iRoute);
 
         % get arrival and departure times
         a = aAll(iBus,iRoute);
@@ -37,17 +44,33 @@ for iBus = 1:nBus
 
         % compute the integer and remainder versions       
         k0 = floor(c/dt);
-        r0 = c - k0;
+        r0 = c - k0*dt;
         k1 = floor(s/dt);
-        r1 = s - k1;
+        r1 = s - k1*dt;
+        kq = k0 ~= k1;
+
+        % compute partial average power
+        p0 = p*(dt - r0)/dt;
+        p1 = p*r1/dt;
+
+        % assign values to appropriate binary locations
+        s2On = var.val.s2.val.onRamp(iBus,iRoute,k0);
+        s2Off = var.val.s2.val.offRamp(iBus,iRoute,k1);
+        s2Cen = var.val.s2.val.center(iBus,iRoute,k0 + 1:k1 - 1);       
 
         % assign values to appropriate solution vector locations.
         sol(cIdx) = c;
         sol(sIdx) = s;
         sol(k0Idx) = k0;
         sol(k1Idx) = k1;
+        sol(kqIdx) = kq;
         sol(r0Idx) = r0;
         sol(r1Idx) = r1;
+        sol(s2On) = 1;
+        sol(s2Off) = 1;
+        sol(s2Cen) = 1;
+        sol(p0Idx) = p0;
+        sol(p1Idx) = p1;
     end
 end
 

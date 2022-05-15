@@ -35,7 +35,7 @@ for iConst = 1:Const.nConst
         legend('solution','b');
         Const.(name).eval.equality.Aeq = Aeq;
         Const.(name).eval.equality.SolEq = Aeq*sol;
-        Const.(name).eval.equality.isIncorrect = any(Aeq ~= beq);
+        Const.(name).eval.equality.isIncorrect = any(Aeq*sol ~= beq);
         badConstIdx = find(Aeq*sol ~= beq);
         Const.(name).eval.equality.badConstIdx = badConstIdx;
         Const.(name).eval.equality.badConstA = Aeq(badConstIdx,:);
