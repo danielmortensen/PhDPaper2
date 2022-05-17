@@ -47,7 +47,7 @@ and finally,
 \par A charge plan can be formulated by reserving time slots at chargers when buses need to charge (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
 	Note how there are several decisions that go into the charge schedule, namely when and to which charger a bus will connect. 
-\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, we also constraint $\sigma$ such that
+\par The variables for time have already been discussed in equation \ref{eqn:timeConstraint}, but variables for which charger have not been given.  Let $\sigma_{ijk}$ be a binary variable that is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, we also constrain $\sigma$ such that
 \begin{equation}
 	\begin{aligned}
 		\sum_k \sigma_{ijk} \le 1 \ \forall i,j
@@ -58,6 +58,13 @@ or in standard form as
 	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
 		A_2 & \le \mathbf{b}_2.
 \end{aligned} \end{equation}
+	The variable $\sigma_{ijk}$ is used in several scenarios. The first is to constrain a zero-second charge time when not in use.  This is done as
+	\begin{equation}\begin{aligned}
+		s_{ij} - c_{ij} &\le M\sum_{k}\sigma_{ijk} \\
+		s_{ij} - c_{ij} - \sum_{k}\sigma_{ijk}M &\le 0\\
+		\begin{bmatrix} 1_s & -1_c & -M_{\sigma} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j \\
+			A_3 &\le \mathbf{b}_3 \\
+	\end{aligned} \end{equation}
 The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
 

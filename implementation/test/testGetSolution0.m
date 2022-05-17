@@ -19,6 +19,8 @@ dt = sim.deltaT;
 p = sim.charger.chargeRate;
 p1All = var.val.p.val.offRampAvg;
 p0All = var.val.p.val.onRampAvg;
+p0VecAll = var.val.p.val.onRamp;
+p1VecAll = var.val.p.val.offRamp;
 for iBus = 1:nBus
     for iRoute = 1:nRoute(iBus)
 
@@ -32,6 +34,8 @@ for iBus = 1:nBus
         kqIdx = kqAll(iBus,iRoute);
         p0Idx = p0All(iBus,iRoute);
         p1Idx = p1All(iBus,iRoute);
+        p0VecIdx = p0VecAll(iBus,iRoute,:);
+        p1VecIdx = p1VecAll(iBus,iRoute,:);
 
         % get arrival and departure times
         a = aAll(iBus,iRoute);
@@ -40,7 +44,8 @@ for iBus = 1:nBus
         % compute synthetic charge start and stop times
         diff = d - a;
         c = a + diff/2 - 10;
-        s = d - diff/2 + 10;
+        s = c;
+        ...s = d - diff/2 + 10;
 
         % compute the integer and remainder versions       
         k0 = floor(c/dt);
@@ -50,8 +55,8 @@ for iBus = 1:nBus
         kq = k0 ~= k1;
 
         % compute partial average power
-        p0 = p*(dt - r0)/dt;
-        p1 = p*r1/dt;
+        p0 = 0;
+        p1 = 0;
 
         % assign values to appropriate binary locations
         s2On = var.val.s2.val.onRamp(iBus,iRoute,k0);
@@ -71,6 +76,8 @@ for iBus = 1:nBus
         sol(s2Cen) = 1;
         sol(p0Idx) = p0;
         sol(p1Idx) = p1;
+        sol(p0VecIdx(k0)) = p0;
+        sol(p1VecIdx(k1)) = p1;
     end
 end
 

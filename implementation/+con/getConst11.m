@@ -18,6 +18,9 @@ for iBus = 1:sim.bus.nBus
         for iTime= 1:sim.maxTimeIdx
             pw = p(iTime);
             sw = s2(iTime);
+            if any([pw; sw; p0] == 154)
+                fprintf('temp\n');
+            end
             A(iVal + 0 ,:) = [iConst, pw, -1];
             A(iVal + 1 ,:) = [iConst, p0,  1];
             A(iVal + 2 ,:) = [iConst, sw,  M];

@@ -129,25 +129,63 @@ The equality constraint in equation \ref{eqn:idxMiddle} is also standardized suc
 \end{aligned} \end{equation}
 
 \par We next define the average per use for each charger during an interval. The on-ramp intervals can be constrained as
-\begin{equation}\begin{aligned}
-	p^{\text{on-ramp}}_{ij} &= \frac{p\cdot (\Delta T - r^{\text{start}}_{ij})}{\Delta T}\\
-	p^{\text{off-ramp}}_{ij} &= \frac{p\cdot r^{\text{stop}}_{ij}}{\Delta T}\\
+\begin{equation}\label{eqn:avgPower1}\begin{aligned}
+	p^{\text{on-ramp}}_{ij} &= \frac{p\cdot (\Delta T - r^{\text{start}}_{ij})}{\Delta T}\\ 
+	p^{\text{off-ramp}}_{ij} &= \frac{p\cdot r^{\text{stop}}_{ij}}{\Delta T}.\\
 \end{aligned}\end{equation}
-or in standard form as
+However, when working within the same time segment, the formulation in equation \ref{eqn:avgPower1} must be adjusted to handle the second scenario as
+\begin{equation} \begin{aligned}
+	p_{ij}^{\text{on-ramp}} &\le p - \frac{p}{\Delta T}r_{ij}^{\text{start}} + M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\
+	p_{ij}^{\text{on-ramp}} &\ge p - \frac{p}{\Delta T}r_{ij}^{\text{start}} - M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\ 
+	p_{ij}^{\text{on-ramp}} &\le \frac{p}{\Delta T}r_{ij}^{\text{stop}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{on-ramp}} &\ge \frac{p}{\Delta T}r_{ij}^{\text{stop}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}}\\ 
+	p_{ij}^{\text{off-ramp}} &\le \frac{p}{\Delta T}r_{ij}^{\text{stop}} + M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
+	p_{ij}^{\text{off-ramp}} &\ge \frac{p}{\Delta T}r_{ij}^{\text{stop}} - M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
+	p_{ij}^{\text{off-ramp}} &\le Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{off-ramp}} &\ge - Mk_{ij}^{\text{eq}}\\
+\end{aligned} \end{equation}
+which is expressed in standard form as
+\begin{equation} \begin{aligned}
+	 p_{ij}^{\text{on-ramp}} + \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M + p \\
+	-p_{ij}^{\text{on-ramp}} - \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M - p \\
+	 p_{ij}^{\text{on-ramp}} - \frac{p}{\Delta T} r_{ij}^{\text{stop}}  + \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
+	-p_{ij}^{\text{on-ramp}} + \frac{p}{\Delta T} r_{ij}^{\text{stop}}  - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
+	 p_{ij}^{\text{off-ramp}} - \frac{p}{\Delta T}r_{ij}^{\text{stop}} + Mk_{ij}^{\text{eq}} &\le M \\
+	-p_{ij}^{\text{off-ramp}} + \frac{p}{\Delta T}r_{ij}^{\text{stop}} + Mk_{ij}^{\text{eq}} &\le M \\
+	 p_{ij}^{\text{off-ramp}} - Mk_{ij}^{\text{eq}} &\le 0\\
+	-p_{ij}^{\text{off-ramp}} - Mk_{ij}^{\text{eq}}&\le 0 \\
+\end{aligned} \end{equation}
+and finally as
 \begin{equation}\begin{aligned}
-	\begin{bmatrix} 1 & \frac{p}{\Delta T} & 0 & 0                   \\
-		        0 & 0                  & 1 & -\frac{p}{\Delta T} \\
-	\end{bmatrix}
-	\begin{bmatrix} p^{\text{on-ramp}}_{ij}  \\
-		        r_{ij}^{\text{start}}    \\
-			p^{\text{off-ramp}}_{ij} \\ 
-			r^{\text{stop}}_{ij} 
-	\end{bmatrix} &=
-	\begin{bmatrix} p \\
-	                0
+	\begin{bmatrix} 
+		 1 &  0 &  \frac{p}{\Delta T} &  0                  &  M\\
+		-1 &  0 & -\frac{p}{\Delta T} &  0                  &  M\\
+		 1 &  0 &  \frac{p}{\Delta T} & -\frac{p}{\Delta T} & -M\\ 
+		-1 &  0 & -\frac{p}{\Delta T} &  \frac{p}{\Delta T} & -M\\
+		 0 &  1 & 0                   & -\frac{p}{\Delta T} &  M\\
+		 0 & -1 & 0                   &  \frac{p}{\Delta T} &  M\\
+		 0 &  1 & 0                   &  0                  & -M\\
+		 0 & -1 & 0                   &  0                  & -M\\
+	\end{bmatrix} 
+	\begin{bmatrix}
+		p_{ij}^{\text{on}} \\
+                p_{ij}^{\text{off}} \\
+                r_{ij}^{\text{start}} \\
+                r_{ij}^{\text{stop}} \\
+                k_{ij}^{\text{eq}}
+	\end{bmatrix} &\le 
+	\begin{bmatrix}
+		M + p \\
+		M - p \\
+		0 \\
+		0 \\
+		M \\
+		M \\
+		0 \\
+		0 \\
 	\end{bmatrix} \ \forall i,j \\
-	\tilde{A}_5\mathbf{y} &= \tilde{\mathbf{b}}_5.
-\end{aligned}\end{equation}
+	A_7 &\le \mathbf{b}_7
+\end{aligned}\end{equation} 
 where $p_{ij}^{\text{on-ramp}}$, $p_{ij}^{\text{off-ramp}}$, and $p$ represent the average power for the on-ramping, off-ramping, and charging intervals respectively. The total average power use is calculated as 
 \begin{align}\label{eqn:totalPower}
 	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{s}^{\text{up}}_{ij}\cdot p^{\text{on-ramp}}_{ij} + \mathbf{s}^{\text{on}}_{ij}\cdot p + \mathbf{s}^{\text{off}}_{ij}\cdot p^{\text{off-ramp}}_{ij}

@@ -1,12 +1,13 @@
 function Const = getConst01(param,var,Const)
 
 % preallocate for constraints
-nVal = sum(param.routes.nRoute)*4;
-nConst = sum(param.routes.nRoute)*3;
+nVal = sum(param.routes.nRoute)*(4 + 2 + param.charger.nCharger);
+nConst = sum(param.routes.nRoute)*4;
 iConst = 1;
 iA = 1;
 A = nan([nVal,3]);
 b = nan([nConst,1]);
+M = param.maxTime;
 
 % define sparse matrix for constraints
 for iBus = 1:param.bus.nBus
@@ -34,9 +35,19 @@ for iRoute = 1:nRoute
     A(iA + 3,:) = [iConst + 2,s,1];
     b(iConst + 2) = d;
 
+    % fourth constraint
+    A(iA + 4,:) = [iConst + 3, s,  1];
+    A(iA + 5,:) = [iConst + 3, c, -1];
+    b(iConst + 3) = 0;
+    iA = iA + 6;
+    for iCharger = 1:param.charger.nCharger
+        sigma = var.val.sigma.val(iBus,iRoute,iCharger);
+        A(iA,:) = [iConst + 3, sigma, -M];
+        iA = iA + 1;
+    end
+
     % update index variables
-    iA = iA + 4;
-    iConst = iConst + 3;
+    iConst = iConst + 4;
 end
 end
 
