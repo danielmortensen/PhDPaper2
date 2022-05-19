@@ -5,7 +5,7 @@ nVal = nConst/4*10;
 % preallocate
 A = nan([nVal,3]);
 b = nan([nConst,1]);
-M = sim.charger.chargeRate;
+M = sim.charger.chargeRate*3600;% convert from kwh/sec. to kwh/h
 
 % define constraint
 iConst = 1;

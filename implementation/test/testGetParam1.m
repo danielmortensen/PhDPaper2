@@ -15,7 +15,7 @@ dTime = 15*60; % delta time in seconds
 rCharge = 300/3600; % kWh/second
 mBattery = 10*MBattery/100; % minimum allowed soc in kWh
 nBus = 3;
-nCharger = 2;
+nCharger = 3;
 
 % load data
 gridload = load(dirGridload);

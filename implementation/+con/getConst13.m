@@ -5,7 +5,7 @@ nVal = (3*sum(sim.routes.nRoute) + 1)*nConst;
 % preallocate
 A = nan([nVal,3]);
 b = sim.externLoad';
-p = sim.charger.chargeRate;
+p = sim.charger.chargeRate*3600; %convert from kwh/sec. to kwh/h
 
 % define constraint
 iConst = 1;

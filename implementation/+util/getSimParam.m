@@ -15,7 +15,7 @@ soc0 = 85*MBattery/100; % initial soc in kWh
 dTime = 15*60; % delta time in seconds
 rCharge = 300/3600; % kWh/second
 mBattery = 10*MBattery/100; % minimum allowed soc in kWh
-nBus = 6;
+nBus = 5;
 nCharger = 2;
 
 % load data
@@ -31,7 +31,7 @@ simRoutes = simRoutes(:,1:end-3);
 simRoutes = table2array(simRoutes);
 tArrival = simRoutes(:,1:3:end);
 tDepart = simRoutes(:,2:3:end);
-dSoc = simRoutes(:,3:3:end);
+dSoc = -simRoutes(:,3:3:end);
 
 param.deltaT = dTime;
 param.externLoad = gridload;

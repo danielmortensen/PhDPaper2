@@ -1,5 +1,6 @@
-function Const = testConstCheck(Const,  nVar, sol, doPlots)
-if nargin == 3
+function Const = testConstCheck(Const, sol, doPlots)
+nVar = numel(Const.obj);
+if nargin == 2
     doPlots = false;
 elseif strcmp(doPlots,'plotResults')
     doPlots = true;
@@ -23,7 +24,7 @@ for iConst = 1:Const.nConst
     if doPlots
         figure;
     end
-    Const.(name).eval.sol = sol;
+    Const.(name).myEval.sol = sol;
     if ~isempty(equalityIdx) && ~isempty(lessThanIdx)
         if doPlots
             subplot(1,2,1);
@@ -32,14 +33,14 @@ for iConst = 1:Const.nConst
             title("Blue == red " + name);
             legend('solution','b');
         end
-        Const.(name).eval.equality.Aeq = Aeq;
-        Const.(name).eval.equality.SolEq = Aeq*sol;
-        Const.(name).eval.equality.isCorrect = all(isAlmost(Aeq*sol, beq));
+        Const.(name).myEval.equality.Aeq = Aeq;
+        Const.(name).myEval.equality.SolEq = Aeq*sol;
+        Const.(name).myEval.equality.isCorrect = all(isAlmost(Aeq*sol, beq));
         badConstIdx = find(Aeq*sol ~= beq);
-        Const.(name).eval.equality.badConstIdx = badConstIdx;
-        Const.(name).eval.equality.badConstA = Aeq(badConstIdx,:);
-        Const.(name).eval.equality.badConstb = beq(badConstIdx);
-        Const.(name).eval.equality.beq = beq;
+        Const.(name).myEval.equality.badConstIdx = badConstIdx;
+        Const.(name).myEval.equality.badConstA = Aeq(badConstIdx,:);
+        Const.(name).myEval.equality.badConstb = beq(badConstIdx);
+        Const.(name).myEval.equality.beq = beq;
 
         if doPlots
             subplot(1,2,2);
@@ -48,14 +49,14 @@ for iConst = 1:Const.nConst
             title("Blue <= red " + name);
             legend('solution','b');
         end
-        Const.(name).eval.inequality.Ain = Ain;
-        Const.(name).eval.inequality.SolIn = Ain*sol;
-        Const.(name).eval.inequality.isCorrect = all(Ain*sol <= bin);
+        Const.(name).myEval.inequality.Ain = Ain;
+        Const.(name).myEval.inequality.SolIn = Ain*sol;
+        Const.(name).myEval.inequality.isCorrect = all(Ain*sol - bin <= 1e-10);
         badConstIdx = find(Ain*sol > bin);
-        Const.(name).eval.inequality.badConstIdx = badConstIdx;
-        Const.(name).eval.inequality.badConstA = Ain(badConstIdx,:);
-        Const.(name).eval.inequality.badConstb = bin(badConstIdx);
-        Const.(name).eval.inequality.bin = bin;
+        Const.(name).myEval.inequality.badConstIdx = badConstIdx;
+        Const.(name).myEval.inequality.badConstA = Ain(badConstIdx,:);
+        Const.(name).myEval.inequality.badConstb = bin(badConstIdx);
+        Const.(name).myEval.inequality.bin = bin;
 
     elseif ~isempty(equalityIdx)
         if doPlots
@@ -64,14 +65,14 @@ for iConst = 1:Const.nConst
             title("Blue == red " + name);
             legend('solution','b');
         end
-        Const.(name).eval.equality.Aeq = Aeq;
-        Const.(name).eval.equality.SolEq = Aeq*sol;
-        Const.(name).eval.equality.isCorrect = all(isAlmost(Aeq*sol, beq));
+        Const.(name).myEval.equality.Aeq = Aeq;
+        Const.(name).myEval.equality.SolEq = Aeq*sol;
+        Const.(name).myEval.equality.isCorrect = all(isAlmost(Aeq*sol, beq));
         badConstIdx = find(Aeq*sol ~= beq);
-        Const.(name).eval.equality.badConstIdx = badConstIdx;
-        Const.(name).eval.equality.badConstA = Aeq(badConstIdx,:);
-        Const.(name).eval.equality.badConstb = beq(badConstIdx);
-        Const.(name).eval.equality.beq = beq;
+        Const.(name).myEval.equality.badConstIdx = badConstIdx;
+        Const.(name).myEval.equality.badConstA = Aeq(badConstIdx,:);
+        Const.(name).myEval.equality.badConstb = beq(badConstIdx);
+        Const.(name).myEval.equality.beq = beq;
     else
         if doPlots
             plot(Ain*sol,'blue','linewidth',2); hold on;
@@ -79,14 +80,14 @@ for iConst = 1:Const.nConst
             title("Blue <= red " + name);
             legend('solution','b');
         end
-        Const.(name).eval.inequality.Ain = Ain;
-        Const.(name).eval.inequality.SolIn = Ain*sol;
-        Const.(name).eval.inequality.isCorrect = all(Ain*sol <= bin);
+        Const.(name).myEval.inequality.Ain = Ain;
+        Const.(name).myEval.inequality.SolIn = Ain*sol;
+        Const.(name).myEval.inequality.isCorrect = all(Ain*sol - bin <= 1e-10);
         badConstIdx = find(Ain*sol > bin);
-        Const.(name).eval.inequality.badConstIdx = badConstIdx;
-        Const.(name).eval.inequality.badConstA = Ain(badConstIdx,:);
-        Const.(name).eval.inequality.badConstb = bin(badConstIdx);
-        Const.(name).eval.inequality.bin = bin;
+        Const.(name).myEval.inequality.badConstIdx = badConstIdx;
+        Const.(name).myEval.inequality.badConstA = Ain(badConstIdx,:);
+        Const.(name).myEval.inequality.badConstb = bin(badConstIdx);
+        Const.(name).myEval.inequality.bin = bin;
     end
 end
 end

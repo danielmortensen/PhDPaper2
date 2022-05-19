@@ -4,7 +4,7 @@ function Const = getConst10(sim,var,Const)
 nConst = 8*sum(sim.routes.nRoute);
 nVal =  24*sum(sim.routes.nRoute);
 deltaT = sim.deltaT;
-p = sim.charger.chargeRate;
+p = sim.charger.chargeRate*3600; % Convert from kwh/second to kwh/h (or kw)
 M = max(sim.routes.tDepart(:) - sim.routes.tArrival(:));
 
 % preallocate
