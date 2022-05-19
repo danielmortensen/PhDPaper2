@@ -1,6 +1,6 @@
 function Const = getConst04(sim,var,Const)
-nConst = 4*(sum(sim.routes.nRoute)) + sim.bus.nBus;
-nVal = (nConst - sim.bus.nBus)*(3 + sim.charger.nCharger) + sim.bus.nBus;
+nConst = sum(sim.routes.nRoute) + sim.bus.nBus;
+nVal = 4*(nConst - sim.bus.nBus) + sim.bus.nBus;
 A = nan([nVal,3]);
 b = nan([nConst,1]);
 eq = nan([nConst,1]);
@@ -31,41 +31,14 @@ for iBus = 1:sim.bus.nBus
         A(iVal + 0,:) = [iConst + 0, h2,  1];
         A(iVal + 1,:) = [iConst + 0, h1, -1];
         A(iVal + 2,:) = [iConst + 0, s,  -p];
-        A(iVal + 3,:) = [iConst + 0, c,   p];
-
-        % second constraint
-        A(iVal + 4,:) = [iConst + 1, h2, -1];
-        A(iVal + 5,:) = [iConst + 1, h1,  1];
-        A(iVal + 6,:) = [iConst + 1, s,   p];
-        A(iVal + 7,:) = [iConst + 1, c,  -p];
-
-        % third constraint
-        A(iVal + 8, :) = [iConst + 2, h2,  1];
-        A(iVal + 9, :) = [iConst + 2, h1, -1];
-
-        % fourth constraint
-        A(iVal + 10,:) = [iConst + 3, h2,  -1];
-        A(iVal + 11,:) = [iConst + 3, h1,   1];
-
-        % define sigma values for each constraint
-        iVal = iVal + 12;
-        for iCharger = 1:sim.charger.nCharger  
-            sigma = var.val.sigma.val(iBus,iRoute,iCharger);
-            A(iVal + 0,:) = [iConst + 0, sigma,  M];
-            A(iVal + 1,:) = [iConst + 1, sigma,  M];
-            A(iVal + 2,:) = [iConst + 2, sigma, -M];
-            A(iVal + 3,:) = [iConst + 3, sigma, -M];
-            iVal = iVal + 4;
-        end   
+        A(iVal + 3,:) = [iConst + 0, c,   p];        
 
         % define b
         delta = sim.routes.discharge(iBus,iRoute);
-        b(iConst + 0) =  M - delta;
-        b(iConst + 1) =  delta + M;
-        b(iConst + 2) = -delta;
-        b(iConst + 3) =  delta;
-        eq(iConst:iConst + 3) = '<';
-        iConst = iConst + 4;
+        b(iConst + 0) = - delta;       
+        eq(iConst) = '=';
+        iConst = iConst + 1;
+        iVal = iVal + 4;
     end
 end
 

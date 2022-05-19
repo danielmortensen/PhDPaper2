@@ -18,60 +18,15 @@ The total change from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 	h_{ij+1} = h_{ij} + \Delta T\cdot p - \delta_i.
 \end{equation}
 The value for $\Delta T$ can also be expressed in terms of the difference between $a_{ij}$ and $d_{ij}$ such that
-\begin{equation}
-	h_{ij+1} = h_{ij} + p\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i.
-\end{equation}
-This is only the case, however, if the bus is assigned to a charger at stop $j$, otherwise the net increase is zero. This piecewise behavior can be modeled by using the charger selection variables, $\sigma_{ijk}$ such that
-\begin{equation}\label{eqn:bilinear}
-	h_{ij+1} = h_{ij} - \delta_i + p\cdot\left(\sum_k\sigma_{ijk}\right )\cdot(s_{ij} - c_{ij}) 
-\end{equation}
-but because equation \ref{eqn:bilinear} introduces a bilinear term, the behavior of $h$ is alternatively expressed as
-\begin{equation} \begin{aligned}
-	h_{ij+1} & \le h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) + M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij+1} & \ge h_{ij} - \delta_i + p\cdot(s_{ij} - c_{ij}) - M(1 - \sum_k\sigma_{ijk})\\
-	h_{ij+1} & \le h_{ij} - \delta_i + M\sum_k\sigma_{ijk}\\
-	h_{ij+1} & \ge h_{ij} - \delta_i - M\sum_k\sigma_{ijk}\\
-\end{aligned} \end{equation}
-Which can be expressed in standard form as
-\begin{equation} \begin{aligned}
-	 h_{ij+1} - h_{ij} - p\cdot s_{ij} + p\cdot c_{ij} + M\sum_k\sigma_{ijk} &\le M - \delta_i \\ 
-	-h_{ij+1} + h_{ij} + p\cdot s_{ij} - p\cdot c_{ij} + M\sum_k\sigma_{ijk} &\le \delta_i + M \\
-	 h_{ij+1} - h_{ij} - M\sum_k\sigma_{ijk} &\le -\delta_i \\
-	-h_{ij+1} + h_{ij} - M\sum_k\sigma_{ijk} & \le \delta_i \\
-\end{aligned} \end{equation}
-and finally,
-\begin{equation} \label{eqn:socDynamic1} \begin{aligned}
-	\begin{bmatrix}1  & -1 & -p & p   & M_k \\
-		       -1 & 1  & p  & -p  & M_k \\
-		       1  & -1 & 0             & 0              & -M_k  \\
-		       -1 & 1  & 0             & 0              & -M_k  \\
-	\end{bmatrix}
-	\begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \\ \sigma_{ijk} \end{bmatrix} &\le 
-		\begin{bmatrix}M -\delta_i \\ \delta_i + M \\ -\delta_i \\ \delta_i \end{bmatrix} \ \forall i,j \\
-			A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j
-\end{aligned} \end{equation}
-If the bus ends the day in the station (as is common), there is one final $h$ value that is computed without a route discharge parameter. Let $\mathcal{S}$ be the set of all $i,j$ where $h_{ij+1}$ describes the final state of charge value for bus $i$. Equation \ref{eqn:socDynamic1} can be reexpressed as 
-\begin{equation}\label{eqn:socDynamic2} 
-	\mathbf{b}_{ij} = 
-	\begin{dcases}
-		% first case
-		\begin{bmatrix} M -\delta_i \\
-			         \delta_i + M \\
-		                -\delta_i     \\
-		                 \delta_i 
-		\end{bmatrix} & \forall i,j \ni h_{ij+1} \notin \mathcal{S} \\
-		% second case
-		\omit \hfil$\begin{bmatrix} M \\
-		                M \\
-		                  0 \\
-		                  0 
-		\end{bmatrix}$\hfil & \forall i,j \ni h_{ij+1} \in \mathcal{S}.
-	\end{dcases}
-\end{equation}
-The constraints for each $i,j$ outlined in equations \ref{eqn:socDynamic1} and \ref{eqn:socDynamic2} can be vertically concatenated to form
+\begin{equation}\label{eqn:socDynamic1}\begin{aligned}
+	h_{ij+1} &= h_{ij} + p\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i\\
+	h_{ij+1} - h_{ij} - ps_{ij} + pc_{ij} &= -\delta_i\\
+	\begin{bmatrix} 1 & -1 & -p & p\end{bmatrix} \begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \end{bmatrix} &= -\delta_i \ \forall i,j
+\end{aligned}\end{equation}
+The constraints for each $i,j$ outlined in equation \ref{eqn:socDynamic1} can be vertically concatenated to form
 \begin{equation}\label{eqn:socDynamic3} \begin{aligned}
-	A_{ij}\mathbf{y} &\le \mathbf{b}_{ij} \ \forall i,j \\
-	A_4\mathbf{y} &\le \mathbf{b}_4
+	A_{ij}\mathbf{y} &= \mathbf{b}_{ij} \ \forall i,j \\
+	A_4\mathbf{y} &= \mathbf{b}_4
 \end{aligned} \end{equation}
 Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above the minimum threshold, $h_{\text{min}}$. These constraints are given as
 \begin{equation}
