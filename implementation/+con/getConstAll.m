@@ -16,5 +16,8 @@ Const = con.getConst14(sim,var,Const);
 Const = con.getConst15(sim,var,Const);
 Const = con.getConst16(sim,var,Const);
 Const = con.getConst17(sim,var,Const);
-Const = con.getObjective(sim,var,Const);
+if strcmp(sim.objType,'fiscal')
+    Const = con.getObjective(sim,var,Const);
+else
+    Const = con.getObjectiveBase(sim,var,Const);
 end

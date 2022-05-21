@@ -1,4 +1,4 @@
-function param = getSimParam()
+function param = getSimParam(nCharger, nBus, obj)
 
 % define input parameters
 if ispc
@@ -15,12 +15,10 @@ soc0 = 85*MBattery/100; % initial soc in kWh
 dTime = 15*60; % delta time in seconds
 rCharge = 300/3600; % kWh/second
 mBattery = 10*MBattery/100; % minimum allowed soc in kWh
-nBus = 5;
-nCharger = 2;
 
 % load data
 gridload = load(dirGridload);
-gridload = gridload.mu;
+gridload = gridload.mu*0;
 routes = readtable(dirRoutes);
 routes = sortrows(routes,'nRoute','descend');
 
@@ -34,6 +32,7 @@ tDepart = simRoutes(:,2:3:end);
 dSoc = -simRoutes(:,3:3:end);
 
 param.deltaT = dTime;
+param.objType = obj;
 param.externLoad = gridload;
 param.maxTime = MTime;
 param.maxTimeIdx = MTime/dTime;
