@@ -1,10 +1,11 @@
 \section{Integrating Uncontrolled Loads\label{sec:uncontrolled}}
-Next, we desire to integrate the charge decisions with uncontrolled loads.  These loads are sampled discretly and so the results for the power use must be converted into a compatible format.  To start, define
+A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes, also known as the 15-minute average power. This maximum average power measurement includes energy that is consumed by loads other than bus chargers. This section integrates external loads into the planning framework to be considered when formulating a charge schedule.  The primary challenge this section overcomes is how to relate the continuous description of power use in section \ref{sec:4_formulation} with a discrete representation of the uncontrolled loads. 
+\par The first step is to identify discrete points and intervals over which chargers are used. The continuous start and end points are given in $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}. Their corresponding discrete values are given as an integer-remainder pair, denoted $k$ and $r$ respectively.  The beginning and final indices for a discrete time interval of length $\Delta T$ are denoted $k_{\text{start}}$ and $k_{\text{end}}$ with remainders of $r_{\text{start}}$ and $r_{\text{end}}$ such that
 \begin{equation} \begin{aligned}
 		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
 		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
-	0 < r^{\text{start}}_{ij}, r^{\text{stop}}_{ij} < &\Delta T.
+	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 
 which can be expressed in standard form and zero padded such that
 \begin{equation} \begin{aligned}
@@ -42,23 +43,20 @@ and
 			0 \\
 			\Delta T
 	\end{bmatrix} \ \forall i,j \\ 
-	A_5\mathbf{y} &\le \mathbf{b}_5.  
+	A_6\mathbf{y} &\le \mathbf{b}_6.  
 \end{aligned} \end{equation}
-We desire to find binary vectors $\mathbf{s}^{\text{up}}_{ij}$, $\mathbf{s}^{\text{on}}_{ij}$, and $\mathbf{s}^{\text{off}}_{ij}$ which act as selectors for times indices where bus $i$ connects to, charges, and disconnects from a charger during the $j^{\text{th}}$ stop respectively. The on-ramping charging, and off-ramping periods will be used to represent power use from $k^{\text{start}}_{ij}$ to $k^{\text{end}}_{ij} + 1$, $k^{\text{start}}_{ij} + 1$ to $k^{\text{end}}_{ij}$ and $k^{\text{end}}_{ij}$ to $k^{\text{end}}_{ij} + 1$ respectively. 
-\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $\mathbf{f}_w = w \ \forall w \in (1,\text{nTime})$. The values in $\mathbf{s}^{\text{up}}_{ij}$ can be defined by the constraint
+The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$. The vectors $\mathbf{g}_{ij}^{\text{start}}$, $\mathbf{g}_{ij}^{\text{on}}$ and $\mathbf{g}_{ij}^{\text{end}}$ act as selectors for times that contain full or partial charge intervals. The values in $\mathbf{g}_{ij}^{\text{up}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$.  The vector $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that the bus charges the entire time. 
+\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $\mathbf{f}_w = w \ \forall w \in (1,\text{nTime})$. The values in $\mathbf{g}^{\text{start}}_{ij}$ and $\mathbf{g}_{ij}^{\text{end}}$ are defined as
 \begin{equation}\label{eqn:idxStart}\begin{aligned}
-	k^{\text{start}}_{ij} &= \mathbf{f}^T\mathbf{s}^{\text{up}}_{ij} \\
-	1 &= \mathbf{1}^T\mathbf{s}^{\text{up}}_{ij} \\
-	\mathbf{s}^{\text{up}}_{ij} &\in \{0,1\}.
-\end{aligned} \end{equation}
-Similarly, the values for $\mathbf{s}^{\text{off}}_{ij}$ can be defined as
-\begin{equation} \label{eqn:idxEnd}\begin{aligned}
-	k^{\text{stop}}_{ij} &= \mathbf{f}^T\mathbf{s}^{\text{off}}_{ij}\\ 
-	1 &= \mathbf{1}^T\mathbf{s}^{\text{off}}_{ij} \\
-	\mathbf{s}^{\text{off}}_{ij} &\in \{0,1\}.
+	k^{\text{start}}_{ij}        &= \mathbf{f}^T\mathbf{g}^{\text{start}}_{ij} \\
+	k^{\text{end}}_{ij}         &= \mathbf{f}^T\mathbf{g}^{\text{end}}_{ij}  \\ 
+	1                            &= \mathbf{1}^T\mathbf{g}^{\text{start}}_{ij} \\
+	1                            &= \mathbf{1}^T\mathbf{g}^{\text{end}}_{ij}  \\
+	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}                                  \\
+	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}.
 \end{aligned} \end{equation}
 
-Equations \ref{eqn:idxStart} and \ref{eqn:idxEnd} can be expressed in standard form and zero padded to form additional constraints in terms of $\mathbf{y}$.
+Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to form additional constraints in terms of $\mathbf{y}$.
 \begin{equation} \begin{aligned}
 	\begin{bmatrix} 0 & \mathbf{0}^T & -1 & \mathbf{f}^T \\
 		        0 & \mathbf{1}^T &  0 & 0            \\
@@ -66,94 +64,123 @@ Equations \ref{eqn:idxStart} and \ref{eqn:idxEnd} can be expressed in standard f
 		        0 & 0            & 0 & \mathbf{1}^T 
 	\end{bmatrix} 
 	\begin{bmatrix} k_{ij}^{\text{start}}       \\
-		        \mathbf{s}_{ij}^{\text{up}} \\ 
-			k_{ij}^{\text{stop}}        \\ 
-			\mathbf{s}_{ij}^{\text{off}} 
+		        \mathbf{g}_{ij}^{\text{start}} \\ 
+			k_{ij}^{\text{end}}        \\ 
+			\mathbf{g}_{ij}^{\text{end}} 
 	\end{bmatrix} &= 
 	\begin{bmatrix} 0 \\ 
 			1 \\
 	                0 \\
 			1
 	\end{bmatrix} \ \forall i,j \\
-	\tilde{A}_3\mathbf{y} &= \tilde{\mathbf{b}}_3.
+	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2.
 \end{aligned} \end{equation}
-The final piece is to define $\mathbf{s}^{\text{on}}$. The set of constraints can be described as follows: 
-\begin{equation} \label{eqn:idxMiddle}\begin{aligned}
-	\mathbf{1}^T\mathbf{s}^{\text{on}}_{ij} &= k^{\text{end}}_{ij} - k^{\text{start}}_{ij} - k_{ij}^{\text{eq}} \\
-	s_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\
-	s_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{on}}_{ij}\\ 
+The final piece is to define $\mathbf{g}^{\text{on}}$. The values in $\mathbf{g}^{\text{on}}$ be both greater than $k_{ij}^{\text{start}}$, and less than $k_{ij}^{\text{end}}$ when they are not zero such that 
+\begin{equation}\label{eqn:gOnCases}\begin{aligned}
+	\begin{rcases}
+		\begin{array}{ll}
+			g_w f_w \le k^{\text{end}}  \\
+			g_w f_w \ge k^{\text{start}}\\ 
+		\end{array} & g_w = 1 \\
+	\end{rcases}.
 \end{aligned} \end{equation}
-where $M$ is $2\cdot\text{nTime}$. The variable $k_{ij}^{\text{eq}}$ is defined as
-\begin{equation}\begin{aligned}
+Equation \ref{eqn:gOnCases} can be expressed as a set of linear constraints such that
+\begin{equation} \label{eqn:gOnBigM}\begin{aligned}
+	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
+	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
+\end{aligned} \end{equation}
+where $M$ is $2\cdot\text{nTime}$. The constraints in equation \ref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one however, only that if a value is equal to one, that it must be between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
+\begin{equation} \label{eqn:gOnSemiFinal}\begin{aligned}
+	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
+	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - 1.\\
+\end{aligned} \end{equation}
+The constraints in equation \ref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in equation \ref{eqn:gOnSemiFinal} becomes
+\begin{equation}
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} = -1
+\end{equation}
+which leads to an empty feasible set because all the elements of $\mathbf{g}_{ij}^{\text{on}}$ are binary. Let $k_{ij}^{\text{eq}}$ be a binary variable which is equal to $0$ when $k_{ij}^{\text{end}}$ is not equal to $k_{ij}^{\text{start}}$. Equation \ref{eqn:gOnSemiFinal} can be modified to handle the case where $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$ as
+\begin{equation} \label{eqn:gOnFinal}\begin{aligned}
+	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
+	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - k_{ij}^{\text{eq}}.\\
+\end{aligned} \end{equation} 
+ The variable $k_{ij}^{\text{eq}}$ is defined as
+\begin{equation}\label{eqn:kEq}\begin{aligned}
 	k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - M k_{ij}^{\text{eq}} \le 0 \\
 	-k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + M k_{ij}^{\text{eq}} \le M .
 \end{aligned}\end{equation}
-The variable $k_{ij}^{\text{eq}}$ is a binary decision variable which indicates if $k_{ij}^{\text{start}} == k_{ij}^{\text{end}}$.  When this is the case, the value of $k_{ij}^{\text{eq}} = 0$, otherwise it is equal to $1$. 
-TODO:
-\begin{enumerate}
-	\item flush out where this comes from (i.e. when they are the same value and the two different linear relationhsips.)
-	\item flush out math.  Start with the two equality values and show how this is derived. 
-	\item combine these values in standard/linear/matrix form and encorporate into the current constraint.
-\end{enumerate}
-Equation \ref{eqn:idxMiddle} can also be expressed in standard form as
-\begin{equation} \begin{aligned}
-	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 \end{bmatrix} \begin{bmatrix}\mathbf{s}_{ij} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \end{bmatrix} = -1
-\end{aligned} \end{equation}
-and
-\begin{equation}\begin{aligned}
-	s_w\left (f_w + M \right) - k_{ij}^{\text{end}} &\le M \\
-	s_w\left (M - f_w\right) + k_{ij}^{\text{start}} &\le M 
+The constraints from equations \ref{eqn:gOnFinal} and \ref{eqn:kEq} can be expressed in standard form as
+\begin{equation} \label{eqn:gOnFinalStd}\begin{aligned}
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &=  0 \\
+	k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - M k_{ij}^{\text{eq}} &\le 0 \\
+	-k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + M k_{ij}^{\text{eq}} &\le M \\
+	g_w\left (f_w + M \right) - k_{ij}^{\text{end}} &\le M \\
+	g_w\left (M - f_w\right) + k_{ij}^{\text{start}} &\le M.
 \end{aligned}\end{equation}
-which implies that
-\begin{equation} \begin{aligned}
+The inequality constriants from equation \ref{eqn:gOnFinalStd} imply that
+\begin{equation} \label{eqn:gOnFinalPart1}\begin{aligned}
 	\begin{bmatrix}f_w + M & -1 & 0\\
 		       M - f_w & 0 & 1 
 	\end{bmatrix} 
-	\begin{bmatrix}s_w                 \\
+	\begin{bmatrix}g_w                 \\
 		       k_{ij}^{\text{end}} \\ 
 		       k_{ij}^{\text{start}}
 	\end{bmatrix} \le
 	\begin{bmatrix} M \\
 	                M 
-	\end{bmatrix} \forall s_w \ \in \mathbf{s}_{ij}^{\text{on}}.
-\end{aligned}\end{equation}
-The constraints for all $i,j$ are concatenated and zero padded to form a joint matrix which satisfies the constraints and has the form 
+	\end{bmatrix} \forall g_w \in \mathbf{g}_{ij}^{\text{on}}.
+\end{aligned}\end{equation} 
+and that
+\begin{equation} \label{eqn:kEqStd}\begin{aligned}
+	\begin{bmatrix}1 & -1 & -M \\
+		       -1 & 1 & M  \\
+		       \end{bmatrix} \begin{bmatrix}k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} \le \begin{bmatrix} 0 \\ M\end{bmatrix} \ \forall i,j
+\end{aligned} \end{equation}
+which can be concatenated for all $i,j$ and zero padded to form a joint matrix which has the form 
 \begin{equation}
-	A_6\mathbf{y} = \mathbf{b}_6.
+	A_7\mathbf{y} \le \mathbf{b}_7.
 \end{equation}
-The equality constraint in equation \ref{eqn:idxMiddle} is also standardized such that
+Similarly, the equality constraint from equation \ref{eqn:gOnFinalStd} can also be concatenated and zero padded such that
 \begin{equation} \begin{aligned}
-	\mathbf{1}^T\mathbf{s}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} &= -1 \ \forall i,j\\
-	\begin{bmatrix}\mathbf{1}^T & -1 & 1\end{bmatrix} \begin{bmatrix}\mathbf{s}_{ij}^{\text{on}} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \end{bmatrix} &= -1 \ \forall i,j \\
-		\tilde{A}_4\mathbf{y} &= \tilde{\mathbf{b}}_4.
+	\mathbf{1}^T\mathbf{s}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &= 0 \ \forall i,j\\
+	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 & -1\end{bmatrix} \begin{bmatrix}\mathbf{g}_{ij}^{\text{on}} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} &= 0 \\
+		\tilde{A}_3\mathbf{y} &= \tilde{\mathbf{b}}_3.
 \end{aligned} \end{equation}
-
-\par We next define the average per use for each charger during an interval. The on-ramp intervals can be constrained as
+	\par The next step is to define the average power during intervals that only charge for part of the time.  These intervals correspond to the remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and, as with previous constraints, distinguish between behavior for $k_{ij}^{\text{eq}} = 0$ and $k_{ij}^{\text{eq}} = 1$.. The average power that corresponds to $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ can be computed as 
 \begin{equation}\label{eqn:avgPower1}\begin{aligned}
-	p^{\text{on-ramp}}_{ij} &= \frac{p\cdot (\Delta T - r^{\text{start}}_{ij})}{\Delta T}\\ 
-	p^{\text{off-ramp}}_{ij} &= \frac{p\cdot r^{\text{stop}}_{ij}}{\Delta T}.\\
+	\begin{rcases}
+	\begin{array}{l} \begin{aligned}
+		p^{\text{start}}_{ij} &= \frac{p\cdot (\Delta T - r^{\text{start}}_{ij})}{\Delta T}\\ 
+		p^{\text{end}}_{ij} &= \frac{p\cdot r^{\text{end}}_{ij}}{\Delta T}.\\
+	\end{aligned} \end{array} & k_{ij}^{\text{eq}} = 1 \\[8pt] 
+	\begin{array}{l} \begin{aligned}
+		p_{ij}^{\text{start}} &= \frac{p\cdot \left ( r_{ij}^{\text{end}} - r_{ij}^{\text{start}} \right )}{\Delta T} \\
+		p_{ij}^{\text{end}} &= 0 \\
+	\end{aligned} \end{array} & k_{ij}^{\text{eq}} = 0 \\
+	\end{rcases}.
 \end{aligned}\end{equation}
-However, when working within the same time segment, the formulation in equation \ref{eqn:avgPower1} must be adjusted to handle the second scenario as
+Equation \ref{eqn:avgPower1} can also be expressed as a set of linear inequality constraints such that
 \begin{equation} \begin{aligned}
-	p_{ij}^{\text{on-ramp}} &\le p - \frac{p}{\Delta T}r_{ij}^{\text{start}} + M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\
-	p_{ij}^{\text{on-ramp}} &\ge p - \frac{p}{\Delta T}r_{ij}^{\text{start}} - M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\ 
-	p_{ij}^{\text{on-ramp}} &\le \frac{p}{\Delta T}r_{ij}^{\text{stop}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}}\\
-	p_{ij}^{\text{on-ramp}} &\ge \frac{p}{\Delta T}r_{ij}^{\text{stop}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}}\\ 
-	p_{ij}^{\text{off-ramp}} &\le \frac{p}{\Delta T}r_{ij}^{\text{stop}} + M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
-	p_{ij}^{\text{off-ramp}} &\ge \frac{p}{\Delta T}r_{ij}^{\text{stop}} - M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
-	p_{ij}^{\text{off-ramp}} &\le Mk_{ij}^{\text{eq}}\\
-	p_{ij}^{\text{off-ramp}} &\ge - Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{start}} &\le p - \frac{p}{\Delta T}r_{ij}^{\text{start}} + M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\
+	p_{ij}^{\text{start}} &\ge p - \frac{p}{\Delta T}r_{ij}^{\text{start}} - M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\ 
+	p_{ij}^{\text{start}} &\le \frac{p}{\Delta T}r_{ij}^{\text{end}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{start}} &\ge \frac{p}{\Delta T}r_{ij}^{\text{end}} - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}}\\ 
+	p_{ij}^{\text{end}}   &\le \frac{p}{\Delta T}r_{ij}^{\text{end}} + M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
+	p_{ij}^{\text{end}}   &\ge \frac{p}{\Delta T}r_{ij}^{\text{end}} - M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
+	p_{ij}^{\text{end}}   &\le Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{end}}   &\ge - Mk_{ij}^{\text{eq}}\\
 \end{aligned} \end{equation}
-which is expressed in standard form as
+where $M = \text{the battery capacity}$ and can be expressed in standard form as
 \begin{equation} \begin{aligned}
-	 p_{ij}^{\text{on-ramp}} + \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M + p \\
-	-p_{ij}^{\text{on-ramp}} - \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M - p \\
-	 p_{ij}^{\text{on-ramp}} - \frac{p}{\Delta T} r_{ij}^{\text{stop}}  + \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
-	-p_{ij}^{\text{on-ramp}} + \frac{p}{\Delta T} r_{ij}^{\text{stop}}  - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
-	 p_{ij}^{\text{off-ramp}} - \frac{p}{\Delta T}r_{ij}^{\text{stop}} + Mk_{ij}^{\text{eq}} &\le M \\
-	-p_{ij}^{\text{off-ramp}} + \frac{p}{\Delta T}r_{ij}^{\text{stop}} + Mk_{ij}^{\text{eq}} &\le M \\
-	 p_{ij}^{\text{off-ramp}} - Mk_{ij}^{\text{eq}} &\le 0\\
-	-p_{ij}^{\text{off-ramp}} - Mk_{ij}^{\text{eq}}&\le 0 \\
+	 p_{ij}^{\text{start}} + \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M + p \\
+	-p_{ij}^{\text{start}} - \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M - p \\
+	 p_{ij}^{\text{start}} - \frac{p}{\Delta T} r_{ij}^{\text{end}}  + \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
+	-p_{ij}^{\text{start}} + \frac{p}{\Delta T} r_{ij}^{\text{end}}  - \frac{p}{\Delta T}r_{ij}^{\text{start}} - Mk_{ij}^{\text{eq}} &\le 0\\
+	 p_{ij}^{\text{end}}   - \frac{p}{\Delta T} r_{ij}^{\text{end}} + Mk_{ij}^{\text{eq}} &\le M \\
+	-p_{ij}^{\text{end}}   + \frac{p}{\Delta T} r_{ij}^{\text{end}} + Mk_{ij}^{\text{eq}} &\le M \\
+	 p_{ij}^{\text{end}}   - Mk_{ij}^{\text{eq}} &\le 0\\
+	-p_{ij}^{\text{end}}   - Mk_{ij}^{\text{eq}}&\le 0 \\
 \end{aligned} \end{equation}
 and finally as
 \begin{equation}\begin{aligned}
@@ -168,10 +195,10 @@ and finally as
 		 0 & -1 & 0                   &  0                  & -M\\
 	\end{bmatrix} 
 	\begin{bmatrix}
-		p_{ij}^{\text{on}} \\
-                p_{ij}^{\text{off}} \\
+		p_{ij}^{\text{start}} \\
+                p_{ij}^{\text{end}} \\
                 r_{ij}^{\text{start}} \\
-                r_{ij}^{\text{stop}} \\
+                r_{ij}^{\text{end}} \\
                 k_{ij}^{\text{eq}}
 	\end{bmatrix} &\le 
 	\begin{bmatrix}
@@ -184,26 +211,33 @@ and finally as
 		0 \\
 		0 \\
 	\end{bmatrix} \ \forall i,j \\
-	A_7 &\le \mathbf{b}_7
+	A_8 &\le \mathbf{b}_8
 \end{aligned}\end{equation} 
-where $p_{ij}^{\text{on-ramp}}$, $p_{ij}^{\text{off-ramp}}$, and $p$ represent the average power for the on-ramping, off-ramping, and charging intervals respectively. The total average power use is calculated as 
+where $p_{ij}^{\text{start}}$, $p_{ij}^{\text{end}}$, and $p$ represent the average power that corresponds to $r_{ij}^{\text{start}}$, $r_{ij}^{\text{end}}$, and full charging intervals respectively. The total average power use is calculated as 
 \begin{align}\label{eqn:totalPower}
-	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{s}^{\text{up}}_{ij}\cdot p^{\text{on-ramp}}_{ij} + \mathbf{s}^{\text{on}}_{ij}\cdot p + \mathbf{s}^{\text{off}}_{ij}\cdot p^{\text{off-ramp}}_{ij}
+	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{g}^{\text{start}}_{ij}\cdot p^{\text{start}}_{ij} + \mathbf{g}^{\text{on}}_{ij}\cdot p + \mathbf{g}^{\text{end}}_{ij}\cdot p^{\text{end}}_{ij}
 \end{align}
 where $\bar{\mathbf{p}}_{\text{load}}$ is the average power of the uncontrolled loads.
-\par Note, however that the results from equation \ref{eqn:totalPower} contain a bilinear term. The first bilnear expression in  equation \ref{eqn:totalPower} can be rewritten as 
-\begin{equation} \label{eqn:onPower}\begin{aligned}
-	p_w &\ge p^{\text{on-ramp}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-	p_w &\le p^{\text{on-ramp}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-	p_w &\ge -Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}\\
-	p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{up}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{up}}
+\par Note, however that the results from equation \ref{eqn:totalPower} contain a bilinear term. The first bilnear expression in  equation \ref{eqn:totalPower} must be rewritten as a vector containing values for $p_{ij}^{\text{start}}$ whenever $g_{ij}^{\text{start}} \ne 0$.  The resulting vector is denoted $\mathbf{p}_{ij}^{\text{start}}$ such that
+\begin{equation} \label{eqn:bilinear1}\begin{aligned}
+	\begin{rcases}
+		p_w = p^{\text{start}} & g = 1 \\
+		p_w = 0                & g = 0 \\
+	\end{rcases} \forall p_w \in \mathbf{p}_{ij}^{\text{start}}
 \end{aligned} \end{equation}
-and similarly the second as, 
+The constraints for equation \ref{eqn:bilinear1} can be rewritten as a set of linear inequality constraints such that
+\begin{equation} \label{eqn:onPower}\begin{aligned}
+	p_w &\ge p^{\text{start}}_{ij} - M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
+	p_w &\le p^{\text{start}}_{ij} + M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
+	p_w &\ge -Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
+	p_w &\le  Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}
+\end{aligned} \end{equation}
+The same approach can be taken to replace the other bilinear form $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$ with the vector $\mathbf{p}_{ij}^{\text{end}}$ as 
 \begin{equation} \label{eqn:offPower} \begin{aligned}
-	p_w &\ge p^{\text{off-ramp}}_{ij} - M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
-		p_w &\le p^{\text{off-ramp}}_{ij} + M(1 - s_w) \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
-		p_w &\ge -Ms_w \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}\\
-		p_w &\le Ms_w \ \forall s_w \in \mathbf{s}^{\text{off}}_{ij}, \ p_w \in \mathbf{p}_{ij}^{\text{off}}.
+	p_w &\ge p^{\text{end}}_{ij} - M(1 - g_w) \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
+	p_w &\le p^{\text{end}}_{ij} + M(1 - g_w) \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
+	p_w &\ge -Mg_w \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
+	p_w &\le Mg_w \  \forall p_w \in \mathbf{p}_{ij}^{\text{end}}.
 \end{aligned} \end{equation} 
 Equation \ref{eqn:onPower} can be written in standard form, stacked to accomodate the constraints for all $i,j$, and zero padded appropriately as
 \begin{equation}\begin{aligned} 
@@ -215,18 +249,18 @@ Equation \ref{eqn:onPower} can be written in standard form, stacked to accomodat
 	\end{bmatrix}
 	\begin{bmatrix} 
 		p_w                     \\
-	        p_{ij}^{\text{on-ramp}} \\
-		s_w
+	        p_{ij}^{\text{start}} \\
+		g_w
 	\end{bmatrix}  &\le
 	\begin{bmatrix}
 		M \\
 		M \\
 		0 \\
 		0
-	\end{bmatrix} \forall s_w \in \mathbf{s}_{ij}^{\text{up}}, p_w \in \mathbf{p}_{ij}^{\text{off}}.\\ 
-	A_7 &\le \mathbf{b}_7 
+	\end{bmatrix} \forall p_w \in \mathbf{p}_{ij}^{\text{start}}.\\ 
+	A_9 &\le \mathbf{b}_9 
 \end{aligned}\end{equation}
-	Equation \ref{eqn:offPower} can be expressed in standard form, stacked for all $i,j$, and zero padded in the usual fashion as 
+	Equation \ref{eqn:offPower} can be expressed in standard form, stacked for all $i,j$, and zero padded in a similar fashion such that 
 \begin{equation}\begin{aligned} 
 	\begin{bmatrix}
 		-1 & 1 & M  \\
@@ -235,34 +269,33 @@ Equation \ref{eqn:onPower} can be written in standard form, stacked to accomodat
 		1 & 0 & -M 
 	\end{bmatrix}	
 	\begin{bmatrix} p_w                      \\
-		        p_{ij}^{\text{off-ramp}} \\
-			s_w
+		        p_{ij}^{\text{end}} \\
+			g_w
 	\end{bmatrix} &\le
 	\begin{bmatrix} M \\
 	                M \\
 	                0 \\
 	                0
-	\end{bmatrix} \forall s_w \in \mathbf{s}_{ij}^{\text{off}}, p_w \in \mathbf{p}_{ij}^{\text{on}} \\
-	A_8\mathbf{y} & \le b_8.
+	\end{bmatrix} \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}} \\
+	A_{10}\mathbf{y} & \le \mathbf{b}_{10}.
 \end{aligned}\end{equation} 
 An expression for the total power used can then be expressed as
 \begin{equation}
 	\begin{aligned}
-		\mathbf{p}_{\text{total}} = \mathbf{p} + \sum_{ij} \mathbf{p}^{\text{up}}_{ij} + \mathbf{p}^{\text{off}}_{ij} + \mathbf{s}^{\text{on}}_{ij}\cdot p
+		\mathbf{p}^{\text{total}} = \mathbf{p}^{\text{load}} + \sum_{ij} \mathbf{p}^{\text{start}}_{ij} + \mathbf{p}^{\text{end}}_{ij} + \mathbf{g}^{\text{on}}_{ij}\cdot p
 	\end{aligned}
 \end{equation}
 and in standard form as
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}
-		1 & -1 & 1_{ij}^{\text{up}} & 1_{ij}^{\text{off}} & 1_{ij}^{\text{on}}\cdot p  
+		1 & -1^{\text{start}} & -1^{\text{end}} & -1^{\text{on}}\cdot p  
 	\end{bmatrix}
 	\begin{bmatrix}
-		p^{\text{total}}_w            \\
-		p_w                           \\
-	        \mathbf{p}_{ijw}^{\text{up}}  \\
-	        \mathbf{p}_{ijw}^{\text{off}} \\ 
-	        \mathbf{s}_{ijw}^{\text{on}}
-	\end{bmatrix} &= 0 \\
-	\tilde{A}_6\mathbf{y} &= \tilde{\mathbf{b}}_6
+		\mathbf{p}_{w}^{\text{total}} \\
+	        \mathbf{p}_{w}^{\text{start}} \\
+	        \mathbf{p}_{w}^{\text{end}}   \\
+	        \mathbf{g}_{w}^{\text{on}}    \\
+	\end{bmatrix} &= \mathbf{p}_{w}^{\text{load}}  \\
+	\tilde{A}_4\mathbf{y} &= \tilde{\mathbf{b}}_4
 \end{aligned} \end{equation}
 

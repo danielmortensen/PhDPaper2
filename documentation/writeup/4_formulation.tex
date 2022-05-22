@@ -1,5 +1,5 @@
 \newpage temp \newpage
-\section{Continuous Problem Formulation}
+\section{Continuous Problem Formulation\label{sec:4_formulation}}
 The charge scheduling framework described in this paper is formulated as a constrained optimization problem that can be solved as a Mixed Integer Linear Program (MILP) of the form
 \begin{equation}\label{eqn:MILP}\begin{matrix}
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
@@ -7,7 +7,18 @@ The charge scheduling framework described in this paper is formulated as a const
 \end{matrix} \end{equation}
 where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
 \begin{equation}
-	\mathbf{y} = \begin{bmatrix}\mathbf{\sigma} \\ \mathbf{c} \\ \mathbf{s} \\ \mathbf{h} \\ \mathbf{k} \\ \mathbf{r} \\ \mathbf{p} \\ q_{\text{on}} \\ q_{\text{all}}\end{bmatrix},
+	\mathbf{y} = \begin{bmatrix}
+			\mathbf{\sigma} \\ 
+			\mathbf{c}      \\ 
+			\mathbf{s}      \\ 
+			\mathbf{h}      \\ 
+			\mathbf{k}      \\ 
+			\mathbf{r}      \\ 
+			\mathbf{g}      \\
+			\mathbf{p}      \\ 
+			q_{\text{on}}   \\ 
+			q_{\text{all}}  \\
+		     \end{bmatrix},
 \end{equation}
 where $\mathbf{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, $\mathbf{p}$, $q_{\text{on}}$, and $q_{\text{all}}$ will be developed through the course of this paper.
 \par The cost function in equation \ref{eqn:MILP} models a realistic billing structure used by \textcolor{red}{reference to rocky mountain power schedule 8} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints encorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
@@ -41,7 +52,7 @@ and finally,
 	\begin{bmatrix}-1_c & 0 & \hdots & 0    \\
                         1_c & 0 & \hdots & -1_d \\
 		0   & 0 & \hdots & 1_d \end{bmatrix}\mathbf{y} &\le \begin{bmatrix} -a \\ 0 \\ d\end{bmatrix} \ \forall i,j \\
-			A_1 &\le \mathbf{b}_1,
+			A_1\mathbf{y} &\le \mathbf{b}_1,
 \end{aligned} \end{equation}
 	where $A_1$ and $\mathbf{b}_1$ stack the constraints given in equation \ref{eqn:timeConstraint} for all $i,j$.
 \par A charge plan can be formulated by reserving time slots at chargers when buses need to charge (see Fig. \ref{fig:busTime4}).
@@ -56,14 +67,14 @@ and finally,
 or in standard form as 
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
-		A_2 & \le \mathbf{b}_2.
+		A_2\mathbf{y} & \le \mathbf{b}_2.
 \end{aligned} \end{equation}
 	The variable $\sigma_{ijk}$ is used in several scenarios. The first is to constrain a zero-second charge time when not in use.  This is done as
 	\begin{equation}\begin{aligned}
 		s_{ij} - c_{ij} &\le M\sum_{k}\sigma_{ijk} \\
 		s_{ij} - c_{ij} - \sum_{k}\sigma_{ijk}M &\le 0\\
 		\begin{bmatrix} 1_s & -1_c & -M_{\sigma} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j \\
-			A_3 &\le \mathbf{b}_3 \\
+			A_3\mathbf{y} &\le \mathbf{b}_3 \\
 	\end{aligned} \end{equation}
 The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
@@ -85,6 +96,6 @@ However, this constraint is only necessary when both bus stops are designated fo
 	\end{aligned} \end{equation}
 	The constraints in equation \ref{eqn:overlapConstraints3} can be repeated for all instances where overlap is possible and concatenated into a single matrix such that
 	\begin{equation}\begin{aligned} 
-		A_3\mathbf{y} & \le \mathbf{1}\cdot 2M \\
-		A_3\mathbf{y} & \le \mathbf{b}_3 \\
+		A_4\mathbf{y} & \le \mathbf{1}\cdot 2M \\
+		A_4\mathbf{y} & \le \mathbf{b}_4 \\
 	\end{aligned} \end{equation} 

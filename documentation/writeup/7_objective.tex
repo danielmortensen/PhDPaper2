@@ -9,13 +9,13 @@ It is necessary to compute the maximum power both overall and for on-peak period
 \begin{equation} \begin{aligned}
 	p_j^{\text{total}} &\le q_{\text{on}} \ \forall j \in \mathcal{S}_{\text{on}} \\
 	\begin{bmatrix} 1 & -1\end{bmatrix} \begin{bmatrix}p_j^{\text{total}} \\ q_{\text{on}} \end{bmatrix} &\le 0 \ \forall j \in \mathcal{S}_{\text{on}}\\
-		A_{9}\mathbf{y} &\le \mathbf{0} \\
-		A_{9}\mathbf{y} &\le \mathbf{b}_9
+		A_{11}\mathbf{y} &\le \mathbf{0} \\
+		A_{11}\mathbf{y} &\le \mathbf{b}_{11}
 \end{aligned} \end{equation}
 Because an increased value in $q_{\text{on}}$ is directly related to an increase in cost, the optimizer will minimize $q_{\text{on}}$ until it is equal to the maximum value in $\{p_j^{\text{total}} \ \forall j \in \mathcal{S}_{\text{on}}\}$. A similar proceedure can be used to derive a set of constraints for the overall maximum average power, denoted $q_{\text{all}}$, and is represented as
 \begin{equation} \begin{aligned}
-	A_{10}\mathbf{y} &\le  \mathbf{0} \\
-	A_{10}\mathbf{y} &\le \mathbf{b}_{10}.
+	A_{12}\mathbf{y} &\le  \mathbf{0} \\
+	A_{12}\mathbf{y} &\le \mathbf{b}_{12}.
 \end{aligned} \end{equation}
 The charges for power are then expressed as 
 \begin{equation} \begin{aligned}
@@ -54,17 +54,11 @@ The complete problem can now be formulated as
 		\tilde{A}_{1} \\ 
 		\tilde{A}_{2} \\
 		\tilde{A}_{3} \\
-		\tilde{A}_{4} \\
-		\tilde{A}_{5} \\
-		\tilde{A}_{6}
 	\end{bmatrix}\mathbf{y} = 
 	\begin{bmatrix}
 		\tilde{\mathbf{b}}_{1} \\
 		\tilde{\mathbf{b}}_{2} \\
 		\tilde{\mathbf{b}}_{3} \\
-		\tilde{\mathbf{b}}_{4} \\
-		\tilde{\mathbf{b}}_{5} \\
-		\tilde{\mathbf{b}}_{6} \\
 	\end{bmatrix}, \ 
 	\begin{bmatrix}
 		A_{1} \\
@@ -77,6 +71,8 @@ The complete problem can now be formulated as
 		A_{8} \\
 		A_{9} \\
 		A_{10}\\
+		A_{11}\\
+		A_{12}\\
 	 \end{bmatrix}\mathbf{y} \le 
 	 \begin{bmatrix}
 		\mathbf{b}_{1} \\
@@ -89,6 +85,8 @@ The complete problem can now be formulated as
 		\mathbf{b}_{8} \\
 		\mathbf{b}_{9} \\
 		\mathbf{b}_{10}\\
+		\mathbf{b}_{11}\\
+		\mathbf{b}_{12}\\
 	 \end{bmatrix}
 \end{matrix} \end{equation}
 or 
