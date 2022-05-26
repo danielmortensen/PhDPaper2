@@ -5,3 +5,6 @@ documentation/writeup/build/
 *__pycache__*
 *.asv
 *.asv
+*.swp
+*.fig
+*.jpg

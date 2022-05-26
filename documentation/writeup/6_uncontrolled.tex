@@ -1,13 +1,13 @@
 \section{Integrating Uncontrolled Loads\label{sec:uncontrolled}}
-A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes, also known as the 15-minute average power. This maximum average power measurement includes energy that is consumed by loads other than bus chargers. This section integrates external loads into the planning framework to be considered when formulating a charge schedule.  The primary challenge this section overcomes is how to relate the continuous description of power use in section \ref{sec:4_formulation} with a discrete representation of the uncontrolled loads. 
-\par The first step is to identify discrete points and intervals over which chargers are used. The continuous start and end points are given in $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}. Their corresponding discrete values are given as an integer-remainder pair, denoted $k$ and $r$ respectively.  The beginning and final indices for a discrete time interval of length $\Delta T$ are denoted $k_{\text{start}}$ and $k_{\text{end}}$ with remainders of $r_{\text{start}}$ and $r_{\text{end}}$ such that
-\begin{equation} \begin{aligned}
+A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers. This section integrates these uncontrolled loads into the planning framework. Measurements for uncontrolled loads are available at discrete time instants. The primary challenge addressed in this section is how to relate the continuous time model of power use from section \ref{sec:4_formulation} with a discrete time representation of the uncontrolled loads be converting the continuous start and end points $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation} to a vector $\mathbf{p}$, where $p_i$ represents the average power over the interval from $t_{i-1}$ to $t_i$.
+\par The first step is to separate each value for $c_{ij}$ and $s_{ij}$ into an integer-remainder pair such that. 
+\begin{equation} \label{eqn:discrete1} \begin{aligned}
 		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
 		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 
-which can be expressed in standard form and zero padded such that
+where $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ are the integer portions of $c_{ij}$ and $s_{ij}$, $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ are the remainders, and $\Delta T$ is the step size. Equation \ref{eqn:discrete1} can be rewriten in standard form and zero padded such that
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}\Delta T &  1 & -1 & 0        & 0 &  0\\ 
 		       0        &  0 & 0  & \Delta T & 1 & -1\\
@@ -45,15 +45,15 @@ and
 	\end{bmatrix} \ \forall i,j \\ 
 	A_6\mathbf{y} &\le \mathbf{b}_6.  
 \end{aligned} \end{equation}
-The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$. The vectors $\mathbf{g}_{ij}^{\text{start}}$, $\mathbf{g}_{ij}^{\text{on}}$ and $\mathbf{g}_{ij}^{\text{end}}$ act as selectors for times that contain full or partial charge intervals. The values in $\mathbf{g}_{ij}^{\text{up}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$.  The vector $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that the bus charges the entire time. 
+The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$, which act as selectors for times when buses are charged. The values in $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that buses charges the entire time. 
 \par Let $\mathbf{f}$ be a vector of one-based integer indices such that $\mathbf{f}_w = w \ \forall w \in (1,\text{nTime})$. The values in $\mathbf{g}^{\text{start}}_{ij}$ and $\mathbf{g}_{ij}^{\text{end}}$ are defined as
 \begin{equation}\label{eqn:idxStart}\begin{aligned}
 	k^{\text{start}}_{ij}        &= \mathbf{f}^T\mathbf{g}^{\text{start}}_{ij} \\
 	k^{\text{end}}_{ij}         &= \mathbf{f}^T\mathbf{g}^{\text{end}}_{ij}  \\ 
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{start}}_{ij} \\
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{end}}_{ij}  \\
-	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}                                  \\
-	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}.
+	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}^{\text{nTime}}                \\
+	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nTime}}.
 \end{aligned} \end{equation}
 
 Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to form additional constraints in terms of $\mathbf{y}$.
@@ -75,7 +75,7 @@ Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to
 	\end{bmatrix} \ \forall i,j \\
 	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2.
 \end{aligned} \end{equation}
-The final piece is to define $\mathbf{g}^{\text{on}}$. The values in $\mathbf{g}^{\text{on}}$ be both greater than $k_{ij}^{\text{start}}$, and less than $k_{ij}^{\text{end}}$ when they are not zero such that 
+The final piece is to define $\mathbf{g}^{\text{on}}$. The values in $\mathbf{g}^{\text{on}}$ must be both greater than $k_{ij}^{\text{start}}$, and less than $k_{ij}^{\text{end}}$ when they are not zero such that 
 \begin{equation}\label{eqn:gOnCases}\begin{aligned}
 	\begin{rcases}
 		\begin{array}{ll}

@@ -6,7 +6,7 @@ simulations.objType = [repmat("fiscal",[1,31]) repmat("baseline",[1,2])];
 simulations.nSim = 33;
 simulations.resultPath = {"..","results"};                                 %#ok
 
-for iSim = 1:simulations.nSim
+for iSim = 6:simulations.nSim
 
     % define simulation parameters
     nBus = simulations.nBus(iSim);
