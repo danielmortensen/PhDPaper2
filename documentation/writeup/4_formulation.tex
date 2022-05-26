@@ -21,7 +21,7 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution ve
 		     \end{bmatrix},
 \end{equation}
 where $\mathbf{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, $\mathbf{p}$, $q_{\text{on}}$, and $q_{\text{all}}$ will be developed through the course of this paper.
-\par The cost function in equation \ref{eqn:MILP} models a realistic billing structure used by \textcolor{red}{reference to rocky mountain power schedule 8} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints encorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
+\par The cost function in equation \ref{eqn:MILP} models a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints encorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
 \par Solving the bus charge problem requires knowing when, and on which charger a bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.
 \input{media/4_formulation/busTime1}

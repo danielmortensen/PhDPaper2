@@ -12,7 +12,7 @@ Equation \ref{eqn:initialSoc0} can be expressed in standard form such that
 		\tilde{A}_1\mathbf{y} &= \tilde{\mathbf{b}}_1
 \end{aligned} \end{equation}
 \input{media/5_battery/delta}
-\par The transition from $h_{ij}$ to $h_{ij+1}$ is computed as the sum of battery effects due to charging and discharging. The discharge from operating bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge follows a linear charge model such that the increase is equal to the energy rate, denoted $p$, times the time spent charging, denoted $\Delta_{\text{sc}}$.
+\par The transition from $h_{ij}$ to $h_{ij+1}$ is computed as the sum of battery effects due to charging and discharging. The discharge from operating bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge follows a linear charge model\cite{rong_coordinated_2016} such that the increase is equal to the energy rate, denoted $p$, times the time spent charging, denoted $\Delta_{\text{sc}}$.
 The total change from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 \begin{equation}
 	h_{ij+1} = h_{ij} + \Delta T\cdot p - \delta_i.

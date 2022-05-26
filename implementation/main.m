@@ -6,7 +6,7 @@ simulations.objType = [repmat("fiscal",[1,31]) repmat("baseline",[1,2])];
 simulations.nSim = 33;
 simulations.resultPath = {"..","results"};                                 %#ok
 
-for iSim = 6:simulations.nSim
+for iSim = 8:simulations.nSim
 
     % define simulation parameters
     nBus = simulations.nBus(iSim);
@@ -18,7 +18,8 @@ for iSim = 6:simulations.nSim
     var = util.getVarParam(sim);
     Const = con.getConstAll(sim,var);
     model = util.toGurobi(Const,var);
-    solution = gurobi(model);
+    param = struct('MIPGap',0.02);
+    solution = gurobi(model,param);
 
     % save results
     filename = "nBus_" + string(nBus) + ...
