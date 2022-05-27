@@ -1,38 +1,13 @@
 \section{Introduction}
-\begin{enumerate}
-	\item Electric buses are good because
-		\begin{enumerate}
-			\item They incur less maintenance \cite{poornesh_comparative_2020}(Poornesh et al.)
-			\item They are eco-friendly \cite{kato_comparative_2013}
-				\begin{enumerate}
-					\item Provide access to renewable energy \cite{cheng_smart_2020}
-					\item Give off zero emissions
-				\end{enumerate}
-		\end{enumerate}
-	\item Electric buses struggle with
-		\begin{enumerate}
-			\item Extended charge times impact logistics (can take anyware from 100 minutes to 8 hours for a full charge)
-			\item Extended charge times are reduced with high power chargers
-			\item High charge rates taxe electrical infrastructure and increase the overall cost of energy. \cite{stahleder_impact_2019}, \cite{deb_impact_2017}, \cite{boonraksa_impact_2019}
-		\end{enumerate}
-	\item Managing electric bus fleet logistics can be handled on two levels
-		\begin{enumerate}
-			\item installation design: addresses questions such as what should the routes be, where should chargers be located, and what kinds of charging hardware do we use.
-			\item charge scheduling: addresses the question of when should buses charge given the constraints from the installaion. 
-		\end{enumerate}
-	\item In most circumstances, hardare for charging is already installed or options are limited (with some exceptions (Ojer, et al)) and thus, the majority of work focuses on optimally utilizing a variety of charging hardware including
-		\begin{enumerate}
-			\item Dynamic overhead charging \cite{csonka_optimization_2021}
-			\item Dynamic inductive charging \cite{jeong_automatic_2018} \cite{balde_electric_2019}
-			\item battery swapping \cite{jain_battery_2020} \cite{xian_zhang_optimal_2016}
-			\item stationary charging (A. Jahic),\cite{whitaker_network_nodate}
-		\end{enumerate}
-	\item each hardare type has its merits. Both the dynamic overhead and inductive charging eliminate the need for planning and down time as buses are charged while in service, but require expensive infrastructure that may not be feasible to install or purchase.
-	\item battery swapping doesn't require any type of hardware installation and removes limitations imposed by route schedules, but requires specialized tools and/or automation.
-	\item stationary charging is the least invasive form of bus charging because it only requires charging hardware at specific locations and makes no changes to bus batteries. 
-	\item stationary charging is accomplished through forming intelligent charge plans. These plans can take on multiple considerations including bus availability, environmental impact \cite{zhou_bi-objective_2021}, battery health \cite{houbbadi_optimal_2019}, and the cost of electricity.
-	\item electrical cost is based on the cost of generating power, and the cost of maintaining the distribution hardare. Large charge rates stress the existing infrastructure and therefore incur additional cost.
-	\item Methods to decrease energy expenses have been formed by decreasing the load exigence \cite{cheng_smart_2020}, \cite{ojer_development_2020}, \cite{qin_numerical_2016}, \cite{bagherinezhad_spatio-temporal_2020} or minimising cost directly.
-	\item Contributions: This work builds on \cite{brown_position_nodate} by encorporating the rate schedule from \cite{rocky_mountain_power_rocky_2021} as the linear objective function from \cite{mortensen_comprehensive_2020} which includes on-peak and off-peak rates, uncontrolled loads, and rate-sensative fees known as demand and facilities charges.  
-	\item The rest of this paper is organized as follows: 
-\end{enumerate}
+\par  Electric buses are becoming more popular because of their reduced maintenance costs \cite{poornesh_comparative_2020} and emissions \cite{kato_comparative_2013}, and access to renewable energy \cite{cheng_smart_2020}.
+\par  Electric buses however cannot just be exchanged for diesal or CNG buses because they require specialized charging infrastructure and extended charge times. Diesal and CNG buses can refuel in several minutes, but electric buses can require several hours for a full charge, presenting a logistical challenge. The charge time can be reduced by increasing the energy transfer rate, but this taxes electrical infrastructure and increases the overal cost of energy \cite{stahleder_impact_2019}, \cite{deb_impact_2017}, \cite{boonraksa_impact_2019}.
+\par Planning for electical bus fleet logistics can be broken down into two steps: installation, and day to day use. The installation addresses questions related to route planning and charger placement. Plans must also address which type of charging hardware to use and how buses will charge in a general sense (i.e. dynamic charging vs stationary charging, inductive vs overhead, etc.). The day to day operations handle smaller details such as when each, at what rate, and for how long each bus will charge.  
+\par In most circumstances, hardware for charging is already installed or budgeting and time constraints only allow for the simplest options. Thus, the majority of previous work has focused on optimising day to day operations for a variety of scenarios including dynamic overhead charging \cite{csonka_optimization_2021}, dynamic inductive charging \cite{jeong_automatic_2018} \cite{balde_electric_2019}, battery swapping \cite{jain_battery_2020} \cite{xian_zhang_optimal_2016}, and stationary charging \cite{whitaker_network_nodate}.
+\par each hardware type has its merits. Both the dynamic overhead and inductive charging eliminate the need for planning and down time as buses are charged while in service, but require expensive infrastructure that may not be feasible to install or purchase.
+\par battery swapping doesn't require any type of hardware installation and removes limitations imposed by route schedules, but requires specialized tools and/or automation.
+\par stationary charging is the least invasive form of bus charging because it only requires charging hardware at specific locations and makes no changes to bus batteries. 
+\par stationary charging is most popular because of it's simlicity and is accomplished through forming intelligent charge plans. These plans can take on multiple considerations including bus availability, environmental impact \cite{zhou_bi-objective_2021}, battery health \cite{houbbadi_optimal_2019}, and the cost of electricity.
+\par electrical cost is based on the cost of generating power, and the cost of maintaining the distribution hardare. Large charge rates stress the existing infrastructure and therefore incur additional cost.
+\par Methods to decrease energy expenses have been formed by decreasing the load exigence \cite{cheng_smart_2020}, \cite{ojer_development_2020}, \cite{qin_numerical_2016}, \cite{bagherinezhad_spatio-temporal_2020} or minimising cost directly.
+\par Contributions: This work builds on \cite{brown_position_nodate} by encorporating the rate schedule from \cite{rocky_mountain_power_rocky_2021} as the linear objective function from \cite{mortensen_comprehensive_2021} which includes on-peak and off-peak rates, uncontrolled loads, and rate-sensative fees known as demand and facilities charges.  
+\par The rest of this paper is organized as follows: Section \ref{sec:4_formulation} discuses the basic problem formulation, Section \ref{sec:5_battery} discuses linear constraints that govern the behavior and limitations of the sate of charge. Section \ref{sec:uncontrolled} discuses how to incorporate uncontrolled loads into the optimization framework. Section \ref{sec:objective} explaines how the objective function is formed, and section \ref{sec:results} discusses performance.
