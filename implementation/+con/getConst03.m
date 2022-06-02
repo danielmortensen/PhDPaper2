@@ -9,27 +9,40 @@ debug = nan([nConst,4]);
 % define constraints when needed
 iConstr = 1;
 iA = 1;
-M = param.maxTime*2;
+M = param.maxTime;
 for iBus = 1:param.bus.nBus
-    for iRoute = 1:param.routes.nRoute(iBus)
-        curIArrival = param.routes.tArrival(iBus,iRoute);
-        curIDepart = param.routes.tDepart(iBus,iRoute);
+    for iRoute = 1:param.routes.nRoute(iBus)        
         for jBus = 1:param.bus.nBus
             for jRoute = 1:param.routes.nRoute(jBus)
-                curJDepart = param.routes.tDepart(jBus,jRoute);
-                if (curJDepart > curIArrival) && (curJDepart < curIDepart)
+                l = var.val.l.val(iBus,iRoute,jBus,jRoute);
+                if ~isnan(l)
                     ci = var.val.c.val(iBus,iRoute);
+                    si = var.val.s.val(iBus,iRoute);
+                    cj = var.val.c.val(jBus,jRoute);
                     sj = var.val.s.val(jBus,jRoute);
                     for kCharger = 1:param.charger.nCharger
                         sgmI = var.val.sigma.val(iBus,iRoute,kCharger);
                         sgmJ = var.val.sigma.val(jBus,jRoute,kCharger);
-                        A(iA + 0,:) = [iConstr, ci,  -1];
-                        A(iA + 1,:) = [iConstr, sj,   1];
-                        A(iA + 2,:) = [iConstr, sgmI, M];
-                        A(iA + 3,:) = [iConstr, sgmJ, M];
-                        b(iConstr) = M;
-                        iConstr = iConstr + 1;
-                        iA = iA + 4;                        
+
+                        % first constraint
+                        A(iA + 0,:) = [iConstr + 0, ci,  -1];
+                        A(iA + 1,:) = [iConstr + 0, sj,   1];
+                        A(iA + 2,:) = [iConstr + 0, sgmI, M];
+                        A(iA + 3,:) = [iConstr + 0, sgmJ, M];
+                        A(iA + 4,:) = [iConstr + 0, l,   -M];
+                        b(iConstr) = 2*M;
+
+                        % second constraint
+                        A(iA + 5,:) = [iConstr + 1, si,   1];
+                        A(iA + 6,:) = [iConstr + 1, cj,  -1];
+                        A(iA + 7,:) = [iConstr + 1, sgmI, M];
+                        A(iA + 8,:) = [iConstr + 1, sgmJ, M];
+                        A(iA + 9,:) = [iConstr + 1, l,    M];
+                        b(iConstr + 1) = 3*M;
+
+                        % update indexing variables
+                        iConstr = iConstr + 2;
+                        iA = iA + 10;                        
                     end
                     debug(iConstr,:) = [iBus, iRoute, jBus, jRoute];
                 end

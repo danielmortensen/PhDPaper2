@@ -174,6 +174,36 @@ nS2Expect = param.maxTimeIdx*3*nStops;
 assert(isValid(s2.val,s2Start,s2Final,nS2Expect));
 assert(numel(s2.type) == nS2Expect);
 
+% get contention indices
+l.val = nan([nBus,maxStops,nBus,maxStops]);
+lStart = startIdx;
+nConst = 0;
+for iBus = 2:nBus
+    for iRoute = 1:nRoute(iBus)
+        iTArrive = param.routes.tArrival(iBus,iRoute);
+        iTDepart = param.routes.tDepart(iBus,iRoute);
+        for jBus = 1:iBus
+            for jRoute = 1:nRoute(jBus)
+                jTArrive = param.routes.tArrival(jBus,jRoute);
+                jTDepart = param.routes.tDepart(jBus,jRoute);
+                if iTArrive < jTArrive && iTDepart > jTArrive
+                    l.val(iBus,iRoute,jBus,jRoute) = startIdx;
+                    startIdx = startIdx + 1;
+                    nConst = nConst + 1;
+                elseif jTArrive < iTArrive && jTDepart > iTArrive
+                    l.val(iBus,iRoute,jBus,jRoute) = startIdx;
+                    startIdx = startIdx + 1;
+                    nConst = nConst + 1;
+                end
+            end
+        end
+    end
+end
+lFinish = startIdx - 1;
+assert(isValid(l.val,lStart,lFinish,nConst));
+l.type = repmat('B',[nConst,1]);
+
+% get max power indices
 qStart = startIdx;
 q.val.onPeak = startIdx;
 q.val.all = startIdx + 1;
@@ -192,7 +222,8 @@ assert(sFinal + 1 == hStart);
 assert(hFinal + 1 == kStart);
 assert(kFinal + 1 == rStart);
 assert(rFinal + 1 == s2Start);
-assert(s2Final + 1 == qStart);
+assert(s2Final + 1 == lStart);
+assert(lFinish + 1 == qStart);
 
 % package variable descriptions
 varInfo.val.sigma = sigma;
@@ -203,6 +234,7 @@ varInfo.val.h = h;
 varInfo.val.k = k;
 varInfo.val.r = r;
 varInfo.val.s2 = s2;
+varInfo.val.l = l;
 varInfo.val.q = q;
 varInfo.nVar = startIdx + 1;
 varInfo.type = [sigma.type;
@@ -213,6 +245,7 @@ varInfo.type = [sigma.type;
                 k.type;
                 r.type;
                 s2.type;
+                l.type;
                 q.type];
 assert(isValid(varInfo.val,1,varInfo.nVar,varInfo.nVar));
 end

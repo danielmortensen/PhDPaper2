@@ -48,7 +48,7 @@ def main():
         0*['electric'] + 5*['diesal'], 0*['electric'] + 5*['diesal'],
         0*['electric'] + 5*['diesal'], 0*['electric'] + 5*['diesal']
         ]
-    base_path = '../data/collects/bus_data_23'
+    base_path = '../data/collects/bus_data_24'
     basenames = [
         fullfile(base_path,'18151_New_Flyer'),
         fullfile(base_path,'18152_New_Flyer'),

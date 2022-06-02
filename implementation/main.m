@@ -4,9 +4,9 @@ simulations.nCharger = [ones([1,6])*1 ones([1,5])*2 ones([1,4])*3 ...
                         4 ones([1,9]) 2 4];
 simulations.objType = [repmat("fiscal",[1,31]) repmat("baseline",[1,2])];
 simulations.nSim = 33;
-simulations.resultPath = {"..","results"};                                 %#ok
+simulations.resultPath = {"..","results","unordered"};                     %#ok
 
-for iSim = 8:simulations.nSim
+for iSim = 5:6%simulations.nSim
 
     % define simulation parameters
     nBus = simulations.nBus(iSim);
