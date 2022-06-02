@@ -79,13 +79,13 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	s_{ij} - c_{ij} - \sum_{k}\sigma_{ijk}M &\le 0\\
 	\begin{bmatrix} 1_s & -1_c & -M_{\sigma} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j 
 \end{aligned} \end{equation}
-	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, denoted $\text{nTime}$ and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \refeq{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
+	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, denoted $\text{nTime}$ and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
 	\begin{equation} 
 		A_3\mathbf{y} \le \mathbf{b}_3
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
-The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Charging overlap can be avoided by constraining
+	The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus break pairs such that $\left (ij, \ i^{`}j^{`} \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{`}$ during the $j$ and $j^{`}$ stops respectively. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
 
 \begin{equation}\label{eqn:overlapConstraints1}
@@ -93,19 +93,19 @@ The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more
 		c_{i^{`}j^{`}} > s_{ij} \\
 		\text{or} \\
 		c_{ij} > s_{i^{`}j^{`}} 
-	\end{array} \ \forall ij
+	\end{array} \ \forall \left ( ij, \ i^{`}j^{`}\right ) \in \mathcal{S}
 \end{equation}
-	Let $l_{iji^{`}j^{`}}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$. The expression from \refeq{eqn:overlapConstraints1} can be rewritten as
-\begin{equation} \begin{aligned}
-	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{iji^{`}j^{`}}\\
-	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{iji^{`}j^{`}})
+	Let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$. The expression from \eqref{eqn:overlapConstraints1} can be rewritten as
+	\begin{equation} \label{eqn:overlapConstraints2}\begin{aligned}
+	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{\left( ij, \ i^{`}j^{`}\right )} \\
+	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{\left( ij, \ i^{`}j^{`}\right )}) \\
 \end{aligned}\end{equation}
 	However, this constraint is only necessary when buses $i$ and $i^{`}$ must use the same charger. This can be remedied as
-\begin{equation}\label{eqn:overlapConstraints2}\begin{aligned}
-	c_{i^{'}j^{'}} - s_{ij} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - Ml_{iji^{`}j^{`}} \ \forall k \\
-	c_{ij} - s_{i^{'}j^{'}} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - M(1 - l_{iji^{`}j^{`}})\ \forall k \\
+\begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
+	c_{i^{'}j^{'}} - s_{ij} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - Ml_{\left( ij, \ i^{`}j^{`}\right )} \ \forall k \\
+	c_{ij} - s_{i^{'}j^{'}} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - M(1 - l_{\left( ij, \ i^{`}j^{`}\right )})\ \forall k \\
 \end{aligned}\end{equation}
-When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints2} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$. When $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, \eqref{eqn:overlapConstraints2} simplifies to \eqref{eqn:overlapConstraints1}. Equation \eqref{eqn:overlapConstraints2} can be expressed in standard form as 
+When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints3} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$. When $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, \eqref{eqn:overlapConstraints3} simplifies to \eqref{eqn:overlapConstraints2}. Equation \eqref{eqn:overlapConstraints3} can be expressed in standard form as 
 	\begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
 		-c_{i^{`}j^{`}} + s_{ij} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} - Ml_{iji^{`}j^{`}}&\le 2M  \ \forall k\\
 		-c_{ij} + s_{i^{`}j^{`}} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} + Ml_{iji^{`}j^{`}}&\le 3M  \ \forall k\\
@@ -130,7 +130,7 @@ When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints2
 			3M \\
 		\end{bmatrix} \forall k
 	\end{aligned} \end{equation}
-	The constraints in \eqref{eqn:overlapConstraints3} can be repeated for all instances where overlap is possible and concatenated into a single matrix such that
+	The constraints in \eqref{eqn:overlapConstraints3} can be repeated for all $\left ( ij, \ i^{`}j^{`} \right ) \in \mathcal{S}$ and concatenated into a single matrix expression
 	\begin{equation}\begin{aligned} 
 		A_4\mathbf{y} & \le \mathbf{b}_4 \\
 	\end{aligned} \end{equation} 
