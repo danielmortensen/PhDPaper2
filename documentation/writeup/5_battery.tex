@@ -1,53 +1,54 @@
 \section{Battery State of Charge\label{sec:5_battery}}
-BEBs must also maintain their state of charge above a minimum threshold, denoted $h_{\text{min}}$. Let $h_{ij+1}$ be the state of charge for bus $i$ at the beginning of stop $j$. Each bus has an initial state of charge defined by $h_{i0}$ as shown in figure \ref{fig:hPlacement}. 
+BEBs must also maintain their state of charge above a minimum threshold, denoted $h_{\text{min}}$. Let $h_{ij}$ be the state of charge for bus $i$ at the beginning of stop $j$ as shown in figure \ref{fig:hPlacement}. The initial value for bus $i$, denoted $h_{i0}$, is equal to some constant such that
 \input{media/5_battery/hPlacement}
-This can be constrained as
-\begin{equation}\label{eqn:initialSoc0}
-	h_{i0} = \eta_{i} \ \forall i.
-\end{equation}
-where $\eta_{i}$ is the initial state of charge for bus $i$.
-Equation \ref{eqn:initialSoc0} can be expressed in standard form such that
-\begin{equation} \begin{aligned}
+\begin{equation}\label{eqn:initialSoc0}\begin{aligned}
+	h_{i0} &= \eta_{i} \ \forall i \\
 	\begin{bmatrix}0 & 0 & \hdots & 0 & 1_i& 0 \end{bmatrix}\mathbf{y} &= \eta_i \ \forall i \\
 		\tilde{A}_1\mathbf{y} &= \tilde{\mathbf{b}}_1
 \end{aligned} \end{equation}
 \input{media/5_battery/delta}
-\par The transition from $h_{ij}$ to $h_{ij+1}$ is computed as the sum of battery effects due to charging and discharging. The discharge from operating bus $i$ over one route loop is denoted $\delta_i$. The increase in battery state of charge follows a linear charge model\cite{rong_coordinated_2016} such that the increase is equal to the energy rate, denoted $p$, times the time spent charging, denoted $\Delta_{\text{sc}}$.
+\par and is otherwise computed as the the sum of incoming and outgoing energy where incoming energy comes from charging, and outgoing energy comes from the battery discharge. The discharge from operating bus $i$ over route $j$ is denoted $\delta_{ij}$. The increase in battery state of charge follows a linear charge model such that the increase is equal to the energy rate, denoted $p_i$, times the time spent charging, denoted $\Delta_{ij}$\cite{rong_coordinated_2016}.
 The total change from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 \begin{equation}
-	h_{ij+1} = h_{ij} + \Delta T\cdot p - \delta_i.
+	h_{ij+1} = h_{ij} + \Delta_{ij} \cdot p_i - \delta_{ij}.
 \end{equation}
-The value for $\Delta T$ can also be expressed in terms of the difference between $a_{ij}$ and $d_{ij}$ such that
+The value for $\Delta_{ij}$ can also be expressed in terms of the difference between $a_{ij}$ and $d_{ij}$ such that
 \begin{equation}\label{eqn:socDynamic1}\begin{aligned}
-	h_{ij+1} &= h_{ij} + p\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i\\
-	h_{ij+1} - h_{ij} - ps_{ij} + pc_{ij} &= -\delta_i\\
-	\begin{bmatrix} 1 & -1 & -p & p\end{bmatrix} \begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \end{bmatrix} &= -\delta_i \ \forall i,j
+	h_{ij} + p_i\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i &= h_{ij+1}\\
+	h_{ij+1} - h_{ij} - p_is_{ij} + p_ic_{ij} &= -\delta_i\\
+	\begin{bmatrix} 1 & -1 & -p_i & p_i\end{bmatrix} \begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \end{bmatrix} &= -\delta_i \ \forall i,j
 \end{aligned}\end{equation}
-The constraints for each $i,j$ outlined in equation \ref{eqn:socDynamic1} can be vertically concatenated to form
+The constraints for each $i,j$ outlined in \eqref{eqn:socDynamic1} can be vertically concatenated to form
 \begin{equation}\label{eqn:socDynamic3} \begin{aligned}
 	A_{ij}\mathbf{y} &= \mathbf{b}_{ij} \ \forall i,j \\
 	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2
 \end{aligned} \end{equation}
-Now that the state of charge is defined, the final constraint ensures that the minimum battery state of charge is kept above the minimum threshold, $h_{\text{min}}$. These constraints are given as
+Now that the state of charge is defined, the next constraint ensures that the minimum battery state of charge remains both above the minimum threshold, $h_{\text{min}}$, and below the battery capacity, $h_{\text{max}}$. These constraints are given as
 \begin{equation}
-	-h_{ij} \le -h_{\text{min}} \ \forall i,j
+	\begin{array}{l} \begin{aligned}
+		-h_{ij} &\le -h_{\text{min}} \\
+		h_{ij} &\le h_{\text{max}} \\
+	\end{aligned}\end{array} \ \forall i,j
 \end{equation}
 or 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}0 & \hdots & 0 & -1_{h} & 0 & \hdots & 0\end{bmatrix} \mathbf{y} &\le \mathbf{1}\cdot h_{\text{min}}\\ 
+	\begin{bmatrix}
+		0 & \hdots & 0 & -1_{h} & 0 & \hdots & 0\\
+		0 & \hdots & 0 &  1_{h} & 0 & \hdots & 0\\
+	\end{bmatrix}\mathbf{y} & \le 
+	\begin{bmatrix}
+ 		h_{\text{min}}\\
+ 		h_{\text{max}}\\	
+	\end{bmatrix} \ \forall ij\\
 		A_5\mathbf{y} &\le \mathbf{b}_5
 \end{aligned} \end{equation}
-\par The final constraint has to do with the assumption that we are modeling one day and want to repeat the cost to predict the expected cost over a month. In order to do this, the state of charge at the end of the day must equal the state of charge at the beginning. Let $h_{i,\text{end}}$ be the final daily state of charge for bus $i$. This is constrained to be the same as the beginning state of charge as
+\par The final constraint has to do with the assumption that we desire to use the model for one day to predict the expected cost over a month. To do this, the state of charge at the end of the day must equal the state of charge at the beginning. Let $h_{i,\text{end}}$ be the final daily state of charge for bus $i$. This is constrained to be the same as the beginning state of charge as
 \begin{equation} \label{eqn:hEqual1} \begin{aligned}
 	h_{i0} &= h_{i,\text{end}} \ \forall i \\
 	h_{i0} - h_{i,\text{end}} &= 0 \ \forall i.  
 \end{aligned} \end{equation}
-However, because equality for two continuous variables is computationally demanding, the constraint in equation \ref{eqn:hEqual1} can also be expressed as 
+However, because equality for two continuous variables is computationally demanding, the constraint in \eqref{eqn:hEqual1} can also be expressed as 
 \begin{equation} \begin{aligned}
 	h_{i0} - h_{i,\text{end}} \le 0.
 \end{aligned} \end{equation}
 Because the final state of charge is dependent on the amount of power used to charge, and power/energy use is penalized (see section \ref{sec:objective}), the optimization process will force the final state of charge down until is nearly equal to the initial.
-TODO:
-\begin{enumerate}
-	\item Add section that talks about constraints to keep the battery SOC below the maximum SOC
-\end{enumerate}
