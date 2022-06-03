@@ -1,13 +1,13 @@
 \section{Integrating Uncontrolled Loads\label{sec:uncontrolled}}
-A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers. This section integrates these uncontrolled loads into the planning framework. Measurements for uncontrolled loads are available at discrete time instants. The primary challenge addressed in this section is how to relate the continuous time model of power use from section \ref{sec:4_formulation} with a discrete time representation of the uncontrolled loads be converting the continuous start and end points $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation} to a vector $\mathbf{p}$, where $p_i$ represents the average power over the interval from $t_{i-1}$ to $t_i$.
-\par The first step is to separate each value for $c_{ij}$ and $s_{ij}$ into an integer-remainder pair such that. 
+A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers, or "uncontrolled loads". In practice, data for uncontrolled loads is sampled and therefore discrete. The representations for how buses use power in Section \ref{sec:5_battery} are continuous, making their effects difficult to integrate with a discrete uncontrolled load. This section integrates these uncontrolled loads into the planning framework by converting the continuous start and end points, $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}, to a vector $\mathbf{p}_{ij}$, where the $n^{\text{th}}$ element of $\mathbf{p}_{ij}$ represents the average power over the interval from $t_{i-1}$ to $t_i$ from bus $i$ during route $j$. These route power vectors can be added together to form a discrete profile for the buses.
+\par The first step is to separate each value for $c_{ij}$ and $s_{ij}$ into an integer-remainder pair such that
 \begin{equation} \label{eqn:discrete1} \begin{aligned}
 		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
 		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 
-where $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ are the integer portions of $c_{ij}$ and $s_{ij}$, $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ are the remainders, and $\Delta T$ is the step size. Equation \ref{eqn:discrete1} can be rewriten in standard form and zero padded such that
+where $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ represent the number of complete time intervals contained in $c_{ij}$ and $s_{ij}$, $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ give the remainders, and $\Delta T$ is the time difference between the desired discrete samples. Equation \ref{eqn:discrete1} can be rewriten in standard form and zero padded such that
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}\Delta T &  1 & -1 & 0        & 0 &  0\\ 
 		       0        &  0 & 0  & \Delta T & 1 & -1\\
@@ -45,15 +45,15 @@ and
 	\end{bmatrix} \ \forall i,j \\ 
 	A_6\mathbf{y} &\le \mathbf{b}_6.  
 \end{aligned} \end{equation}
-The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$, which act as selectors for times when buses are charged. The values in $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that buses charges the entire time. 
-\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $\mathbf{f}_w = w \ \forall w \in (1,\text{nTime})$. The values in $\mathbf{g}^{\text{start}}_{ij}$ and $\mathbf{g}_{ij}^{\text{end}}$ are defined as
+The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$, which act as selectors for indices corresponding to charge times. The selectors will be used to form the power vectors $\mathbf{p}_{ij}$ for each bus at each route. The values in $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that buses charges the entire time. 
+\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $f_w = w \ \forall w \in (1,\text{nPoint})$, where nPoint is the desired number of discrete samples. The values in $\mathbf{g}^{\text{start}}_{ij}$ and $\mathbf{g}_{ij}^{\text{end}}$ are defined as
 \begin{equation}\label{eqn:idxStart}\begin{aligned}
 	k^{\text{start}}_{ij}        &= \mathbf{f}^T\mathbf{g}^{\text{start}}_{ij} \\
 	k^{\text{end}}_{ij}         &= \mathbf{f}^T\mathbf{g}^{\text{end}}_{ij}  \\ 
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{start}}_{ij} \\
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{end}}_{ij}  \\
-	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}^{\text{nTime}}                \\
-	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nTime}}.
+	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}^{\text{nPoint}}                \\
+	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nPoint}}.
 \end{aligned} \end{equation}
 
 Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to form additional constraints in terms of $\mathbf{y}$.
@@ -73,7 +73,7 @@ Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to
 	                0 \\
 			1
 	\end{bmatrix} \ \forall i,j \\
-	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2.
+	\tilde{A}_3\mathbf{y} &= \tilde{\mathbf{b}}_3.
 \end{aligned} \end{equation}
 The final piece is to define $\mathbf{g}^{\text{on}}$. The values in $\mathbf{g}^{\text{on}}$ must be both greater than $k_{ij}^{\text{start}}$, and less than $k_{ij}^{\text{end}}$ when they are not zero such that 
 \begin{equation}\label{eqn:gOnCases}\begin{aligned}
@@ -89,7 +89,7 @@ Equation \ref{eqn:gOnCases} can be expressed as a set of linear constraints such
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
 \end{aligned} \end{equation}
-where $M$ is $2\cdot\text{nTime}$. The constraints in equation \ref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one however, only that if a value is equal to one, that it must be between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
+where $M$ is $2\cdot\text{nPoint}$. The constraints in equation \ref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one however, only that if a value is equal to one, that it must be between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
 \begin{equation} \label{eqn:gOnSemiFinal}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
@@ -145,9 +145,9 @@ Similarly, the equality constraint from equation \ref{eqn:gOnFinalStd} can also 
 \begin{equation} \begin{aligned}
 	\mathbf{1}^T\mathbf{s}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &= 0 \ \forall i,j\\
 	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 & -1\end{bmatrix} \begin{bmatrix}\mathbf{g}_{ij}^{\text{on}} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} &= 0 \\
-		\tilde{A}_3\mathbf{y} &= \tilde{\mathbf{b}}_3.
+		\tilde{A}_4\mathbf{y} &= \tilde{\mathbf{b}}_4.
 \end{aligned} \end{equation}
-	\par The next step is to define the average power during intervals that only charge for part of the time.  These intervals correspond to the remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and, as with previous constraints, distinguish between behavior for $k_{ij}^{\text{eq}} = 0$ and $k_{ij}^{\text{eq}} = 1$.. The average power that corresponds to $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ can be computed as 
+	\par The next step is to define the average power during intervals that only charge for part of the time.  These intervals correspond to the remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and, as with previous constraints, distinguish between behavior for $k_{ij}^{\text{eq}} = 0$ and $k_{ij}^{\text{eq}} = 1$.. The average power for $\mathbf{p}_{ij}$ that corresponds to $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ can be computed as 
 \begin{equation}\label{eqn:avgPower1}\begin{aligned}
 	\begin{rcases}
 	\begin{array}{l} \begin{aligned}
@@ -171,7 +171,7 @@ Equation \ref{eqn:avgPower1} can also be expressed as a set of linear inequality
 	p_{ij}^{\text{end}}   &\le Mk_{ij}^{\text{eq}}\\
 	p_{ij}^{\text{end}}   &\ge - Mk_{ij}^{\text{eq}}\\
 \end{aligned} \end{equation}
-where $M = \text{the battery capacity}$ and can be expressed in standard form as
+where $M$ is the battery capacity and can be expressed in standard form as
 \begin{equation} \begin{aligned}
 	 p_{ij}^{\text{start}} + \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M + p \\
 	-p_{ij}^{\text{start}} - \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M - p \\
