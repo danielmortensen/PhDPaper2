@@ -46,18 +46,22 @@ and
 	A_6\mathbf{y} &\le \mathbf{b}_6.  
 \end{aligned} \end{equation}
 The next step is to use $k$ and $r$ to compute three sets of binary vectors, denoted $\mathbf{g}^{\text{start}}_{ij}$, $\mathbf{g}^{\text{on}}_{ij}$, and $\mathbf{g}^{\text{end}}_{ij}$, which act as selectors for indices corresponding to charge times. The selectors will be used to form the power vectors $\mathbf{p}_{ij}$ for each bus at each route. The values in $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ are equal to 1 during intervals that contains energy from the remainders $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ and $\mathbf{g}_{ij}^{\text{on}}$ is equal to 1 for all time indices that buses charges the entire time. 
-\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $f_w = w \ \forall w \in (1,\text{nPoint})$, where nPoint is the desired number of discrete samples. The values in $\mathbf{g}^{\text{start}}_{ij}$ and $\mathbf{g}_{ij}^{\text{end}}$ are defined as
+\par Let $\mathbf{f}$ be a vector of one-based integer indices such that $f_w = w \ \forall w \in (1,\text{nPoint})$, where nPoint is the desired number of discrete samples. For example, if the day was discretized into $6$ periods, then $\mathbf{f}$ would be 
+\begin{equation}
+	\mathbf{f} = \begin{bmatrix}1 \\ 2 \\ 3 \\ 4 \\ 5 \\ 6 \end{bmatrix}.
+\end{equation}
+Defining the index as an element of $\mathbf{f}$ allows us to convert from the single indices $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to binary selector vectors  $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ by letting 
 \begin{equation}\label{eqn:idxStart}\begin{aligned}
 	k^{\text{start}}_{ij}        &= \mathbf{f}^T\mathbf{g}^{\text{start}}_{ij} \\
 	k^{\text{end}}_{ij}         &= \mathbf{f}^T\mathbf{g}^{\text{end}}_{ij}  \\ 
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{start}}_{ij} \\
 	1                            &= \mathbf{1}^T\mathbf{g}^{\text{end}}_{ij}  \\
 	\mathbf{g}^{\text{start}}_{ij}  &\in \{0,1\}^{\text{nPoint}}                \\
-	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nPoint}}.
+	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nPoint}},
 \end{aligned} \end{equation}
 
-Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to form additional constraints in terms of $\mathbf{y}$.
-\begin{equation} \begin{aligned}
+which can be expressed in standard form and zero padded to form a set of linear constraints in terms of $\mathbf{y}$.
+\begin{equation} \label{eqn:idxStart2}\begin{aligned}
 	\begin{bmatrix} 0 & \mathbf{0}^T & -1 & \mathbf{f}^T \\
 		        0 & \mathbf{1}^T &  0 & 0            \\
 		       -1 & \mathbf{f}^T & 0 & \mathbf{0}^T  \\
@@ -75,42 +79,47 @@ Equation \ref{eqn:idxStart} can be expressed in standard form and zero padded to
 	\end{bmatrix} \ \forall i,j \\
 	\tilde{A}_3\mathbf{y} &= \tilde{\mathbf{b}}_3.
 \end{aligned} \end{equation}
-The final piece is to define $\mathbf{g}^{\text{on}}$. The values in $\mathbf{g}^{\text{on}}$ must be both greater than $k_{ij}^{\text{start}}$, and less than $k_{ij}^{\text{end}}$ when they are not zero such that 
+\input{media/6_uncontrolled/remainder.tex}
+The constraints from equation \eqref{eqn:idxStart2} form binary selection vectors that are $1$ at the $k^{\text{th}}$ indices.  For example, in Fig. \ref{fig:remainderB} $\mathbf{g}_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}$ would be 
+\begin{equation}
+	\mathbf{g}_{ij}^{\text{start}} = \begin{bmatrix} 1 \\ 0 \\ 0 \\ 0\end{bmatrix}, \quad \mathbf{g}_{ij}^{\text{end}} = \begin{bmatrix} 0 \\ 0 \\ 1 \\ 0\end{bmatrix}
+\end{equation}
+These selection vectors will be used later to include power from $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ for the $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ time intervals. These variables do not however, account for the time between the $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ intervals, which will be described in $\mathbf{g}_{ij}^{\text{on}}$. The values of $\mathbf{g}_{ij}^{\text{on}}$ can be computed by first noticing that indices that correspond to complete charge intervals must remain between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$, implying that 
 \begin{equation}\label{eqn:gOnCases}\begin{aligned}
 	\begin{rcases}
 		\begin{array}{ll}
 			g_w f_w \le k^{\text{end}}  \\
 			g_w f_w \ge k^{\text{start}}\\ 
 		\end{array} & g_w = 1 \\
-	\end{rcases}.
+	\end{rcases},
 \end{aligned} \end{equation}
-Equation \ref{eqn:gOnCases} can be expressed as a set of linear constraints such that
+which can be expressed as a set of linear constraints such that
 \begin{equation} \label{eqn:gOnBigM}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
 \end{aligned} \end{equation}
-where $M$ is $2\cdot\text{nPoint}$. The constraints in equation \ref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one however, only that if a value is equal to one, that it must be between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
+where $M$ is $2\cdot\text{nPoint}$. The constraints in \eqref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one however, only that if a value is equal to one, that it must be between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
 \begin{equation} \label{eqn:gOnSemiFinal}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - 1.\\
 \end{aligned} \end{equation}
-The constraints in equation \ref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in equation \ref{eqn:gOnSemiFinal} becomes
+The constraints in \eqref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in equation \ref{eqn:gOnSemiFinal} becomes
 \begin{equation}
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} = -1
 \end{equation}
-which leads to an empty feasible set because all the elements of $\mathbf{g}_{ij}^{\text{on}}$ are binary. Let $k_{ij}^{\text{eq}}$ be a binary variable which is equal to $0$ when $k_{ij}^{\text{end}}$ is not equal to $k_{ij}^{\text{start}}$. Equation \ref{eqn:gOnSemiFinal} can be modified to handle the case where $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$ as
+which leads to an empty feasible set because all the elements of $\mathbf{g}_{ij}^{\text{on}}$ are binary. Let $k_{ij}^{\text{eq}}$ be a binary variable which is equal to $0$ when $k_{ij}^{\text{end}}$ is not equal to $k_{ij}^{\text{start}}$. Equation \eqref{eqn:gOnSemiFinal} can be modified to incorporate $k_{ij}^{\text{eq}}$ to switch between the cases where $k_{ij}^{\text{end}}$ is equal, and not equal to $k_{ij}^{\text{start}}$ by letting 
 \begin{equation} \label{eqn:gOnFinal}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) \\ 
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - k_{ij}^{\text{eq}}.\\
 \end{aligned} \end{equation} 
- The variable $k_{ij}^{\text{eq}}$ is defined as
+ and constraining $k_{ij}^{\text{eq}}$ such that 
 \begin{equation}\label{eqn:kEq}\begin{aligned}
 	k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - M k_{ij}^{\text{eq}} \le 0 \\
 	-k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + M k_{ij}^{\text{eq}} \le M .
 \end{aligned}\end{equation}
-The constraints from equations \ref{eqn:gOnFinal} and \ref{eqn:kEq} can be expressed in standard form as
+The constraints from \eqref{eqn:gOnFinal} and \eqref{eqn:kEq} can be expressed in standard form as 
 \begin{equation} \label{eqn:gOnFinalStd}\begin{aligned}
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &=  0 \\
 	k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - M k_{ij}^{\text{eq}} &\le 0 \\
@@ -129,15 +138,15 @@ The inequality constriants from equation \ref{eqn:gOnFinalStd} imply that
 	\end{bmatrix} \le
 	\begin{bmatrix} M \\
 	                M 
-	\end{bmatrix} \forall g_w \in \mathbf{g}_{ij}^{\text{on}}.
+	\end{bmatrix} \forall g_w \in \mathbf{g}_{ij}^{\text{on}}
 \end{aligned}\end{equation} 
 and that
 \begin{equation} \label{eqn:kEqStd}\begin{aligned}
 	\begin{bmatrix}1 & -1 & -M \\
 		       -1 & 1 & M  \\
-		       \end{bmatrix} \begin{bmatrix}k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} \le \begin{bmatrix} 0 \\ M\end{bmatrix} \ \forall i,j
+		       \end{bmatrix} \begin{bmatrix}k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} \le \begin{bmatrix} 0 \\ M\end{bmatrix} \ \forall i,j,
 \end{aligned} \end{equation}
-which can be concatenated for all $i,j$ and zero padded to form a joint matrix which has the form 
+which can be concatenated for all $i,j$ and zero padded to form a joint matrix, satisfying 
 \begin{equation}
 	A_7\mathbf{y} \le \mathbf{b}_7.
 \end{equation}
@@ -160,7 +169,7 @@ Similarly, the equality constraint from equation \ref{eqn:gOnFinalStd} can also 
 	\end{aligned} \end{array} & k_{ij}^{\text{eq}} = 0 \\
 	\end{rcases}.
 \end{aligned}\end{equation}
-Equation \ref{eqn:avgPower1} can also be expressed as a set of linear inequality constraints such that
+Equation \eqref{eqn:avgPower1} can also be expressed as a set of linear inequality constraints such that
 \begin{equation} \begin{aligned}
 	p_{ij}^{\text{start}} &\le p - \frac{p}{\Delta T}r_{ij}^{\text{start}} + M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\
 	p_{ij}^{\text{start}} &\ge p - \frac{p}{\Delta T}r_{ij}^{\text{start}} - M\left ( 1 - k_{ij}^{\text{eq}} \right ) \\ 
@@ -169,9 +178,9 @@ Equation \ref{eqn:avgPower1} can also be expressed as a set of linear inequality
 	p_{ij}^{\text{end}}   &\le \frac{p}{\Delta T}r_{ij}^{\text{end}} + M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
 	p_{ij}^{\text{end}}   &\ge \frac{p}{\Delta T}r_{ij}^{\text{end}} - M\left ( 1 - k_{ij}^{\text{eq}} \right )\\
 	p_{ij}^{\text{end}}   &\le Mk_{ij}^{\text{eq}}\\
-	p_{ij}^{\text{end}}   &\ge - Mk_{ij}^{\text{eq}}\\
+	p_{ij}^{\text{end}}   &\ge - Mk_{ij}^{\text{eq}},\\
 \end{aligned} \end{equation}
-where $M$ is the battery capacity and can be expressed in standard form as
+where $M$ is the battery capacity, and can be expressed in standard form as
 \begin{equation} \begin{aligned}
 	 p_{ij}^{\text{start}} + \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M + p \\
 	-p_{ij}^{\text{start}} - \frac{p}{\Delta T} r_{ij}^{\text{start}} + Mk_{ij}^{\text{eq}} &\le M - p \\
@@ -182,7 +191,7 @@ where $M$ is the battery capacity and can be expressed in standard form as
 	 p_{ij}^{\text{end}}   - Mk_{ij}^{\text{eq}} &\le 0\\
 	-p_{ij}^{\text{end}}   - Mk_{ij}^{\text{eq}}&\le 0 \\
 \end{aligned} \end{equation}
-and finally as
+and by using matrix multiplication such that
 \begin{equation}\begin{aligned}
 	\begin{bmatrix} 
 		 1 &  0 &  \frac{p}{\Delta T} &  0                  &  M\\
@@ -218,28 +227,28 @@ where $p_{ij}^{\text{start}}$, $p_{ij}^{\text{end}}$, and $p$ represent the aver
 	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{g}^{\text{start}}_{ij}\cdot p^{\text{start}}_{ij} + \mathbf{g}^{\text{on}}_{ij}\cdot p + \mathbf{g}^{\text{end}}_{ij}\cdot p^{\text{end}}_{ij}
 \end{align}
 where $\bar{\mathbf{p}}_{\text{load}}$ is the average power of the uncontrolled loads.
-\par Note, however that the results from equation \ref{eqn:totalPower} contain a bilinear term. The first bilnear expression in  equation \ref{eqn:totalPower} must be rewritten as a vector containing values for $p_{ij}^{\text{start}}$ whenever $g_{ij}^{\text{start}} \ne 0$.  The resulting vector is denoted $\mathbf{p}_{ij}^{\text{start}}$ such that
+\par Note, however that \eqref{eqn:totalPower} contains the bilinear terms $\mathbf{g}_{ij}^{\text{start}}\cdot p_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$. The expression $\mathbf{g}_{ij}^{\text{start}}\cdot p_{ij}^{\text{start}}$ from \eqref{eqn:totalPower} can be thought of as a vector, $\mathbf{p}_{ij}^{\text{start}}$ which contains values for $p_{ij}^{\text{start}}$ whenever $g_{ij}^{\text{start}}$ is not equal to $0$ such that 
 \begin{equation} \label{eqn:bilinear1}\begin{aligned}
 	\begin{rcases}
-		p_w = p^{\text{start}} & g = 1 \\
-		p_w = 0                & g = 0 \\
-	\end{rcases} \forall p_w \in \mathbf{p}_{ij}^{\text{start}}
+		p_w = p^{\text{start}} & g_w = 1 \\
+		p_w = 0                & g_w = 0 \\
+	\end{rcases} \forall p_w \in \mathbf{p}_{ij}^{\text{start}},
 \end{aligned} \end{equation}
-The constraints for equation \ref{eqn:bilinear1} can be rewritten as a set of linear inequality constraints such that
+which can be rewritten as a set of linear inequality constraints such that
 \begin{equation} \label{eqn:onPower}\begin{aligned}
 	p_w &\ge p^{\text{start}}_{ij} - M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
 	p_w &\le p^{\text{start}}_{ij} + M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
 	p_w &\ge -Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
 	p_w &\le  Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}
 \end{aligned} \end{equation}
-The same approach can be taken to replace the other bilinear form $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$ with the vector $\mathbf{p}_{ij}^{\text{end}}$ as 
+The same approach can be taken to replace $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$ with the vector $\mathbf{p}_{ij}^{\text{end}}$ by letting
 \begin{equation} \label{eqn:offPower} \begin{aligned}
 	p_w &\ge p^{\text{end}}_{ij} - M(1 - g_w) \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
 	p_w &\le p^{\text{end}}_{ij} + M(1 - g_w) \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
 	p_w &\ge -Mg_w \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
-	p_w &\le Mg_w \  \forall p_w \in \mathbf{p}_{ij}^{\text{end}}.
+	p_w &\le Mg_w \  \forall p_w \in \mathbf{p}_{ij}^{\text{end}},
 \end{aligned} \end{equation} 
-Equation \ref{eqn:onPower} can be written in standard form, stacked to accomodate the constraints for all $i,j$, and zero padded appropriately as
+which can be written in standard form, stacked to accomodate the constraints for all $i,j$, and zero padded in the usual fashion as
 \begin{equation}\begin{aligned} 
 	\begin{bmatrix}
 		-1 & 1 & M \\
@@ -257,10 +266,10 @@ Equation \ref{eqn:onPower} can be written in standard form, stacked to accomodat
 		M \\
 		0 \\
 		0
-	\end{bmatrix} \forall p_w \in \mathbf{p}_{ij}^{\text{start}}.\\ 
-	A_9 &\le \mathbf{b}_9 
+	\end{bmatrix} \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\ 
+	A_9 &\le \mathbf{b}_9.
 \end{aligned}\end{equation}
-	Equation \ref{eqn:offPower} can be expressed in standard form, stacked for all $i,j$, and zero padded in a similar fashion such that 
+	Equation \eqref{eqn:offPower} can be expressed in standard form, stacked for all $i,j$, and zero padded in a similar fashion such that 
 \begin{equation}\begin{aligned} 
 	\begin{bmatrix}
 		-1 & 1 & M  \\

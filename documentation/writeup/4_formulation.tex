@@ -1,7 +1,7 @@
 \section{Availability and Resource Contention\label{sec:4_formulation}}
 The charge scheduling framework described in this paper is formulated as a constrained optimization problem that can be solved as a Mixed Integer Linear Program (MILP) of the form
 \begin{equation}\label{eqn:MILP}\begin{matrix}
-	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
+	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{v} \text{ subject to } \\
 	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b},
 \end{matrix} \end{equation}
 where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
@@ -19,7 +19,7 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution ve
 			q_{\text{all}}  \\
 		     \end{bmatrix},
 \end{equation}
-where $\boldsymbol{\sigma}$, $\mathbf{c}$, $\mathbf{s}$, $\mathbf{h}$, $\mathbf{k}$, $\mathbf{r}$, $\mathbf{p}$, $q_{\text{on}}$, and $q_{\text{all}}$ will be developed through the course of this paper.
+where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, and $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power. 
 \par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints are designed to encorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
 \par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge and the categorical shows which bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.

@@ -45,11 +45,11 @@ The entire cost function is given as the sum of the energy and power costs such 
 \begin{equation}\begin{aligned}
 	\text{Cost} &= \mathbf{u}_{\text{p}}^T\mathbf{y} + \mathbf{u}_{\text{e}}^T\mathbf{y} \\
 	            &= \left( \mathbf{u}_{\text{p}} + \mathbf{u}_{\text{e}} \right )^T\mathbf{y} \\
-		    &= \mathbf{g}^T\mathbf{y}
+		    &= \mathbf{v}^T\mathbf{y}
 \end{aligned}\end{equation}
 The complete problem can now be formulated as
 \begin{equation}\begin{matrix}
-	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
+	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{v} \text{ subject to } \\
 	\begin{bmatrix}
 		\tilde{A}_{1} \\ 
 		\tilde{A}_{2} \\
