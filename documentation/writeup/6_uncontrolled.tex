@@ -1,5 +1,5 @@
 \section{Integrating Uncontrolled Loads\label{sec:uncontrolled}}
-A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers, or "uncontrolled loads". In practice, data for uncontrolled loads is sampled and therefore discrete. The representations for how buses use power in Section \ref{sec:5_battery} are continuous, making their effects difficult to integrate with a discrete uncontrolled load. This section integrates these uncontrolled loads into the planning framework by converting the continuous start and end points, $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}, to a vector $\mathbf{p}_{ij}$, where the $n^{\text{th}}$ element of $\mathbf{p}_{ij}$ represents the average power over the interval $t_{i-1}$ to $t_i$ from bus $i$ during route $j$. These route power vectors can be added together to form a discrete profile for the buses.
+A monthly power bill is made up of several costs, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers, or "uncontrolled loads". In practice, data for uncontrolled loads is sampled and therefore discrete. The representations for how buses use power in Section \ref{sec:5_battery} are continuous, making their effects difficult to integrate with a discrete uncontrolled load. This section integrates these uncontrolled loads into the planning framework by converting the continuous start and end points, $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}, to a vector $\mathbf{p}_{ij}$, where the $n^{\text{th}}$ element of $\mathbf{p}_{ij}$ represents the average power over the interval $t_{i-1}$ to $t_i$ from bus $i$ during route $j$. These route power vectors can be added together to form a discrete profile for the buses.
 \par Let the day be divided into time segments, each of duration $\Delta T$. The first step is to determine the index of each segment that a bus begins charging, $k_{ij}^{\text{start}}$, and the index of the segement that a bus finishes charging, $k_{ij}^{\text{end}}$.  Each index can be computed as an integer multiple of $\Delta T$ that satisfies 
 \begin{equation} \label{eqn:discrete1} \begin{aligned}
 		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
@@ -7,7 +7,7 @@ A monthly power bill is made up of several charges, two of which depend on the m
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 
-Equation \eqref{eqn:discrete1} yields the discrete indices $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ along with corresponding remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ which will be used later in this section to calculate the average power for time segments in which buses only charge part of the time.  Equation \ref{eqn:discrete1} can be rewriten in standard form and zero padded such that
+Equation \eqref{eqn:discrete1} yields the discrete indices $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ along with corresponding remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$ which will be used later in this section to calculate the average power for time segments in which buses only charge part of the time.  Equation (\ref{eqn:discrete1}) can be rewriten in standard form and zero padded such that
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}\Delta T &  1 & -1 & 0        & 0 &  0\\ 
 		       0        &  0 & 0  & \Delta T & 1 & -1\\
@@ -107,7 +107,7 @@ where $M$ is $2\cdot\text{nPoint}$. The constraints in \eqref{eqn:gOnBigM} do no
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) + 1 \\ 
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - 1.\\
 \end{aligned} \end{equation}
-The constraints in \eqref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in equation \ref{eqn:gOnSemiFinal} becomes
+The constraints in \eqref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in equation (\ref{eqn:gOnSemiFinal}) becomes
 \begin{equation}
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} = -1
 \end{equation}
@@ -130,7 +130,7 @@ The constraints from \eqref{eqn:gOnFinal} and \eqref{eqn:kEq} can be expressed i
 	g_w\left (f_w + M \right) - k_{ij}^{\text{end}} &\le M - 1 \\
 	g_w\left (M - f_w\right) + k_{ij}^{\text{start}} &\le M - 1.
 \end{aligned}\end{equation}
-The inequality constriants from equation \ref{eqn:gOnFinalStd} imply that
+The inequality constriants from equation (\ref{eqn:gOnFinalStd}) imply that
 \begin{equation} \label{eqn:gOnFinalPart1}\begin{aligned}
 	\begin{bmatrix}f_w + M & -1 & 0\\
 		       M - f_w & 0 & 1 
@@ -153,7 +153,7 @@ which can be concatenated for all $i,j$ and zero padded to form a joint matrix, 
 \begin{equation}
 	A_7\mathbf{y} \le \mathbf{b}_7.
 \end{equation}
-Similarly, the equality constraint from equation \ref{eqn:gOnFinalStd} can also be concatenated and zero padded such that
+Similarly, the equality constraint from equation (\ref{eqn:gOnFinalStd}) can also be concatenated and zero padded such that
 \begin{equation} \begin{aligned}
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &= 0 \ \forall i,j\\
 	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 & -1\end{bmatrix} \begin{bmatrix}\mathbf{g}_{ij}^{\text{on}} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} &= 0 \\
