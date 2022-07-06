@@ -2,8 +2,8 @@
 A monthly power bill is made up of several charges, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers, or "uncontrolled loads". In practice, data for uncontrolled loads is sampled and therefore discrete. The representations for how buses use power in Section \ref{sec:5_battery} are continuous, making their effects difficult to integrate with a discrete uncontrolled load. This section integrates these uncontrolled loads into the planning framework by converting the continuous start and end points, $c_{ij}$ and $s_{ij}$ from section \ref{sec:4_formulation}, to a vector $\mathbf{p}_{ij}$, where the $n^{\text{th}}$ element of $\mathbf{p}_{ij}$ represents the average power over the interval from $t_{i-1}$ to $t_i$ from bus $i$ during route $j$. These route power vectors can be added together to form a discrete profile for the buses.
 \par The first step is to separate each value for $c_{ij}$ and $s_{ij}$ into an integer-remainder pair such that
 \begin{equation} \label{eqn:discrete1} \begin{aligned}
-		k^{\text{start}}_{ij}\cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
-		k^{\text{end}}_{ij}\cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
+	\left ( k^{\text{start}}_{ij} - 1 \right ) \cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
+	\left (	k^{\text{end}}_{ij} - 1 \right ) \cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 

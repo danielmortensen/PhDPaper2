@@ -1,9 +1,7 @@
-simulations.nBus = [1:6 2:6 3:6 4:6 5:6 6 35 7:15 5 35];
-simulations.nCharger = [ones([1,6])*1 ones([1,5])*2 ones([1,4])*3 ...
-                        ones([1,3])*4 ones([1,2])*5 ones([1,1])*6 ...
-                        4 ones([1,9]) 2 4];
-simulations.objType = [repmat("fiscal",[1,31]) repmat("baseline",[1,2])];
-simulations.nSim = 33;
+simulations.nBus = [7:13];
+simulations.nCharger = [ones([1,7])];
+simulations.objType = [repmat("fiscal",[1,7])];
+simulations.nSim = 7;
 simulations.resultPath = {"..","results","unordered"};                     %#ok
 
 for iSim = 1:simulations.nSim
@@ -12,7 +10,10 @@ for iSim = 1:simulations.nSim
     nBus = simulations.nBus(iSim);
     nCharger = simulations.nCharger(iSim);
     objType = simulations.objType(iSim);
-
+% %     nBus = 5;
+% %     nCharger = 5;
+% %     objType = "energy";
+% %     resultPath = {"..","results","new"};                                   %#ok
     % run simulation
     sim = util.getSimParam(nCharger, nBus, objType);
     var = util.getVarParam(sim);
@@ -26,9 +27,10 @@ for iSim = 1:simulations.nSim
         "_nCharger_" + string(nCharger) + ...
         "_obj_" + objType + ".mat";
     filepath = fullfile(simulations.resultPath{:}, filename);
+  ...  filepath = fullfile(resultPath{:},filename);
     fprintf("saving file: " + filename + " percent complete: %f \n",iSim/simulations.nSim);
     save(filepath,'sim','var','Const','solution');
-end
+ end
 
 
 

@@ -36,8 +36,8 @@ for iBus = 1:sim.bus.nBus
 
         eq(iConst + 0) = '=';
         eq(iConst + 1) = '='; 
-        b(iConst + 0) = 0;
-        b(iConst + 1) = 0;
+        b(iConst + 0) = deltaT;
+        b(iConst + 1) = deltaT;
         
         eq(iConst + 2) = '<';
         eq(iConst + 3) = '<'; 
