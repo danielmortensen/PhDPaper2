@@ -1,8 +1,8 @@
-simulations.nBus = [7:13];
-simulations.nCharger = [ones([1,7])];
-simulations.objType = [repmat("fiscal",[1,7])];
-simulations.nSim = 7;
-simulations.resultPath = {"..","results","unordered"};                     %#ok
+simulations.nBus = [5 5 5];
+simulations.nCharger = [5 5 5];
+simulations.objType = ["fiscal","energy","baseline"];
+simulations.nSim = 3;
+simulations.resultPath = {"..","results","new"};                     %#ok
 
 for iSim = 1:simulations.nSim
 
@@ -25,7 +25,7 @@ for iSim = 1:simulations.nSim
     % save results
     filename = "nBus_" + string(nBus) + ...
         "_nCharger_" + string(nCharger) + ...
-        "_obj_" + objType + ".mat";
+        "_obj_" + objType + "_augmentedLoad.mat";
     filepath = fullfile(simulations.resultPath{:}, filename);
   ...  filepath = fullfile(resultPath{:},filename);
     fprintf("saving file: " + filename + " percent complete: %f \n",iSim/simulations.nSim);

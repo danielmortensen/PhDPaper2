@@ -18,7 +18,7 @@ mBattery = 10*MBattery/100; % minimum allowed soc in kWh
 
 % load data
 gridload = load(dirGridload);
-gridload = gridload.mu;
+gridload = gridload.mu*5; % NEED TO REMOVE THE *10!!!, only to prove a point!
 routes = readtable(dirRoutes);
 routes = sortrows(routes,'nRoute','descend');
 

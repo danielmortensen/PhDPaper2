@@ -2,10 +2,10 @@ clear all; close all;
 datetime.setDefaultFormats('default','yyyy-MM-dd HH:mm:ss');   
 
 resultdir = '\\wsl.localhost\ubuntu\home\dmortensen\paper2\PhDPaper2\results\new\';
-mediadir = '\\wsl.localhost\ubuntu\home\dmortensen\paper2\PhDPaper2\documentation\writeup\media/7_objective\';
-totalPowerTableFile = 'HeEtAl5Bus5ChargerTotalPowerPlot.csv';
-powerTableFile = 'HeEtAl5Bus5ChargerPowerPlot.csv';
-resultfile = 'nBus_5_nCharger_5_obj_energy.mat';...'nBus_5_nCharger_5_obj_baseline.mat';...'nBus_5_nCharger_5_obj_fiscal.mat';
+mediadir = '\\wsl.localhost\ubuntu\home\dmortensen\paper2\PhDPaper2\documentation\writeup\media\7_objective\';
+totalPowerTableFile = 'Optimized5Bus5ChargerAugmentedTotalPowerPlot.csv';
+powerTableFile = 'Optimized5Bus5ChargerAugmentedPowerPlot.csv';
+resultfile = 'nBus_5_nCharger_5_obj_fiscal_augmentedLoad.mat';...'nBus_5_nCharger_5_obj_baseline.mat';...'nBus_5_nCharger_5_obj_fiscal.mat';
 resultpath = fullfile(resultdir,resultfile);
 
 data = load(resultpath);
