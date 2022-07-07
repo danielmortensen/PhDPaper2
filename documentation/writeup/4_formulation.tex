@@ -26,7 +26,7 @@ where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\math
 \input{media/4_formulation/busTime1}
 \par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$ as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
 \input{media/4_formulation/busTime3}
-\subsection{Constraints}
+\subsection{Constraints\label{sec:formulation:constraint}}
 The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
 \begin{equation}\begin{aligned}
 	a_{ij} &< c_{ij} \\
