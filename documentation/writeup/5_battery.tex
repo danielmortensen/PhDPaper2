@@ -1,5 +1,5 @@
 \section{Battery State of Charge\label{sec:5_battery}}
-BEBs must also maintain their state of charge above a minimum threshold, denoted $h_{\text{min}}$. Let $h_{ij}$ be the state of charge for bus $i$ at the beginning of stop $j$ as shown in figure \ref{fig:hPlacement}. The initial value for bus $i$, denoted $h_{i0}$, is equal to some constant such that
+BEBs must also maintain their state of charge above a minimum threshold, denoted $h_{\text{min}}$. Let $h_{ij}$ be the state of charge for bus $i$ at the beginning of stop $j$ as shown in Fig. \ref{fig:hPlacement}. The initial value for bus $i$, denoted $h_{i0}$, is equal to some constant such that
 \input{media/5_battery/hPlacement}
 \begin{equation}\label{eqn:initialSoc0}\begin{aligned}
 	h_{i0} &= \eta_{i} \ \forall i \\
@@ -51,4 +51,4 @@ However, because equality for two continuous variables is computationally demand
 \begin{equation} \begin{aligned}
 	h_{i0} - h_{i,\text{end}} \le 0.
 \end{aligned} \end{equation}
-Because the final state of charge is dependent on the amount of power used to charge, and power/energy use is penalized (see section \ref{sec:objective}), the optimization process will force the final state of charge down until is nearly equal to the initial.
+Because the final state of charge is dependent on the amount of power used to charge, and power/energy use is penalized (see section \ref{sec:objective}), the optimization process will drive the final state of charge down until is nearly equal to the initial.

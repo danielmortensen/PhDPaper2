@@ -50,48 +50,12 @@ The entire cost function is given as the sum of the energy and power costs such 
 The complete problem can now be formulated as
 \begin{equation}\label{eqn:objective:final}\begin{matrix}
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{v} \text{ subject to } \\
-	\begin{bmatrix}
-		\tilde{A}_{1} \\ 
-		\tilde{A}_{2} \\
-		\tilde{A}_{3} \\
-	\end{bmatrix}\mathbf{y} = 
-	\begin{bmatrix}
-		\tilde{\mathbf{b}}_{1} \\
-		\tilde{\mathbf{b}}_{2} \\
-		\tilde{\mathbf{b}}_{3} \\
-	\end{bmatrix}, \ 
-	\begin{bmatrix}
-		A_{1} \\
-		A_{2} \\
-		A_{3} \\
-		A_{4} \\
-		A_{5} \\
-		A_{6} \\
-		A_{7} \\
-		A_{8} \\
-		A_{9} \\
-		A_{10}\\
-		A_{11}\\
-		A_{12}\\
-	 \end{bmatrix}\mathbf{y} \le 
-	 \begin{bmatrix}
-		\mathbf{b}_{1} \\
-		\mathbf{b}_{2} \\
-		\mathbf{b}_{3} \\
-		\mathbf{b}_{4} \\
-		\mathbf{b}_{5} \\
-		\mathbf{b}_{6} \\
-		\mathbf{b}_{7} \\
-		\mathbf{b}_{8} \\
-		\mathbf{b}_{9} \\
-		\mathbf{b}_{10}\\
-		\mathbf{b}_{11}\\
-		\mathbf{b}_{12}\\
-	 \end{bmatrix}
+		\tilde{A}_{1:3}\mathbf{y} = \tilde{\mathbf{b}}_{1:3} \ 
+		A_{1:12}\mathbf{y} \le \mathbf{b}_{1:12}
 \end{matrix} \end{equation}
 or 
 \begin{equation}\begin{matrix}
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{g} \text{ subject to } \\
-	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b},
+	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b}.
 \end{matrix} \end{equation}
 

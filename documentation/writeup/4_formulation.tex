@@ -1,10 +1,10 @@
-\section{Availability and Resource Contention\label{sec:4_formulation}}
+\section{Bus Availability and Resource Contention\label{sec:4_formulation}}
 The charge scheduling framework described in this paper is formulated as a constrained optimization problem that can be solved as a Mixed Integer Linear Program (MILP) of the form
 \begin{equation}\label{eqn:MILP}\begin{matrix}
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{v} \text{ subject to } \\
 	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b},
 \end{matrix} \end{equation}
-where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
+where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{v}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
 \begin{equation}\label{eqn:yDef}
 	\mathbf{y} = \begin{bmatrix}
 			\boldsymbol{\sigma} \\ 
@@ -19,27 +19,27 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{g}$ represent the solution ve
 			q_{\text{all}}  \\
 		     \end{bmatrix},
 \end{equation}
-where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, and $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power. 
-\par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost even in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
+where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power, and $\mathbf{g}$ is a slack variable for converting the effects of charging from continuous time to discrete intervals. 
+\par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
-\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge and the categorical shows which bus must charge, indicating a solution with two dimensions.  The first dimension represents time continuously from left to right, and the second describes the buses as shown in Fig. \ref{fig:busTime1}.
+\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented from left to right. The categorical axis represents each category as a bus and shows which bus must charge as shown in Fig. \ref{fig:busTime1}.
 \input{media/4_formulation/busTime1}
 \par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$ as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
 \input{media/4_formulation/busTime3}
 \subsection{Constraints\label{sec:formulation:constraint}}
 The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
 \begin{equation}\begin{aligned}
-	a_{ij} &< c_{ij} \\
-	c_{ij} &< s_{ij} \\
-	s_{ij} &< d_{ij}.
+	a_{ij} &\le c_{ij} \\
+	c_{ij} &\le s_{ij} \\
+	s_{ij} &\le d_{ij}.
 \end{aligned}\end{equation}
-These constraints can be rewritten such that the optimization variables are on the left, the known parameters are on the right, and the relationship is "less than" (or standard form) such that
+These constraints can be rewritten such that the optimization variables are on the left, the known parameters are on the right, and the relationship is ``less than'' (or standard form) such that
 \begin{equation}\begin{aligned}
-	-c_{ij} &< -a_{ij}\\
-	c_{ij} - s_{ij} &< 0\\
-	s_{ij} &< d_{ij}.
+	-c_{ij} &\le -a_{ij}\\
+	c_{ij} - s_{ij} &\le 0\\
+	s_{ij} &\le d_{ij}.
 \end{aligned}\end{equation}
-Standard form is preferred because it provides a standard way to represent equations. Having the optimization variables on the left also allows the expression to be written using matrix notation as 
+Standard form is preferred because it is required by most solvers. Having the optimization variables on the left also allows the expression to be written using matrix notation as 
 \begin{equation}\label{eqn:timeConstraint}
 	\begin{bmatrix} -1 & 0 \\
 	                 1 & -1 \\
@@ -60,7 +60,7 @@ Standard form is preferred because it provides a standard way to represent equat
 	\end{bmatrix} \ \forall i,j \\
 	A_1\mathbf{y} &\le \mathbf{b}_1,
 \end{aligned} \end{equation}
-	where $1^c_{ij}$ is $1$ at the location corresponding to $c_{ij}$, $1^d_{ij}$ is $1$ at the location corresponding to $d_{ij}$, and $A_1$ and $\mathbf{b}_1$ stack the constraints given in \eqref{eqn:timeConstraint} for all $i,j$.
+	where $1^{c}_{ij}$ is $1$ at the index that corresponds to $c_{ij}$, $1^d_{ij}$ is $1$ at the index corresponding to $d_{ij}$, and $A_1$ and $\mathbf{b}_1$ stack the constraints given in \eqref{eqn:timeConstraint} for all $i,j$.
 	\par The decision variables $s_{ij}$ and $c_{ij}$ from \eqref{eqn:timeConstraint} show when a bus must start and finish charging, but do not indicate on which charger. The variable $\boldsymbol{\sigma}$ from \eqref{eqn:yDef} is a vector of binary variables. Each element of $\boldsymbol{\sigma}$ is denoted $\sigma_{ijk}$ and is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, the values in $\boldsymbol{\sigma}$ must be constrained such that
 \begin{equation}
 	\begin{aligned}
@@ -69,7 +69,7 @@ Standard form is preferred because it provides a standard way to represent equat
 \end{equation} 
 or in standard form as 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
+	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} & \hdots \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
 		A_2\mathbf{y} & \le \mathbf{b}_2,
 \end{aligned} \end{equation}
 where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$.
@@ -77,15 +77,15 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	\begin{equation}\label{eqn:A3}\begin{aligned}
 	s_{ij} - c_{ij} &\le M\sum_{k}\sigma_{ijk} \\
 	s_{ij} - c_{ij} - \sum_{k}\sigma_{ijk}M &\le 0\\
-	\begin{bmatrix} 1_s & -1_c & -M_{\sigma} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j 
+		\begin{bmatrix} 1_s & -1_c & -M_{\sigma_1} & \hdots & -M_{\sigma_k} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j 
 \end{aligned} \end{equation}
-	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, denoted $\text{nTime}$ and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
+	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, also refered to as $\text{nTime}$, and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
 	\begin{equation} 
 		A_3\mathbf{y} \le \mathbf{b}_3
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
-	The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to a charger at the same time. Note that this can only happen when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus break pairs such that $\left (ij, \ i^{`}j^{`} \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{`}$ during the $j$ and $j^{`}$ stops respectively. Charging overlap can be avoided by constraining
+	The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
 
 \begin{equation}\label{eqn:overlapConstraints1}
@@ -106,9 +106,9 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	c_{ij} - s_{i^{'}j^{'}} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - M(1 - l_{\left( ij, \ i^{`}j^{`}\right )})\ \forall k \\
 \end{aligned}\end{equation}
 When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints3} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$. When $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, \eqref{eqn:overlapConstraints3} simplifies to \eqref{eqn:overlapConstraints2}. Equation \eqref{eqn:overlapConstraints3} can be expressed in standard form as 
-	\begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
-		-c_{i^{`}j^{`}} + s_{ij} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} - Ml_{iji^{`}j^{`}}&\le 2M  \ \forall k\\
-		-c_{ij} + s_{i^{`}j^{`}} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} + Ml_{iji^{`}j^{`}}&\le 3M  \ \forall k\\
+	\begin{equation}\label{eqn:overlapConstraints4}\begin{aligned}
+		-c_{i^{'}j^{'}} + s_{ij} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} - Ml_{(ij),(i^{'}j^{'})}&\le 2M  \ \forall k\\
+		-c_{ij} + s_{i^{'}j^{'}} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} + Ml_{(ij),(i^{'}j^{'})}&\le 3M  \ \forall k\\
 	\end{aligned}\end{equation}
 	and finally as
 	\begin{equation}\begin{aligned} 
@@ -130,7 +130,7 @@ When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints3
 			3M \\
 		\end{bmatrix} \forall k
 	\end{aligned} \end{equation}
-	The constraints in \eqref{eqn:overlapConstraints3} can be repeated for all $\left ( ij, \ i^{`}j^{`} \right ) \in \mathcal{S}$ and concatenated into a single matrix expression
+	The constraints in \eqref{eqn:overlapConstraints4} can be repeated for all $\left ( (i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ and concatenated into a single matrix expression
 	\begin{equation}\begin{aligned} 
 		A_4\mathbf{y} & \le \mathbf{b}_4 \\
 	\end{aligned} \end{equation} 
