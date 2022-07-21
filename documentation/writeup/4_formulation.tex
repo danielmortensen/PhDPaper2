@@ -4,6 +4,7 @@ The charge scheduling framework described in this paper is formulated as a const
 	\underset{\mathbf{y}}{\text{min}} \ \mathbf{y}^T\mathbf{v} \text{ subject to } \\
 	\tilde{A}\mathbf{y} = \tilde{\mathbf{b}}, \ A\mathbf{y} \le \mathbf{b},
 \end{matrix} \end{equation}
+along with some integer constraints on elements of $\mathbf{y}$,
 where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{v}$ represent the solution vector, equality and inequality constraints, and cost vector respectively. In this paper, $\mathbf{y}$ is comprised of several variables, and is expressed as 
 \begin{equation}\label{eqn:yDef}
 	\mathbf{y} = \begin{bmatrix}
@@ -22,7 +23,7 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{v}$ represent the solution ve
 where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power, and $\mathbf{g}$ is a slack variable for converting the effects of charging from continuous time to discrete intervals. 
 \par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
-\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented from left to right. The categorical axis represents each category as a bus and shows which bus must charge as shown in Fig. \ref{fig:busTime1}.
+\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented graphically as increasing from left to right. The categorical axis represents each category as a bus and shows which bus is charges over time as shown in Fig. \ref{fig:busTime1}.
 \input{media/4_formulation/busTime1}
 \par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$ as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
 \input{media/4_formulation/busTime3}
@@ -60,7 +61,7 @@ Standard form is preferred because it is required by most solvers. Having the op
 	\end{bmatrix} \ \forall i,j \\
 	A_1\mathbf{y} &\le \mathbf{b}_1,
 \end{aligned} \end{equation}
-	where $1^{c}_{ij}$ is $1$ at the index that corresponds to $c_{ij}$, $1^d_{ij}$ is $1$ at the index corresponding to $d_{ij}$, and $A_1$ and $\mathbf{b}_1$ stack the constraints given in \eqref{eqn:timeConstraint} for all $i,j$.
+	where $1^{c}_{ij}$ is $1$ at the index that corresponds to $c_{ij}$, $1^s_{ij}$ is $1$ at the index corresponding to $s_{ij}$, and $A_1$ and $\mathbf{b}_1$ stack the constraints given in \eqref{eqn:timeConstraint} for all $i,j$.
 	\par The decision variables $s_{ij}$ and $c_{ij}$ from \eqref{eqn:timeConstraint} show when a bus must start and finish charging, but do not indicate on which charger. The variable $\boldsymbol{\sigma}$ from \eqref{eqn:yDef} is a vector of binary variables. Each element of $\boldsymbol{\sigma}$ is denoted $\sigma_{ijk}$ and is $1$ when bus $i$ charges during the $j^{\text{th}}$ stop at charger $k$. Because a bus can only charge at one charger at a time, the values in $\boldsymbol{\sigma}$ must be constrained such that
 \begin{equation}
 	\begin{aligned}
@@ -85,7 +86,7 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
-	The variable $\sigma_{ijk}$ is also necessary to eliminate situations where more then one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining
+	The variable $\sigma_{ijk}$ is also necessary to prevent situations where more than one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining
 \input{media/4_formulation/potentialOverlap}
 
 \begin{equation}\label{eqn:overlapConstraints1}
