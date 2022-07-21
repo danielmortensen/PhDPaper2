@@ -16,11 +16,12 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{v}$ represent the solution ve
 			\mathbf{r}      \\ 
 			\mathbf{g}      \\
 			\mathbf{p}      \\ 
+			\mathbf{l}      \\
 			q_{\text{on}}   \\ 
 			q_{\text{all}}  \\
 		     \end{bmatrix},
 \end{equation}
-where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power, and $\mathbf{g}$ is a slack variable for converting the effects of charging from continuous time to discrete intervals. 
+where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, $\mathbf{g}$ is a slack variable for converting the effects of charging from continuous time to discrete intervals, $\mathbf{l}$ is another slack variable that prevents two buses from simultaneously being assigned to the same charger, and $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power. 
 \par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
 \subsection{Setup}
 \par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented graphically as increasing from left to right. The categorical axis represents each category as a bus and shows which bus is charges over time as shown in Fig. \ref{fig:busTime1}.
@@ -70,7 +71,7 @@ Standard form is preferred because it is required by most solvers. Having the op
 \end{equation} 
 or in standard form as 
 \begin{equation} \begin{aligned}
-	\begin{bmatrix}1_{ij1} & 0 & \hdots & 0 & 1_{ijk} & \hdots \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
+	\begin{bmatrix}1_{ij1} & 1_{ij2} & \hdots & 1_{ijk} & 0 & \hdots \end{bmatrix} \mathbf{y} &\le \mathbf{1} \ \forall i,j\\
 		A_2\mathbf{y} & \le \mathbf{b}_2,
 \end{aligned} \end{equation}
 where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$.
