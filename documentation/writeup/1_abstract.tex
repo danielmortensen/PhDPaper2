@@ -1,12 +1,7 @@
 \begin{abstract}
-	Many transit authorities have begun adopting Battery Electric Buses (BEBs) in an effort to reduce maintenance, decrease emissions, and access renewable energy. Transitioning to BEBs comes with challenges, one of which is the extended time it takes to refuel, which makes maintaining a traditional bus schedule difficult, and may cause buses to charge in ways that increase the cost of energy. 
-	\par This paper proposes a novel technique for minimizing the monthly cost of energy for electric bus fleets while adhering to a traditional bus schedule. Our paper improves upon prior work by developing a non-discrete charge schedule while incorporating a more comprehensive cost model with the effects of uncontrolled loads.
-	\par A novel technique for converting the effects of a continuous-time schedule to a discrete representation of power is encoded as constraints in a Mixed Integer Linear Program (MILP) and allows the charge schedule to be formulated as a constrained bin packing problem and evaluated against discrete power measurements from uncontrolled loads. Among other things, we show that the proposed method significantly decreases demand on power infrastrucuture by temporally balancing the loads from buses with uncontrolled loads.  We also demonstrate that the proposed method far exceeds traditional discrete-time representations in computation time, allowing for precise schedules without prohibitively large run times. 
+	As transit authorities begin adopting Battery Electric Buses (BEBs), they must address the challenge of extended battery charging sessions while maintaining fixed bus schedules and managing the cost of energy.	This paper proposes a novel technique for minimizing the monthly cost of energy for operating electric bus fleets in the presence of time-varying uncontrolled loads.  The charging problem is cast as a constrained bin packing problem and expressed as a mixed integer linear program (MILP).  Among other things, we show that the proposed method significantly decreases demand on power infrastructure by temporally balancing the loads from buses with uncontrolled loads.  The bin packing formulation reduces the number of variables compared to prior discrete-time formulations, which reduces optimization runtime.
 \end{abstract}
+
 \begin{IEEEkeywords}
 	Battery Electric Buses, Cost Minimization, Multi-Rate Charging, Mixed Integer Linear Program
 \end{IEEEkeywords}
-
-
-
-
