@@ -1,14 +1,14 @@
-doClean = true;
-visualizeData = true;
-exportToFile = false;
-doCombination = true;
+doClean = false;
+visualizeData = false;
+exportToFile = true;
+doCombination = false;
 labelWarning = 'MATLAB:table:ModifiedAndSavedVarnames';
-warning('off',labelWarning)
+% parfevalOnAll(@warning,0,'off',labelWarning);
 basePath = '../data/';
 
 if doClean
     % get files of data
-    collectPath = fullfile(basePhtopath,'collects'); 
+    collectPath = fullfile(basePath,'collects'); 
     directories = dir(collectPath);
     isBusData = contains([string({directories.name})],"bus_data");
     directories = directories(isBusData);
@@ -29,14 +29,14 @@ if doClean
     fileUTA = files(~isNewFlyer);
 
     % extract, merge, sort, and remove duplicate data
-    dataUta = extractAndClean(fileUTA);
     dataNewFlyer = extractAndClean(fileNewFlyer);
+    dataUta = extractAndClean(fileUTA);
 
     % determine when a bus is in the hub
     dataUta = addInHubColumn(dataUta);
     dataNewFlyer = addInHubColumn(dataNewFlyer);
-    utaPath = fullfile(basePath,'processed','dataUta.csv');
     nflPath = fullfile(basePath,'processed','dataNewFlyer.csv');
+    utaPath = fullfile(basePath,'processed','dataUta.csv');
     writetable(dataUta,utaPath);
     writetable(dataNewFlyer,nflPath);
 elseif doCombination
@@ -66,48 +66,185 @@ end
 
 if exportToFile
     % load in data as needed
+    clear('socTable');
     if ~exist('dataCombined','var')
-        dataCombined = readtable('data_cleaned/dataCombined.csv');
+        dataCombined = readtable('../data/processed/dataCombined.csv');
     end
 
     % initialize routes and times to export
-    busId = [18151;... 15023; 15020; 15019;...
-             ...15018; 15017; 15014; 15013;...
-             ...15012; 15009; 15007; 15006;...
-             ...15006; 15006; 15003...
+    busId = [18151; 15023; 15020; 15019;...
+             15018; 15017; 15014; 15013;...
+             15012; 15009; 15007; 15006;...
+             15006; 15006; 15003 ...
              ];
-    years = 2022*ones(size(busId)); months = 3*ones(size(busId)); 
-    days = [4; 9; 14; 8; 8; 8; 11; 4; 4; 4; 12; 4; 8; 9; 9];
-    dates = datetime(years, months, days);
+    if ~exist('busId','var')
+        busId = unique(dataCombined.BusID);
+    else
+        years = 2022*ones(size(busId)); months = 3*ones(size(busId));
+        days = [4; 9; 14; 8; 8; 8; 11; 4; 4; 4; 12; 4; 8; 9; 9];
+        dates = datetime(years, months, days);
+    end
+
+    
     
     % add each element to the output results
-    result = struct;
-    waypointOffset = 0;
-    clear('socTable');
-    for iRoute = 1:numel(busId)
-        id = busId(iRoute);
-        timeStart = dates(iRoute);
-        timeEnd = timeStart + hours(24);
-        isBus = dataCombined.BusID == id;
-        isTime1 = dataCombined.Time >= timeStart;
-        isTime2 = dataCombined.Time < timeEnd;
-        selectedIdx = isBus & isTime1 & isTime2;
-        dataRoute = dataCombined(selectedIdx,:);
-        dataRoute = dataRoute(1:60:end,:);
-        [result, nWaypoint] = addBusToResult(result,iRoute,dataRoute,waypointOffset);
-        waypointOffset = waypointOffset + nWaypoint;
-        dataRoute.BusID = ones(size(dataRoute.BusID))*iRoute;
-        if ~exist('socTable','var')
-            socTable = appendSocTable(dataRoute);
-        else
-            socTable = appendSocTable(dataRoute, socTable);
+    % result = struct;
+    % waypointOffset = 0;
+    nBus = numel(busId);
+    iRoute = 1;
+    iFinalBus = 1;
+    dataFormated = {};
+    dt = seconds(dataCombined.Time(2) - dataCombined.Time(1));
+    nSamplePerDay = 24*3600/dt;
+    nRoute = 0;
+    iWaypoint = 1;
+    rejects = {};
+    isFirstWrite = true;
+    tOffset = [minutes(0); minutes(20); minutes(20); minutes(20)];
+    for iBus = 1:nBus
+
+        % designate which bus to use
+        id = busId(iBus);
+        dataBus = dataCombined(dataCombined.BusID == id,:);
+        dataBus = sortrows(dataBus,'Time','ascend');
+
+        iTable = 1;
+        nTable = size(dataBus,1);
+        while iTable < nTable
+
+            % get the start and end times
+            if exist('dates','var')
+                tStart = dates(iBus);
+            else                
+                tStart = dataBus.Time(iTable,:);
+            end
+            tStart.Hour = 0;
+            tStart.Second = 0;
+            tFinal = tStart + hours(24);
+
+            % separate corresponding data
+            routeIdx = dataBus.Time >= tStart;
+            routeIdx = routeIdx & (dataBus.Time < tFinal);
+            dataRoute = dataBus(routeIdx,:);
+            nData = size(dataRoute,1);            
+           
+            if ~all(dataRoute.SOC < 500)
+                dataRoute.SOC = dataRoute.SOC*450/max(dataRoute.SOC);
+            end
+            if nData > nSamplePerDay
+                [~, idx] = unique(dataRoute.Time);
+                dataRoute = dataRoute(idx,:);
+            end
+            if nData > nSamplePerDay
+                dataRoute = dataRoute(1:nSamplePerDay,:);
+                nData = nSamplePerDay;
+            end
+            diff = dataRoute.SOC(2:end) - dataRoute.SOC(1:end-1);
+            diff(diff > 0) = 0;
+            dsoc = sum(diff);
+            if (all(dataRoute.SOC > 0) && nData == nSamplePerDay && all(dataRoute.SOC < 500) && (range(dataRoute.SOC) > 20) && dsoc < -200 && dsoc > -450) || exist('dates','var')
+
+                % rename fields to comply with justin's request
+                dataRoute = renamevars(dataRoute,["BusID","Lat","Lon","inHub","SOC"],...
+                    ["BusId", "Latitude", "Longitude", "Type", "Charge"]);
+
+                % add altitude column (for when buses can fly)
+                dataRoute.Altitude = zeros([nData,1]);
+
+                
+                % write to file
+                isFirstOffset = true;
+                for iOffset = 1:numel(tOffset)
+
+                    % account for temporal offsets
+                    tDiff = dataRoute.Time(2) - dataRoute.Time(1);
+                    offset = tOffset(iOffset);
+                    dataRoute.Time = dataRoute.Time + offset;
+                    overflowIdx = dataRoute.Time >= tFinal;
+                    dataRoute(overflowIdx,:) = [];
+                    tFill = tStart:tDiff:(dataRoute.Time(1) - tDiff);
+                    dataFill = dataRoute(ones([numel(tFill),1]),:);
+                    dataFill.Time = tFill(:);
+                    dataRoute = [dataFill; dataRoute];
+
+                    % relable to create distinct bus indices
+                    dataRoute.BusId = ones(size(dataRoute.BusId))*iFinalBus;
+                    iFinalBus = iFinalBus + 1;
+
+                    % add waypoint ID
+                    waypointId = iWaypoint:iWaypoint + nData - 1;
+                    dataRoute.WaypointId = waypointId(:);
+                    iWaypoint = iWaypoint + nData;
+
+                    % Convert to 'Type' s.t. (0=Station, 1=Depot, 2=Route)
+                    if isFirstOffset
+                        dataRoute.Type = ~(dataRoute.Type)*2;
+                        isFirstOffset = false;
+                    end
+                    tIdx = dataRoute.Time.Hour < 5 | dataRoute.Time.Hour >= 23;
+                    dataRoute.Type(tIdx) = 1;
+
+                    % write table to file
+                    isFirstWrite = writeToFile("bestRepeatedRoutes.csv",dataRoute, isFirstWrite);
+                end
+                fprintf("wrote the %ith route to file.\n",nRoute);
+                nRoute = nRoute + 1;
+                if exist('dates','var')
+                    break;
+                end
+            else
+                rejects{end + 1} = dataRoute;
+            end
+
+            % update indices
+            iTable = iTable + nData;
         end
-        fprintf("formatted %f percent of bus routes\n",iRoute/numel(busId));
+        fprintf("Finished processing for bus %i\n",iBus);
+%         timeStart = dates(iRoute);
+%         timeEnd = timeStart + hours(24);
+%         isBus = dataCombined.BusID == id;
+%         isTime1 = dataCombined.Time >= timeStart;
+%         isTime2 = dataCombined.Time < timeEnd;
+%         selectedIdx = isBus & isTime1 & isTime2;
+%         dataRoute = dataCombined(selectedIdx,:);
+%         dataRoute = dataRoute(1:60:end,:);
+%         [result, nWaypoint] = addBusToResult(result,iRoute,dataRoute,waypointOffset);
+%         waypointOffset = waypointOffset + nWaypoint;
+%         dataRoute.BusID = ones(size(dataRoute.BusID))*iRoute;
+%         if ~exist('socTable','var')
+%             socTable = appendSocTable(dataRoute);
+%         else
+%             socTable = appendSocTable(dataRoute, socTable);
+%         end
+%         fprintf("formatted %f percent of bus routes\n",iRoute/numel(busId));
     end
-    writetable(socTable,'busSoc2.csv');
-    yaml.dumpFile('Waypoints2.yaml',result,'block');
+%     writetable(socTable,'busSoc2.csv');
+%     yaml.dumpFile('Waypoints2.yaml',result,'block');
 end
 
+function isFirstWrite = writeToFile(filePath, data, isFirstWrite)
+
+% convert time to seconds
+tStart = data.Time(1);
+data.Time = seconds(data.Time - tStart);
+
+if isFirstWrite
+    writetable(data, filePath)
+    isFirstWrite = false;
+else    
+    writetable(data,filePath,'WriteMode','Append');
+end
+iBus = data.BusId(1);
+figure; subplot(4,1,1);
+plot(data.Latitude); title(sprintf("Longitude for Bus %i",iBus));
+subplot(4,1,2);
+plot(data.Longitude); title(sprintf("Latitude for Bus %i",iBus));
+subplot(4,1,3);
+plot(data.Charge); title(sprintf("Charge for Bus %i",iBus));
+subplot(4,1,4);
+plot(data.Type); title(sprintf("Station, depot, or route for Bus %i",iBus));
+ylim([-0.5,2.5]);
+end
 function displayBusInfo(data)
 busId = unique(data.BusID);
 nBus = numel(busId);
@@ -202,7 +339,8 @@ end
 function cleanTable = extractAndClean(fileList)
 % concatenate all files into one table
 nFileUta = numel(fileList);
-for iFile = 1:nFileUta
+dataTables = cell(nFileUta,1);
+parfor iFile = 1:nFileUta
 
     % read in file data
     fileCurrent = fileList(iFile);
@@ -220,15 +358,18 @@ for iFile = 1:nFileUta
     end
 
     % concatentate with current table
-    if exist("dataTable",'var')
-        dataTable = [dataTable; fileTable];
-    else
-        dataTable = fileTable;
-    end
+    dataTables{iFile} = fileTable;
+% 
+%     if exist("dataTable",'var')
+%         dataTable = [dataTable; fileTable];
+%     else
+%         dataTable = fileTable;
+%     end
     fprintf('cleaned UTA file %i of %i\n',iFile,nFileUta);
 end
 
 % sort by bus index and then by time
+dataTable = vertcat(dataTables{:});
 dataTable = sortrows(dataTable,{'BusID','Time'});
 dataTable = unique(dataTable);
 

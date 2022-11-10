@@ -8,7 +8,7 @@ end
 
 busId = unique(dataUta.BusID);
 nBus = numel(busId);
-routes = nan([2000,63]);
+routes = nan([2000,100]);
 iSchedule = 1;
 restThreshold = 10*60;
 deltaLimit = -375;
@@ -57,10 +57,28 @@ while(~isempty(dataBus))
         % compute delta soc
         delta = dataDay.SOC(idxArrive) - dataDay.SOC(idxDepart);
         delta = [delta; 0];                                                %#ok
+        
+        % compute variance on the delta
+        deltaVar = zeros(size(delta));
+        deltaVar(end) = 0;
+        for iDelta = 1:numel(delta) - 1
+            data = dataDay.SOC(idxDepart(iDelta):idxArrive(iDelta));
+            diff = data(2:end) - data(1:end-1);
+            dist = dataDay.Distance(idxDepart(iDelta):idxArrive(iDelta) - 1);
+            diffPerMeter = diff./dist;
+            diffPerMeter(isinf(diffPerMeter)) = nan;
+            diffPerMeter(isnan(diffPerMeter)) = [];
+            varPerMeter = var(diffPerMeter);
+            deltaVar(iDelta) = var(diff)*sum(dist);      
+            if deltaVar(iDelta) < 1
+                deltaVar(iDelta) = 6.820014880297823e-05*sum(dist);
+            end
+        end
 
         % add times for start and end of day
         timeDepart = [timeDepart; 3600*24];                                %#ok
-        timeArrive = [0; timeArrive];                                      %#ok        
+        timeArrive = [0; timeArrive];                                      %#ok     
+
 
         % remove routes that have too high a battery draw
         badDelta = find(delta < deltaLimit);        
@@ -75,7 +93,7 @@ while(~isempty(dataBus))
 
             % insert values in data structure
             if nRoute > 0
-                schedule = [timeArrive'; timeDepart'; delta'];
+                schedule = [timeArrive'; timeDepart'; delta'; deltaVar'];
                 schedule = schedule(:);
                 routes(iSchedule,1:numel(schedule)) = schedule';
                 routes(iSchedule,end-2:end) = [percentInHub nRoute maxDelta];
@@ -91,14 +109,15 @@ end
 % crop unneeded space
 maxNRoute = max(routes(:,end-1));
 routes(iSchedule:end,:) = [];
-maxX = maxNRoute*3;
+maxX = maxNRoute*4;
 routes(:,maxX+1:end-3) = [];
 
 % define headers
 headArrival = "arrival_" + string(1:maxNRoute);
 headDepart = "departure_" + string(1:maxNRoute);
 headDelta = "socDelta_" + string(1:maxNRoute);
-header = [headArrival; headDepart; headDelta];
+headDeltaVar = "socDeltaVar_" + string(1:maxNRoute);
+header = [headArrival; headDepart; headDelta; headDeltaVar];
 header = header(:);
 header = header';
 header(end + 1) = "percentInHub"; 
@@ -107,7 +126,7 @@ header(end + 1) = "maxDelta";
 
 % export as table
 routesTable = array2table(routes,'VariableNames',header);
-writetable(routesTable,fullfile(basepath,'routesTable.csv'));
+writetable(routesTable,fullfile(basepath,'routesTableWithVar.csv'));
 
 function sec = toSeconds(input)
     sec = input.Hour*3600 + input.Minute*60 + input.Second;
