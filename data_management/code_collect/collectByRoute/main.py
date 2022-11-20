@@ -80,6 +80,7 @@ def collectBatch(writePath, routeId, nPerBatch=1):
                     writer.writerow(header)
                 dataList = itemgetter(*header)(vehicle)
                 writer.writerow(dataList)
+            print(f"finished sample: {iBatch} of file {fileId}")
     print(f"finished file: {filePath}")
             
 def isFirst(idx):
@@ -96,10 +97,6 @@ def main():
     with thread.ThreadPoolExecutor(max_workers=len(routeIds)) as exe:
         for routeId in routeIds:
             exe.submit(collect, saveDir, routeId, nPerBatch)
-
-
-
-
 
 if __name__ == "__main__":
     main()
