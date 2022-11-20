@@ -2,6 +2,7 @@ data_management/data/
 *.aux
 *.fdb_latexmk
 documentation/writeup/build/
+*virtual_environment/
 *__pycache__*
 *.asv
 *.asv
