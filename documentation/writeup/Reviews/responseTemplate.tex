@@ -1,0 +1,25 @@
+
+\newcounter{nReviewer}
+\setcounter{nReviewer}{1}
+\newenvironment{buttkissing}
+  {
+    \newcommand\reviewerclaims
+    {%
+    \color{black}
+    \item \textbf{Reviewer:} \color{red}
+    }
+    \newcommand\kissbutt
+    {%
+    \color{black}
+    \leavevmode\\[0.1in] \textbf{Response:} \color{blue}
+    }
+   \subsection*{Reviewer \thenReviewer }
+   The comments for reviewer \thenReviewer{}  are addressed here: 
+   \begin{enumerate} 
+   \stepcounter{nReviewer}}
+  {\end{enumerate}}
+\newcommand{\schmoozeeditor}[1]
+{%
+\noindent Dear #1, \\ \\
+My colleages and I are grateful for the opportunity to revise our paper. The reviewers have provided excellent feedback which we have utilized to improve the quality of the manuscript. Our response to each reviewer comment appears below. The reviewer comments are given in the red format and our responses are in blue.  
+}

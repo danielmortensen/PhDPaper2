@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\input{responseTemplate}
+
+
+\begin{document}
+\schmoozeeditor{Dr. Azim Eskandarian}
+\begin{buttkissing}
+	\reviewerclaims The motivation of this study is not well introduced. Two important related works [6] and [19] by the authors themselves are still under review and are inaccessible. It is suggested to remove these works from the reference list. Ignoring the above related works, the authors shall explore other motivation of this study.
+	\kissbutt none 
+
+	\reviewerclaims The considered problem seems not clearly introduced. The authors need to carefully describe the charging activities for each BEB in a day. Generally one bus runs several times on its planned line everyday, and therefore it may be charged more than one time on the same charger. The established mathematical model in Sections II and III, however, does not depict this feature and no relevant subscript has been defined. Please explain it.
+	\kissbutt None
+
+	\reviewerclaims The presentation of this work needs improvement. Some formulae and explanation sentences are redundant and can be removed. For example, Formula (4) and even (5) are not necessary. The first line in Formula (9) is also redundant. Fig 1 seems unnecessary as we can use Fig 3. The sentences from Formula (11) to Formula (14) together with the formulae (11), (12), (14) are wordy, and Formulae (13) and (15) are enough to express the constraints.
+	\kissbutt None
+
+	\reviewerclaims As the authors use matrix form to express the constraints of the mathematical model, it is suggested to explain the dimension sizes of some matrices such as $A_4$ in (16) and $A_8$ in (47).
+	\kissbutt None
+
+	\reviewerclaims  In the numerical experiments, the authors only give results for one small-scale instance with 5 buses and 5 chargers. More computational experiments with larger scales are strongly suggested to verify the effectiveness of the proposed method. Moreover, the authors shall tell the name of solver used to solve the MILP model, and explain the maximum instance scale (on the number of buses and chargers) it can solve for the established model.
+	\kissbutt None
+
+	\reviewerclaims  In the reference list, the information of issue, volume and pages for each reference shall be provided.
+	Besides, there are many grammar errors and typos in the work. Below are some of them. The authors shall proofread the paper thoroughly.
+	\begin{enumerate}
+	    \item Page2 line 6-7 right column, an MILP
+	    \item Page 2 line 56-57 left column, is charging
+	    \item Page 3 line 58-59 left column, delete a redundant word when
+	    \item Page 4 line 28-29 right column, denoted as
+	    \item Page 8 line 45-46 left column, on two
+	    \item Page 8 line 52-53 left column, a user’s
+	\end{enumerate} 
+	\kissbutt None 
+\end{buttkissing} 
+
+\begin{buttkissing}
+	\reviewerclaims The related work could be presented in more detail, possibly in a separate section
+	\kissbutt None 
+
+	\reviewerclaims The domain and range of all variables should be described. Also, a table summarizing the notations should be added to enhance the readability of the paper.
+	\kissbutt None
+
+	\reviewerclaims A comment that applies to several parts of the paper is that several formulas are being presented the authors need to use a more detailed textual description because occasionally it becomes difficult to follow them.
+	\kissbutt None
+
+	\reviewerclaims In addition to the results presented in VI-B and given that MILP methods are used, it is important that the authors experiment execution time and scalability using a larger setting since 5 buses and 5 chargers can be considered to be a rather small setting.
+	\kissbutt None
+\end{buttkissing}
+\end{document}
