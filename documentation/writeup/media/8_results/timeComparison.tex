@@ -1,0 +1,14 @@
+\begin{figure}
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[ybar, ylabel=Computation Time (Seconds), ymode=log, xmin=0, xmax=1.8, xtick={0.5,1.3},xticklabels={Proposed, Mortensen et al.}]
+			\addplot[fill=blue!20, bar width=0.6] coordinates{
+			(0.5,71.187)
+			(1.3,23013) 
+		};
+		\end{axis}
+\end{tikzpicture}
+	\caption{Comparison of computation time between the proposed algorithm and \cite{mortensen_comprehensive_2021}}
+	\label{fig:timeComparison}
+\end{figure}
+

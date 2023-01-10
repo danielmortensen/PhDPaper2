@@ -9,19 +9,16 @@
 \schmoozeeditor{Dr. Azim Eskandarian}
 \begin{buttkissing}
 	\reviewerclaims The motivation of this study is not well introduced. Two important related works [6] and [19] by the authors themselves are still under review and are inaccessible. It is suggested to remove these works from the reference list. Ignoring the above related works, the authors shall explore other motivation of this study.
-	\kissbutt none 
-
+	\kissbutt We have reorganized the first section to better outline the motivation of the paper which is discussed in paragraphs 7-9 of Section I. We have also removed reference [6]. Where reference 19 is in review for the same journal, we plan to work with the editor to get both papers published in the proper order so that the computational benefits in this paper can be properly illustrated.  
 	\reviewerclaims The considered problem seems not clearly introduced. The authors need to carefully describe the charging activities for each BEB in a day. Generally one bus runs several times on its planned line everyday, and therefore it may be charged more than one time on the same charger. The established mathematical model in Sections II and III, however, does not depict this feature and no relevant subscript has been defined. Please explain it.
-	\kissbutt None
-
+	\kissbutt We understand the reviewer to mean that the assumed bus activities throughout the day were not well defined and that the mathematical model in Sections II and III does not include multiple charge times for each bus throughout the day, or a corresponding subscript. In Section IIa paragraph 2 we define the subscripts $i,j$ to represent the $j^{\text{th}}$ stop for the $i^{\text{th}}$ bus so that each bus may charge multiple times througout the day which we understand to include the features and subscripts the reviewer has requested.  
 	\reviewerclaims The presentation of this work needs improvement. Some formulae and explanation sentences are redundant and can be removed. For example, Formula (4) and even (5) are not necessary. The first line in Formula (9) is also redundant. Fig 1 seems unnecessary as we can use Fig 3. The sentences from Formula (11) to Formula (14) together with the formulae (11), (12), (14) are wordy, and Formulae (13) and (15) are enough to express the constraints.
-	\kissbutt None
-
+	\kissbutt The reviewer is right in that our presentation contains redundancy.  We wanted to write so that a less experienced audience could benefit from our work which lead to some of the smaller steps the reviewer has mentioned.  We understand this may not be helpfull for more experienced audiences and have carefully reviewed the presentation and removed less necessary steps including line 2 of equation 9, Fig. 1, and Eqn 13.  
 	\reviewerclaims As the authors use matrix form to express the constraints of the mathematical model, it is suggested to explain the dimension sizes of some matrices such as $A_4$ in (16) and $A_8$ in (47).
-	\kissbutt None
+	\kissbutt This is a good point, we have considered doing so but feel that many of the constraints are situation dependent. For example, $A_4$ depends on the number of scenarios where overlap is possible and would have to be determined for each set of routes. Additionally, $A_8$ also depends on the number of stops each bus makes throughout the day which would need to be given along with a specific route schedule.
 
 	\reviewerclaims  In the numerical experiments, the authors only give results for one small-scale instance with 5 buses and 5 chargers. More computational experiments with larger scales are strongly suggested to verify the effectiveness of the proposed method. Moreover, the authors shall tell the name of solver used to solve the MILP model, and explain the maximum instance scale (on the number of buses and chargers) it can solve for the established model.
-	\kissbutt None
+	\kissbutt This is great point, we have updated our results section to include plots that show how both the runtime and monthly cost increases with the number of buses. The solver (Gurobi) was listed in paragraph 2 of Section VI. The maximum  instance scale will depend on the capacity of the solving hardware. The framework itself is general enough to handle an arbitrary number of buses and chargers.  We have given an example of how the runtimes increase with the number of buses so that the reader may have a general idea of what to expect.
 
 	\reviewerclaims  In the reference list, the information of issue, volume and pages for each reference shall be provided.
 	Besides, there are many grammar errors and typos in the work. Below are some of them. The authors shall proofread the paper thoroughly.
@@ -33,20 +30,18 @@
 	    \item Page 8 line 45-46 left column, on two
 	    \item Page 8 line 52-53 left column, a user’s
 	\end{enumerate} 
-	\kissbutt None 
+	\kissbutt We have updated the reference list of include the issue, volume and pages for each reference where applicable.  We have also included the DOI for each item for ease of reference. We have also proofread the paper and worked with an editor to remove grammar errors and typos in the work.
 \end{buttkissing} 
 
 \begin{buttkissing}
 	\reviewerclaims The related work could be presented in more detail, possibly in a separate section
-	\kissbutt None 
-
+	\kissbutt The review brings up a good point.  We have considered using a separate section, but the paper seemed to flow better if the literature review was included as part of the introduction. We have however extended the descriptions given in our literature search to include more details that explain how previous work relates to our proposed method.  
 	\reviewerclaims The domain and range of all variables should be described. Also, a table summarizing the notations should be added to enhance the readability of the paper.
 	\kissbutt None
 
 	\reviewerclaims A comment that applies to several parts of the paper is that several formulas are being presented the authors need to use a more detailed textual description because occasionally it becomes difficult to follow them.
-	\kissbutt None
-
+	\kissbutt This is a great comment, we have reviewed our paper and updated several areas with additional textual description including Equations 11 and 12. We have also removed several redundent steps such as the step from Eqn. 12 to Eqn. 13 and line 2 of Eqn. 9.  
 	\reviewerclaims In addition to the results presented in VI-B and given that MILP methods are used, it is important that the authors experiment execution time and scalability using a larger setting since 5 buses and 5 chargers can be considered to be a rather small setting.
-	\kissbutt None
+	\kissbutt Good point, we have included a section on scalability that centers on two additional figures, Fig. 12 and 13. Figure 12 shows how how the cost increases with the number of buses to demonstrate that the proposed method scales well in performance. Fig. 13 describes the runtime of a 5 harger scenario with 5 -- 30 buses to show how the runtime evolves as the number of buses increases.  
 \end{buttkissing}
 \end{document}

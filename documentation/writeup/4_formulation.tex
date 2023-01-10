@@ -22,11 +22,12 @@ where $\mathbf{y}$, $\tilde{A}$, $A$, and $\mathbf{v}$ represent the solution ve
 		     \end{bmatrix},
 \end{equation}
 where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\mathbf{c}$ and $\mathbf{s}$ describe time intervals over which buses charge, $\mathbf{h}$ gives the bus state of charge, $\mathbf{k}$, $\mathbf{r}$ and $\mathbf{p}$ are used to discretize the effects from $\mathbf{c}$ and $\mathbf{s}$, $\mathbf{g}$ is a slack variable for converting the effects of charging from continuous time to discrete intervals, $\mathbf{l}$ is another slack variable that prevents two buses from simultaneously being assigned to the same charger, and $q_{\text{on}}$ and $q_{\text{all}}$ represent maximum average power values that are used to compute the monthly cost of power. 
-\par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and minimises the cost in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
+\par The cost function in \eqref{eqn:MILP} will be designed to model a realistic billing structure used by \cite{rocky_mountain_power_rocky_2021} and will minimize the cost in the presence of uncontrolled loads. Additionally, the constraints are designed to incorporate bus schedules, limit bus state of charges, and include a linear charge model calibrated on data from the Utah Transit Authority.
+
 \subsection{Setup}
-\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented graphically as increasing from left to right. The categorical axis represents each category as a bus and shows which bus is charges over time as shown in Fig. \ref{fig:busTime1}.
-\input{media/4_formulation/busTime1}
-\par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$ as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
+\par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented graphically as increasing from left to right. The vertical axis represents each category as a bus and shows how each bus charges over time as shown in Fig. \ref{fig:busTime4}.
+%\input{media/4_formulation/busTime1}
+\par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station, such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$, as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
 \input{media/4_formulation/busTime3}
 \subsection{Constraints\label{sec:formulation:constraint}}
 The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
@@ -78,42 +79,28 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	The variable $\sigma_{ijk}$ is used in several scenarios. The first is to ensure that buses without charge assignments have a charge time of zero by constraining $s_{ij}$ and $c_{ij}$ to be the same value. This is done by letting
 	\begin{equation}\label{eqn:A3}\begin{aligned}
 	s_{ij} - c_{ij} &\le M\sum_{k}\sigma_{ijk} \\
-	s_{ij} - c_{ij} - \sum_{k}\sigma_{ijk}M &\le 0\\
 		\begin{bmatrix} 1_s & -1_c & -M_{\sigma_1} & \hdots & -M_{\sigma_k} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j 
 \end{aligned} \end{equation}
-	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, also refered to as $\text{nTime}$, and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
+	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, also referred to as $\text{nTime}$, and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
 	\begin{equation} 
 		A_3\mathbf{y} \le \mathbf{b}_3
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
 \input{media/4_formulation/busTime4}
-	The variable $\sigma_{ijk}$ is also necessary to prevent situations where more than one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining
+	The variable $\sigma_{ijk}$ is also necessary to prevent situations where more than one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining $c_{i^{'}j^{'}} > s_{ij}$ {\it or} $c_{ij} > s_{i^{'}j^{'}}$ for all $\left ( ij, \ i^{'}j^{'}\right ) \in \mathcal{S}$.  
 \input{media/4_formulation/potentialOverlap}
-
-\begin{equation}\label{eqn:overlapConstraints1}
-	\begin{array}{c}
-		c_{i^{`}j^{`}} > s_{ij} \\
-		\text{or} \\
-		c_{ij} > s_{i^{`}j^{`}} 
-	\end{array} \ \forall \left ( ij, \ i^{`}j^{`}\right ) \in \mathcal{S}
-\end{equation}
-	Let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$. The expression from \eqref{eqn:overlapConstraints1} can be rewritten as
+We desire to encode these constraints so that they may be included in our MILP. First, let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$ so that the overlap constriants can be expressed as 
 	\begin{equation} \label{eqn:overlapConstraints2}\begin{aligned}
 	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{\left( ij, \ i^{`}j^{`}\right )} \\
 	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{\left( ij, \ i^{`}j^{`}\right )}) \\
 \end{aligned}\end{equation}
-	However, this constraint is only necessary when buses $i$ and $i^{`}$ must use the same charger. This can be remedied as
+	Note that this constraint is only necessary when buses $i$ and $i^{'}$ are assigned to the same charger, so that both $\sigma_{i'j'k}$ and $\sigma_{ijk}$ are equal to 1 which can be done by modifying the switching technique from Eqn. \eqref{eqn:overlapConstraints2} so that the overlap constraints are trivially satisfied when either $\sigma_{i'j'k}$ or $\sigma_{ijk}$ is equal to zero. The equations in Eqn. \eqref{eqn:overlapConstraints2} can be relaxed by letting 
 \begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
 	c_{i^{'}j^{'}} - s_{ij} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - Ml_{\left( ij, \ i^{`}j^{`}\right )} \ \forall k \\
 	c_{ij} - s_{i^{'}j^{'}} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - M(1 - l_{\left( ij, \ i^{`}j^{`}\right )})\ \forall k \\
 \end{aligned}\end{equation}
-When $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints3} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$. When $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, \eqref{eqn:overlapConstraints3} simplifies to \eqref{eqn:overlapConstraints2}. Equation \eqref{eqn:overlapConstraints3} can be expressed in standard form as 
-	\begin{equation}\label{eqn:overlapConstraints4}\begin{aligned}
-		-c_{i^{'}j^{'}} + s_{ij} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} - Ml_{(ij),(i^{'}j^{'})}&\le 2M  \ \forall k\\
-		-c_{ij} + s_{i^{'}j^{'}} + M\sigma_{i^{'}j^{'}k} + M\sigma_{ijk} + Ml_{(ij),(i^{'}j^{'})}&\le 3M  \ \forall k\\
-	\end{aligned}\end{equation}
-	and finally as
-	\begin{equation}\begin{aligned} 
+so that when $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapConstraints3} is trivially satisfied for all values of $c_{i^{'}j^{'}}$ and $s_{ij}$ and when $\sigma_{i^{'}j^{'}k} = \sigma_{ijk} = 1$, \eqref{eqn:overlapConstraints3} simplifies to \eqref{eqn:overlapConstraints2}. Equation \eqref{eqn:overlapConstraints3} can be expressed in standard form using matrix notation as 
+	\begin{equation}\label{eqn:overlapConstraints4}\begin{aligned} 
 		\begin{bmatrix} 
 			-1 & 0 &  0 & 1 & M & M & -M \\
 			 0 & 1 & -1 & 0 & M & M &  M \\
