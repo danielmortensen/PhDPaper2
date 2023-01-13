@@ -1,0 +1,47 @@
+\onecolumn	
+\newcommand{\coloredhline}{\arrayrulecolor{gray!20} \hline \\[0.01in]\arrayrulecolor{black}}
+\newcommand{\myendline}{\\ \coloredhline}
+\label{tab:paperVariables}
+\centering
+\begin{supertabular}{b{0.06\textwidth} m{0.3\textwidth} m{0.09\textwidth} m{0.06\textwidth} m{0.3\textwidth} m{0.09\textwidth}}
+	\toprule%----------------------------------------------------------------------------
+	\textbf{Variable} & \textbf{Description} & \textbf{Range} & \textbf{Variable} & \textbf{Description} & \textbf{Range}\\
+	\toprule%-----------------------------------------------------------------------------
+	\multicolumn{6}{l}{Indices} \myendline
+	i & Bus index     & $\mathbb{N}$ & j & Route index & $\mathbb{N}$\\ \myendline
+	k & Charger index & $\mathbb{N}$ \\[0.15in]
+	\hline \\[-5pt]
+	\multicolumn{6}{l}{Route Variables} \\[-9pt]\myendline
+	$a_{ij}$       & \parbox{0.3\textwidth}{The $j^{\text{th}}$ anticipated arrival time of bus $i$}                                                                                              & $\mathbb{R}$           & $c_{ij}$         &\parbox{0.3\textwidth}{ The start time of the commanded charge window if bus $i$ charges during stop $j$.}      & $\mathbb{R}$\\\myendline 
+	$s_{ij}$       & \parbox{0.3\textwidth}{The stop time of the commanded charge window if bus $i$ charges during stop $j$.}                                                                     & $\mathbb{R}$           & $d_{ij}$         &\parbox{0.3\textwidth}{The $j^{\text{th}}$ anticipated departure time of bus $i$.}                              & $\mathbb{R}$\\\myendline
+	$\sigma_{ijk}$ & \parbox{0.3\textwidth}{A binary decision variable that is one when bus $i$ charges during stop $j$ at charger $k$.}                                                          & $\{0,1\}   $           & $l_{(ij, i'j')}$ &\parbox{0.3\textwidth}{A slack variable that is 1 when bus $i$ uses a charger before bus $i'$ and 0 otherwise.} & $\{0,1\}   $\\\myendline
+	$\mathcal{S}$  & \parbox{0.3\textwidth}{The set of all pairs $\left ( (i,j),(i',j') \right )$ where bus $i$ and bus $j$ may use the same charger during the $j$ and $j'$ stops respectively.} & \scalebox{0.9}{$(i,j) \times (i',j')$} \\[0.5in]
+	\hline \\[-0.07in]
+	\multicolumn{6}{l}{State of Charge} \\[-9pt] \myendline
+	$h_{\text{min}}$ & The minimum allowable state of charge                           & $\left ( 0,h_{\text{max}} \right )$                & $h_{\text{max}}$  & The maximum state of charge                                                   & $\mathbb{R}$                                     \\ \myendline 
+	$\eta_i$         & The beginning state of charge for bus $i$                       & $\left ( h_{\text{min}}, h_{\text{max}} \right )$  & $h_{ij}$          & The state of charge for bus $i$ at the beginning of the $j^{\text{th}}$ stop. & $\left ( h_{\text{min}}, h_{\text{max}} \right )$\\ \myendline
+	$\Delta_{ij}$    & The time bus $i$ spent charging during the $j^{\text{th}}$ stop.& $\left ( h_{\text{min}}, h_{\text{max}} \right )$  & $p_i$             & The power at which bus $i$ is charged.                                        & $\mathbb{R}_+$                                   \\ \myendline
+	$\delta_{ij}$    & The battery discharge for bus $i$ over route $j$.               & $\mathbb{R}_+$                                     & $h_{i,\text{end}}$& Bus $i$'s final state of charge.                                              & $\left ( h_{\text{min}}, h_{\text{max}} \right )$\\[0.3in]
+	\hline \\[-0.07in]
+	\multicolumn{6}{l}{Uncontrolled Loads} \\[-9pt] \myendline 
+	$k_{ij}^{\text{start}}$          & The time index for the start of bus $i$'s $j^{\text{th}}$ stop                                                    & $\mathbb{Z}$                   & $k_{ij}^{\text{end}}$            & The time index for when bus $i$ disconnects from a charger during it's $j^{\text{th}}$ stop.                  & $\mathbb{Z}$                    \\ \myendline
+	$\Delta T$                       & The time difference between each time index.                                                                      & $\mathbb{R}$                   & $r_{ij}^{\text{start}}$          & The remaining time after $c_{ij}$ has been descritized.                                                       & $[0,\Delta T)$                  \\ \myendline
+	$r_{ij}^{\text{end}}$            & The remaining time after $s_{ij}$ has been descritized.                                                           & $[0,\Delta T)$                 & nPoint                           & the number of desired discrete indices                                                                        & $\mathbb{Z}$                    \\ \myendline
+	$\mathbf{g}_{ij}^{\text{start}}$ & A binary indicator variable which is one at the $k_{ij}^{\text{start}}$ index.                                    & $\{0,1\}^{\text{nPoint}}$      & $\mathbf{g}_{ij}^{\text{end}}$   & A binary indicator variable which is one at the $k_{ij}^{\text{end}}$ index.                                  & $\{0,1\}^{\text{nPoint}}$       \\ \myendline
+	$\mathbf{g}_{ij}^{\text{on}}$    & A binary indicator variable which is one at each index between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. & $\{0,1\}^{\text{nPoint}}$      & $\mathbf{f}$                     & A index vector so that $\mathbf{f}_i = i$ for all integer $i$ between 1 and nPoint.                           & $\mathbb{Z}^{\text{nPoint}}$    \\ \myendline
+	$k_{\text{eq}}$                  & a binary indicator variable which is one when $k_{ij}^{\text{start}} = k_{ij}^{\text{end}}$.                      & $\{0,1\}$                      & $p_{ij}^{\text{start}}$          & The average power corresponding to the $k_{ij}^{\text{start}}$ time index for bus $i$'s $j^{\text{th}}$ stop. & $\mathbb{R}_+$                  \\ \myendline
+	$p_{ij}^{\text{end}}$            & The average power corresponding to the $k_{ij}^{\text{end}}$ time index for bus $i$'s $j^{\text{th}}$ stop.       & $\mathbb{R}_+$                 & $\mathbf{p}_{ij}^{\text{start}}$ & $\mathbf{g}_{ij}^{\text{start}}\cdot p_{ij}^{\text{start}}$                                                   & $\mathbb{R}_+^{\text{nPoint}}$  \\ \myendline
+	$\mathbf{p}_{ij}^{\text{end}}$   & $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$                                                           & $\mathbb{R}_+^{\text{nPoint}}$ & $\mathbf{p}^{\text{load}}$       & A vector containing the 15-minute averages for the uncontrolled loads                                         & $\mathbb{R}^{\text{nPoint}}$    \\ \myendline
+	$\mathbf{p}^{\text{total}}$      & The total 15-minute average power for both the uncontrolled loads and bus chargers.                               & $\mathbb{R}^{\text{nPoint}}$   \\[0.3in] 
+	\hline \\[-0.07in]
+	\multicolumn{6}{l}{Objective Function}  \\[-9pt] \myendline
+	$\mu_{\text{e-on}}$         & On-Peak Energy Rate                                                            & $\mathbb{R}$                                & $\mu_{\text{e-off}}$       & Off-Peak Energy Rate                                                                                     & $\mathbb{R}$                 \\ \myendline
+	$\mu_{\text{p-on}}$         & On-Peak Demand Power Rate                                                      & $\mathbb{R}$                                & $\mu_{\text{p-all}}$       & Facilities Power Rate                                                                                    & $\mathbb{R}$                 \\ \myendline
+	$\mathcal{S}_{\text{on}}$   & The set of on-peak time indices                                                & \scalebox{0.9}{$\{1,...,\text{nPoint}\}$}   & $q_{\text{on}}$            & Maximum average power during on-peak periods                                                             & $\mathbb{R}$                 \\ \myendline
+	$q_{\text{all}}$            & Maximum average power for all time.                                            & $\mathbb{R}$                                & $\mathbf{1}_{\text{on}}$   & a binary vector which is 1 at the on-peak time indices                                                   & $\{0,1\}^{\text{nPoint}}$    \\ \myendline
+	$\mathbf{1}_{\text{off}}$   & a binary vector which is 1 at the off-peak time indices                        & $\{0,1\}^{\text{nPoint}}$                   & $\mathbf{u}_{\text{e-on}}$ & a vector of conversion factors from average on-peak power to consumption cost.                           & $\mathbb{R}^{\text{nPoint}}$ \\ \myendline 
+	$\mathbf{u}_{\text{e-off}}$ & a vector of conversion factors from off-peak average power to consumption cost.& $\mathbb{R}^{\text{nPoint}}$                & $\mathbf{u}_e$             & a vector of conversion factors from on and off-peak power to consumption cost.                           & $\mathbb{R}^{\text{nPoint}}$ \\ \myendline 
+	$\mathbf{u}_p$              & A vector of conversion factors from on and off-peak max power to demand cost.  & $\mathbb{R}^{\text{nPoint}}$                & $\mathbf{v}$               & a vector of conversion factors such that $\mathbf{v}^T\mathbf{y}$ yields the total montly cost of power. & $\mathbb{R}^{\text{nPoint}}$ \\ \myendline
+	%
+\end{supertabular}
+\twocolumn
