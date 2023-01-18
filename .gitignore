@@ -9,3 +9,5 @@ documentation/writeup/build/
 *.swp
 *.fig
 *.jpg
+*.fls
+*.log
