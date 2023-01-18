@@ -11,12 +11,6 @@ This section compares the monthly cost of energy for the proposed method with tw
 \input{media/8_results/costComparison}
 \input{media/8_results/totalPower}
 \input{media/8_results/powerPlot} 
-
-\subsection{Computation Time\label{sec:results:time}} 
-As explained in the introduction, one motivation for this work was to extend the work by \cite{mortensen_comprehensive_2021} to include the benefits while avoiding the pitfalls of computation complexity. This section shows a comparison of work by \cite{mortensen_comprehensive_2021}, which uses a network flow approach and discrete time axis to solve the charge problem. Because both the approach in \cite{mortensen_comprehensive_2021} and the approach in this paper include the full rate schedule, their monthly costs are comparable. However, because the approach from \cite{mortensen_comprehensive_2021} handles the time component discretely, higher time resolution estimates become computationally prohibitive. 
-\par Fig. \ref{fig:timeComparison} compares the computation time for the proposed algorithm with \cite{mortensen_comprehensive_2021} using a one minute time step. The algorithms were run on a common desktop computer with 32 Gb of RAM and an 8 core 4 GHz processor, and the method from \cite{mortensen_comprehensive_2021} was solved up to a 5\% gap. Note how the computation time for the proposed algorithm is several orders of magnitude less and gives the added benefit of floating point precision in its time resolution.
-\input{media/8_results/timeComparison}
-
 \subsection{Scalability\label{sec:results:scalability}}
 \input{media/8_results/scalabilityCost.tex}
 \input{media/8_results/scalabilityRuntime.tex}
