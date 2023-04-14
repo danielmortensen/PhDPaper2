@@ -7,7 +7,7 @@ BEBs must also maintain their state of charge above a minimum threshold, denoted
 		\tilde{A}_1\mathbf{y} &= \tilde{\mathbf{b}}_1
 \end{aligned} \end{equation}
 \input{media/5_battery/delta}
-and is otherwise computed as the the sum of incoming and outgoing energy where incoming energy comes from charging, and outgoing energy comes from the battery discharge. The discharge from operating bus $i$ over route $j$ is denoted $\delta_{ij}$. The increase in battery state of charge follows a linear charge model such that the increase is equal to the energy rate, denoted $p_i$, times the time spent charging, denoted $\Delta_{ij}$\cite{rong_coordinated_2016}.
+and is otherwise computed as the the sum of incoming and outgoing energy where incoming energy comes from charging, and outgoing energy comes from the battery discharge. The discharge from operating bus $i$ over route $j$ is denoted $\delta_{ij}$ which is assumed to be know ahead of time either from historical data or from modeling such as \cite{Ji_2022_Trip}. The increase in battery state of charge follows a linear charge model such that the increase is equal to the energy rate, denoted $p_i$, times the time spent charging, denoted $\Delta_{ij}$\cite{rong_coordinated_2016}.
 The total change from $h_{ij}$ to $h_{ij+1}$ can be expressed as
 \begin{equation}
 	h_{ij+1} = h_{ij} + \Delta_{ij} \cdot p_i - \delta_{ij}.

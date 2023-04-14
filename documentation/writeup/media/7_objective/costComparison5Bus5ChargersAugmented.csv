@@ -1,4 +1,4 @@
-type,Baseline,He et al.,Proposed
-Energy,4305.3,3748.8,4381.8
-On-Peak Power,8242.52,2689.83,2684.69
-Facilities Power,5641.13,4381.91,829.48
+type,Baseline,He et al.,Ojer et al.,Proposed
+Energy,4305.3,3748.8,4243.83,4381.8
+On-Peak Power,8242.52,2689.83,1219.21,2684.69
+Facilities Power,5641.13,4381.91,3981.00,829.48

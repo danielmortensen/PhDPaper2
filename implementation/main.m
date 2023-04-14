@@ -1,7 +1,7 @@
-simulations.nBus = [5 5 5];
-simulations.nCharger = [5 5 5];
-simulations.objType = ["fiscal","energy","baseline"];
-simulations.nSim = 3;
+simulations.nBus = [5 5 5 5];
+simulations.nCharger = [5 5 5 5];
+simulations.objType = ["busDemand","fiscal","energy","baseline"];
+simulations.nSim = 1;
 simulations.resultPath = {"..","results","new"};                     %#ok
 
 for iSim = 1:simulations.nSim
@@ -19,7 +19,7 @@ for iSim = 1:simulations.nSim
     var = util.getVarParam(sim);
     Const = con.getConstAll(sim,var);
     model = util.toGurobi(Const,var);
-    param = struct('MIPGap',0.02);
+    param = struct('MIPGap',0.02,'OutputFlag',0);
     solution = gurobi(model,param);
 
     % save results
@@ -30,6 +30,20 @@ for iSim = 1:simulations.nSim
   ...  filepath = fullfile(resultPath{:},filename);
     fprintf("saving file: " + filename + " percent complete: %f \n",iSim/simulations.nSim);
     save(filepath,'sim','var','Const','solution');
+
+    % compute component-wise cost
+    Const1 = con.getObjective(sim,var,Const);
+    obj = Const1.obj;
+    objDemand = zeros(size(obj));
+    objDemand(end-2) = obj(end-2);
+    objFacilities = zeros(size(obj));
+    objFacilities(end-1) = obj(end-1);
+    objEnergy = obj;
+    objEnergy(end -2:end-1) = 0;
+    energy = solution.x'*objEnergy*30;
+    demand = solution.x'*objDemand;
+    facilities = solution.x'*objFacilities;
+    fprintf("energy cost: %0.2f facilities cost: %0.2f, demand cost: %0.2f\n",energy, facilities, demand);
  end
 
 

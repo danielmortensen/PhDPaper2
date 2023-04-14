@@ -1,0 +1,33 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\input{responseTemplate}
+
+
+\begin{document}
+\schmoozeeditor{Dr. Azim Eskandarian} 
+\begin{buttkissing}
+	\reviewerclaims For the system model, the main innovation is that the uncontrolled power loads are considered. However, in Section I, we cannot find the detailed expressions about the uncontrolled loads. Please add more references and practical example to express it, to make the manuscript more readable.
+	\kissbutt Thank you for the feedback, In this paper, the uncontrolled load profile comes from historical data provided by the Utah Transit Authority in Salt Lake City which describes the power demands for an electric train as it passes through the station. In practice, buses would share a single meter with the train. If buses were to charge at high rates while the train drew power from the grid to accelerate, the resulting 15-minute average power would become significant, increasing the monthly cost. We have included a similar description in the introduction to increase readability.
+	\reviewerclaims In the system model, the bus may be overlapeed in the charging station. Actually, in my opinion, the control center can schedule the charging orderly. More expressions are needed.
+	\kissbutt The reviewer is right when they mention that there will be overlap in bus schedules and that a decision must be made to determine which buses will be allowed to charge, which would very easily be given by a control center. Unfortunately, determining which bus should charge is non-trivial because simply scheduling buses according to their arrival time fails to account for each bus's state of charge and future availability.  The proposed method provides a tool which accounts for these limitations so that charge decisions make up an optimal solution based on route information for all buses throughout the day. 
+	\reviewerclaims In Section III, why the bin packing approach is suitable for the needs in this manuscript?
+	\kissbutt Great question, Section III includes details that manage the battery state of charge for each bus. This paper addresses constraints that maintain a bus's state of charge, which in turn drives the delivery of energy through charge sessions. Each charge session can be thought of as a ``bin'' where the bin width is time. The minimum width is based on how much energy the bus must recieve during the session. Therefore, because Section III includes constraints which force buses to charge, buses are required to schedule time on a charger. In this paper, we view time on a charger as a bin who's width is analagous to time so that the bus scheduling problem can be solved using a solution to the bin packing problem. 
+	\reviewerclaims For the simulation, the authors should give more comparison with the current existing works, to make the effectiveness more clearly.
+	\kissbutt Thank you for the feedback! We have added an additional comparison in the results section. The new comparison shows how our method compares to an approach used by Ojer et al. which focuses on managing the peak energy without considering uncontrolled loads. The method we have already included by He et al. focuses on minimising the cost from time of day tarrifs. Between Ojer et al. and He et al. we believe the comparisons should demonstrate the effectiveness over a range of related methods.
+	\reviewerclaims The paper writing should be improved. For example, in page 9 , line 49, section ??
+	\kissbutt Great catch, we have read through the paper again with a view to improve readability. This has led to a number of changes. We believe the paper has been improved. Thank you for noticing and for your feedback!
+\end{buttkissing}
+\begin{buttkissing}
+	\reviewerclaims Simply removing references does not justify the motivation. I recommend the below three papers.
+		\begin{itemize}
+			\item He, J., Yan, N., Zhang, J., Wang, T., 2022. Battery electric buses charging schedule optimization considering time-of-use electricity price. Journal of Intelligent and Connected Vehicles, 4(2), 138-145
+			\item Liu, Y., Wang, L., Zeng, Z., Bie, Y., 2022. Optimal charging plan for electric bus considering time-of-day electricity tariff. Journal of Intelligent and Connected Vehicles, 5(2), 123-137.
+			\item Ji, J., Bie, Y.M., Zeng, Z., Wang, L., 2022. Trip energy consumption estimation for electric buses. Communication in Transportation Research 2, 100069.
+		\end{itemize} 
+	\kissbutt Thank you, we have incorporated the given references to better support the focus of the paper which has been shifted so that the primary motivation centers on cost savings in the presence of from uncontrolled loads.
+	\reviewerclaims The authors need to carefully describe the charging activities for each BEB bus in a day.
+	\kissbutt This paper considers a traditional scenario where each bus begins the day in the station and spends the day either on-route or in the station. Buses on route are considered unavailable and cannot charge until that bus returns to the station. We have included a similar explanation in the introduction section be better explain the daily BEB activity.
+  \end{buttkissing}
+\end{document}
