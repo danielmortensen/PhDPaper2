@@ -1,9 +1,25 @@
-\onecolumn	
+\makeatletter
+\if@twocolumn%
+	\onecolumn
+	\providecommand{\revertcolumn}{\twocolumn}
+\else%
+	\onecolumn
+	\providecommand{\revertcolumn}{\onecolumn}
+\fi
+
+\@ifundefined{coloredhline}{%
 \newcommand{\coloredhline}{\arrayrulecolor{gray!20} \hline \\[0.01in]\arrayrulecolor{black}}
+}
+
+\@ifundefined{myendline}{%
 \newcommand{\myendline}{\\ \coloredhline}
+}
+\makeatother
+\savegeometry{originalGeometry}
+\newgeometry{left=0.5in,bottom=0.5in}
 \label{tab:paperVariables}
-\centering
-\begin{supertabular}{b{0.06\textwidth} m{0.3\textwidth} m{0.09\textwidth} m{0.06\textwidth} m{0.3\textwidth} m{0.09\textwidth}}
+\begin{center}\begin{singlespace}
+\begin{supertabular}{b{0.08\textwidth} m{0.3\textwidth} m{0.09\textwidth} m{0.08\textwidth} m{0.3\textwidth} m{0.09\textwidth}}
 	\toprule%----------------------------------------------------------------------------
 	\textbf{Variable} & \textbf{Description} & \textbf{Range} & \textbf{Variable} & \textbf{Description} & \textbf{Range}\\
 	\toprule%-----------------------------------------------------------------------------
@@ -44,4 +60,6 @@
 	$\mathbf{u}_p$              & A vector of conversion factors from on and off-peak max power to demand cost.  & $\mathbb{R}^{\text{nPoint}}$                & $\mathbf{v}$               & a vector of conversion factors such that $\mathbf{v}^T\mathbf{y}$ yields the total montly cost of power. & $\mathbb{R}^{\text{nPoint}}$ \\ \myendline
 	%
 \end{supertabular}
-\twocolumn
+\end{singlespace}\end{center}
+\loadgeometry{originalGeometry}
+\revertcolumn

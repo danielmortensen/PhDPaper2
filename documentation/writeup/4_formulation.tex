@@ -28,7 +28,7 @@ where $\boldsymbol{\sigma}$ describes on which charger a bus will charge, $\math
 \par A solution to the bus charge problem includes both temporal and categorical information. The temporal aspect shows when and for how long a bus should charge, and is represented graphically as increasing from left to right. The vertical axis represents each category as a bus and shows how each bus charges over time as shown in Fig. \ref{fig:busTime4}.
 %\input{media/4_formulation/busTime1}
 \par Each bus follows a schedule of arrival and departure times, where the $i^{\text{th}}$ bus's $j^{\text{th}}$ stop begins at arrival time $a_{ij}$ and terminates at departure time $d_{ij}$ (see Fig. \ref{fig:busTime3}).  A bus can be assigned to charge anytime the bus is in the station, such that the charge start time, $c_{ij}$, is greater than or equal to $a_{ij}$, and the charge stop time, $s_{ij}$, is less than the departure time $d_{ij}$, as shown in Fig. \ref{fig:busTime3}. In the context of a MILP, the arrival and departure times $a_{ij}$ and $d_{ij}$ are known ahead of time and charge times $c_{ij}$ and $s_{ij}$ are optimization variables. 
-\input{media/4_formulation/busTime3}
+\input{\rootdirectorytwo/media/4_formulation/busTime3}
 \subsection{Constraints\label{sec:formulation:constraint}}
 The relationship between the arrival, departure, and charge intervals for the $i^{\text{th}}$ bus at the $j^{\text{th}}$ stop can be expressed as a set of inequality constraints such that
 \begin{equation}\begin{aligned}
@@ -86,9 +86,9 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 		A_3\mathbf{y} \le \mathbf{b}_3
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
-\input{media/4_formulation/busTime4}
+\input{\rootdirectorytwo/media/4_formulation/busTime4}
 	The variable $\sigma_{ijk}$ is also necessary to prevent situations where more than one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining $c_{i^{'}j^{'}} > s_{ij}$ {\it or} $c_{ij} > s_{i^{'}j^{'}}$ for all $\left ( ij, \ i^{'}j^{'}\right ) \in \mathcal{S}$.  
-\input{media/4_formulation/potentialOverlap}
+\input{\rootdirectorytwo/media/4_formulation/potentialOverlap}
 We desire to encode these constraints so that they may be included in our MILP. First, let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$ so that the overlap constriants can be expressed as 
 	\begin{equation} \label{eqn:overlapConstraints2}\begin{aligned}
 	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{\left( ij, \ i^{`}j^{`}\right )} \\

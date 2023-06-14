@@ -1,0 +1,19 @@
+\makeatletter
+\@ifundefined{makeComparisonPowerPTwo}{%
+\newcommand\makeComparisonPowerPTwo[5]{%
+	\pgfplotstableread[col sep=comma]{#1}\firstTable
+	\pgfplotstableread[col sep=comma]{#2}\secondTable
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[SmallTimeSeriesPlot, ymin=-1, ymax=750, xlabel=Time (hr:min), ylabel=#3, legend style={nodes={scale=0.7}}]
+			\addplot[blue, smooth] table [x = {time}, y = {meanBusPower}]{\firstTable};
+			\addplot[red, smooth] table [x = {time}, y = {meanBusPower}]{\secondTable};
+			\addplot[brown, smooth] table [x = {time}, y = {loadPower}]{\firstTable};
+			\filldraw[fill=gray!40, opacity=0.3](625,0) rectangle (917,750);
+			\addlegendimage{line width=10pt, color=gray!40, draw opacity=0.5}
+			\legend{#4, #5, Uncontrolled Load, On-Peak Time}
+		\end{axis} 
+	\end{tikzpicture} 
+}
+}
+\makeatother

@@ -1,0 +1,13 @@
+\makeatletter
+\@ifundefined{makeComparisonBarChartLogPTwo}{%
+\newcommand\makeComparisonBarChartLogPTwo[4]{%
+	\pgfplotstableread[col sep=comma]{#1}\table
+	\begin{tikzpicture}
+		\begin{axis}[SmallBarPlot, xticklabels from table={\table}{type}, ylabel=#2, ymode = log]
+			\addplot [fill=blue!20, bar width=0.4] table [x expr=\coordindex*0.6 + 1 - 0.1, y=#3]{\table};
+			\addplot [fill=red!20, bar width=0.4] table [x expr=\coordindex*0.6 + 1 + 0.1, y=#4]{\table};
+		\end{axis}
+	\end{tikzpicture} 
+}
+}
+\makeatother
