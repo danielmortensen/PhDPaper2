@@ -89,7 +89,7 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 \input{media/4_formulation/busTime4}
 	The variable $\sigma_{ijk}$ is also necessary to prevent situations where more than one bus is assigned to the same charger at the same time. Note that two buses, bus $i$ and bus $i^{'}$, can only be assigned to the same charger at the same time when when $a_{ij}$ for bus $i$ is less than $d_{i^{'}j^{'}}$ for bus $i^{'}$ as shown in Fig. \ref{fig:potentialOverlap}. Let $\mathcal{S}$ be the set of all bus-stop pairs such that $\left ((i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ if overlap is possible between bus $i$ and bus $i^{'}$ during the $j$ and $j^{'}$ stops respectively. Charging overlap can be avoided by constraining $c_{i^{'}j^{'}} > s_{ij}$ {\it or} $c_{ij} > s_{i^{'}j^{'}}$ for all $\left ( ij, \ i^{'}j^{'}\right ) \in \mathcal{S}$.  
 \input{media/4_formulation/potentialOverlap}
-We desire to encode these constraints so that they may be included in our MILP. First, let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$ so that the overlap constriants can be expressed as 
+We desire to encode these constraints so that they may be included in our MILP. First, let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$ so that the overlap constraints can be expressed as 
 	\begin{equation} \label{eqn:overlapConstraints2}\begin{aligned}
 	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{\left( ij, \ i^{`}j^{`}\right )} \\
 	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{\left( ij, \ i^{`}j^{`}\right )}) \\

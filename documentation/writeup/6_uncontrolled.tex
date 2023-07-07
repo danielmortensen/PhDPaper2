@@ -1,13 +1,13 @@
 \section{Integrating Uncontrolled Loads\label{sec:uncontrolled}}
 A monthly power bill is made up of several costs, two of which depend on the maximum energy consumed over 15 minutes. This 15-minute average power includes energy that is consumed by loads other than bus chargers, or ``uncontrolled loads''. In practice, data for uncontrolled loads is sampled and therefore discrete. The representations for how buses use power in Section \ref{sec:5_battery} are continuous, making their effects difficult to integrate with a discrete uncontrolled load. This section integrates these uncontrolled loads into the planning framework by converting the continuous start and end points, $c_{ij}$ and $s_{ij}$ from Section \ref{sec:4_formulation}, to a vector $\mathbf{p}_{ij}$, where the $n^{\text{th}}$ element of the $\mathbf{p}_{ij}$ vector represents the average power over the interval $t_{i-1}$ to $t_i$ from bus $i$ during route $j$. The route power vectors, $\mathbf{p}_{ij}$, can be added together to form a discrete profile for the buses.
-\par Let the day be divided into time segments, each of duration $\Delta T$. The first step is to determine the index of each segment that a bus begins charging, denoted $k_{ij}^{\text{start}}$, and the index of the segement that a bus finishes charging, denoted $k_{ij}^{\text{end}}$.  Each index can be computed as an integer multiple of $\Delta T$ that satisfies 
+\par Let the day be divided into time segments, each of duration $\Delta T$. The first step is to determine the index of each segment that a bus begins charging, denoted $k_{ij}^{\text{start}}$, and the index of the segment that a bus finishes charging, denoted $k_{ij}^{\text{end}}$.  Each index can be computed as an integer multiple of $\Delta T$ that satisfies 
 \begin{equation} \label{eqn:discrete1} \begin{aligned}
 	\left ( k^{\text{start}}_{ij} - 1 \right ) \cdot\Delta T + r^{\text{start}}_{ij}&= c_{ij} \\
 	\left (	k^{\text{end}}_{ij} - 1 \right ) \cdot\Delta T + r^{\text{end}}_{ij}&= s_{ij} \\
 	k^{\text{start}}_{ij}, k^{\text{end}}_{ij} \in \mathbb{Z} \\
 	0 < r^{\text{start}}_{ij}, r^{\text{end}}_{ij} < &\Delta T.
 \end{aligned} \end{equation} 
-Equation \eqref{eqn:discrete1} yields the discrete indices $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ along with corresponding remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$, which will be used later in this section to calculate the average power for time segments in which buses only charge part of the time.  Equation \eqref{eqn:discrete1} can be rewriten in standard form and zero padded such that
+Equation \eqref{eqn:discrete1} yields the discrete indices $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ along with corresponding remainder values $r_{ij}^{\text{start}}$ and $r_{ij}^{\text{end}}$, which will be used later in this section to calculate the average power for time segments in which buses only charge part of the time.  Equation \eqref{eqn:discrete1} can be rewritten in standard form and zero padded such that
 \begin{equation} \begin{aligned}
 	\begin{bmatrix}\Delta T &  1 & -1 & 0        & 0 &  0\\ 
 		       0        &  0 & 0  & \Delta T & 1 & -1\\
@@ -251,7 +251,7 @@ The same approach can be taken to replace $\mathbf{g}_{ij}^{\text{end}}\cdot p_{
 	p_w &\ge -Mg_w \ \forall p_w \in \mathbf{p}_{ij}^{\text{end}}\\
 	p_w &\le Mg_w \  \forall p_w \in \mathbf{p}_{ij}^{\text{end}},
 \end{aligned} \end{equation} 
-which can be written in standard form, stacked to accomodate the constraints for all $i,j$, and zero padded in the usual fashion as
+which can be written in standard form, stacked to accommodate the constraints for all $i,j$, and zero padded in the usual fashion as
 \begin{equation}\begin{aligned} 
 	\begin{bmatrix}
 		-1 & 1 & M \\
