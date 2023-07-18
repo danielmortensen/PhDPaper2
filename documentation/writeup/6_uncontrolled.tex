@@ -22,7 +22,7 @@ Equation \eqref{eqn:discrete1} yields the discrete indices $k_{ij}^{\text{start}
 	\begin{bmatrix} 0 \\
 	                0 \\
 	\end{bmatrix} \ \forall i,j \\ 
-	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2.
+	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2
 \end{aligned} \end{equation}
 and 
 \begin{equation} \begin{aligned}
@@ -67,7 +67,7 @@ Defining the index as an element of $\mathbf{f}$ allows us to convert from the s
 	\mathbf{g}^{\text{end}}_{ij} &\in \{0,1\}^{\text{nPoint}},
 \end{aligned} \end{equation}
 
-which can be expressed in standard form and zero padded to form a set of linear constraints.
+\noindent which can be expressed in standard form and zero padded to form a set of linear constraints.
 \begin{equation} \label{eqn:idxStart2}\begin{aligned}
 	\begin{bmatrix} 0 & \mathbf{0}^T & -1 & \mathbf{f}^T \\
 		        0 & \mathbf{1}^T &  0 & 0            \\
@@ -99,7 +99,7 @@ which can be expressed in standard form and zero padded to form a set of linear 
 which can be expressed as a set of linear constraints such that
 \begin{equation} \label{eqn:gOnBigM}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) - 1 \\
-	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) + 1 \\ 
+	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) + 1,  
 \end{aligned} \end{equation}
 where $M$ is $2\cdot\text{nPoint}$. The constraints in \eqref{eqn:gOnBigM} do not require that all values between $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ be set to one, rather that them being equal to one implies that they are between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$. For all values between  $k_{ij}^{\text{start}}$ and $k_{ij}^{\text{end}}$ to be $1$, the sum of $\mathbf{g}_{ij}^{\text{on}}$ must be equal to the difference between $k_{ij}^{\text{end}}$ and $k_{ij}^{\text{start}}$ such that 
 \begin{equation} \label{eqn:gOnSemiFinal}\begin{aligned}
@@ -109,13 +109,13 @@ where $M$ is $2\cdot\text{nPoint}$. The constraints in \eqref{eqn:gOnBigM} do no
 \end{aligned} \end{equation}
 The constraints in \eqref{eqn:gOnSemiFinal} work well for a general use case, however when $k_{ij}^{\text{end}}$ is equal to $k_{ij}^{\text{start}}$, the last constraint in \eqref{eqn:gOnSemiFinal} becomes
 \begin{equation}
-	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} = -1.
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} = -1,
 \end{equation}
 which leads to an empty feasible set because the elements of $\mathbf{g}_{ij}^{\text{on}}$ are all binary. Let $k_{ij}^{\text{eq}}$ be a binary variable which is equal to $0$ when $k_{ij}^{\text{end}}$ is not equal to $k_{ij}^{\text{start}}$. Equation \eqref{eqn:gOnSemiFinal} can be modified to incorporate $k_{ij}^{\text{eq}}$ to switch between the cases where $k_{ij}^{\text{end}}$ is equal, and not equal to $k_{ij}^{\text{start}}$ by letting 
 \begin{equation} \label{eqn:gOnFinal}\begin{aligned}
 	g_w\cdot f_w &\le k^{\text{end}}_{ij} + M(1 - g_w) - 1 \\
 	g_w\cdot f_w &\ge k^{\text{start}}_{ij} - M(1 - g_w) + 1 \\ 
-	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - k_{ij}^{\text{eq}}.\\
+	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} &= k_{ij}^{\text{end}} - k_{ij}^{\text{start}} - k_{ij}^{\text{eq}}
 \end{aligned} \end{equation} 
  and constraining $k_{ij}^{\text{eq}}$ such that 
 \begin{equation}\label{eqn:kEq}\begin{aligned}
@@ -153,7 +153,7 @@ which can be concatenated for all $i,j$, and zero padded to form a joint matrix,
 \begin{equation}
 	A_7\mathbf{y} \le \mathbf{b}_7.
 \end{equation}
-Similarly, the equality constraint from equation (\eqref{eqn:gOnFinalStd}) can also be concatenated and zero padded such that
+Similarly, the equality constraint from \eqref{eqn:gOnFinalStd} can also be concatenated and zero padded such that
 \begin{equation} \begin{aligned}
 	\mathbf{1}^T\mathbf{g}_{ij}^{\text{on}} - k_{ij}^{\text{end}} + k_{ij}^{\text{start}} + k_{ij}^{\text{eq}} &= 0 \ \forall i,j\\
 	\begin{bmatrix}\mathbf{1}^T & - 1 & 1 & -1\end{bmatrix} \begin{bmatrix}\mathbf{g}_{ij}^{\text{on}} \\ k_{ij}^{\text{end}} \\ k_{ij}^{\text{start}} \\ k_{ij}^{\text{eq}} \end{bmatrix} &= 0 \\
@@ -169,8 +169,8 @@ Similarly, the equality constraint from equation (\eqref{eqn:gOnFinalStd}) can a
 	\begin{array}{l} \begin{aligned}
 		p_{ij}^{\text{start}} &= \frac{p\cdot \left ( r_{ij}^{\text{end}} - r_{ij}^{\text{start}} \right )}{\Delta T} \\
 		p_{ij}^{\text{end}} &= 0 \\
-	\end{aligned} \end{array} & k_{ij}^{\text{eq}} = 0 \\
-	\end{cases},
+	\end{aligned} \end{array} & k_{ij}^{\text{eq}} = 0, \\
+	\end{cases}
 \end{aligned}\end{equation}
 where $p$ is the charge rate. Equation \eqref{eqn:avgPower1} can also be expressed as a set of linear inequality constraints such that
 \begin{equation} \begin{aligned}
@@ -223,11 +223,11 @@ and by using matrix multiplication such that
 		0 \\
 		0 \\
 	\end{bmatrix} \ \forall i,j \\
-	A_8 &\le \mathbf{b}_8
+	A_8 &\le \mathbf{b}_8,
 \end{aligned}\end{equation} 
 where $p_{ij}^{\text{start}}$, $p_{ij}^{\text{end}}$, and $p$ represent the average power that corresponds to $r_{ij}^{\text{start}}$, $r_{ij}^{\text{end}}$, and full charging intervals respectively. The total average power use is calculated as 
 \begin{align}\label{eqn:totalPower}
-	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{g}^{\text{start}}_{ij}\cdot p^{\text{start}}_{ij} + \mathbf{g}^{\text{on}}_{ij}\cdot p + \mathbf{g}^{\text{end}}_{ij}\cdot p^{\text{end}}_{ij}
+	\mathbf{p}_{\text{total}} = \bar{\mathbf{p}}_{\text{load}} + \sum_{ij} \mathbf{g}^{\text{start}}_{ij}\cdot p^{\text{start}}_{ij} + \mathbf{g}^{\text{on}}_{ij}\cdot p + \mathbf{g}^{\text{end}}_{ij}\cdot p^{\text{end}}_{ij},
 \end{align}
 where $\bar{\mathbf{p}}_{\text{load}}$ is the average power of the uncontrolled loads.
 \par Note, however that \eqref{eqn:totalPower} contains the bilinear terms $\mathbf{g}_{ij}^{\text{start}}\cdot p_{ij}^{\text{start}}$ and $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$. The expression $\mathbf{g}_{ij}^{\text{start}}\cdot p_{ij}^{\text{start}}$ from \eqref{eqn:totalPower} can be thought of as a vector, $\mathbf{p}_{ij}^{\text{start}}$ which contains values for $p_{ij}^{\text{start}}$ whenever $g_{ij}^{\text{start}}$ is not equal to $0$ such that 
@@ -242,7 +242,7 @@ which can be rewritten as a set of linear inequality constraints such that
 	p_w &\ge p^{\text{start}}_{ij} - M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
 	p_w &\le p^{\text{start}}_{ij} + M(1 - g_w) \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
 	p_w &\ge -Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}\\
-	p_w &\le  Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}
+	p_w &\le  Mg_w \forall p_w \in \mathbf{p}_{ij}^{\text{start}}.
 \end{aligned} \end{equation}
 The same approach can be taken to replace $\mathbf{g}_{ij}^{\text{end}}\cdot p_{ij}^{\text{end}}$ with the vector $\mathbf{p}_{ij}^{\text{end}}$ by letting
 \begin{equation} \label{eqn:offPower} \begin{aligned}
@@ -308,6 +308,6 @@ and in standard form as
 	        \mathbf{p}_{w}^{\text{end}}   \\
 	        \mathbf{g}_{w}^{\text{on}}    \\
 	\end{bmatrix} &= \mathbf{p}_{w}^{\text{load}}  \\
-	\tilde{A}_4\mathbf{y} &= \tilde{\mathbf{b}}_4
+	\tilde{A}_4\mathbf{y} &= \tilde{\mathbf{b}}_4.
 \end{aligned} \end{equation}
 

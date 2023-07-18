@@ -16,12 +16,12 @@ The value for $\Delta_{ij}$ can also be expressed in terms of the difference bet
 \begin{equation}\label{eqn:socDynamic1}\begin{aligned}
 	h_{ij} + p_i\cdot \left ( s_{ij} - c_{ij} \right ) - \delta_i &= h_{ij+1}\\
 	h_{ij+1} - h_{ij} - p_is_{ij} + p_ic_{ij} &= -\delta_i\\
-	\begin{bmatrix} 1 & -1 & -p_i & p_i\end{bmatrix} \begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \end{bmatrix} &= -\delta_i \ \forall i,j
+	\begin{bmatrix} 1 & -1 & -p_i & p_i\end{bmatrix} \begin{bmatrix}h_{ij+1} \\ h_{ij} \\ s_{ij} \\ c_{ij} \end{bmatrix} &= -\delta_i \ \forall i,j.
 \end{aligned}\end{equation}
 The constraints for each $i,j$ outlined in \eqref{eqn:socDynamic1} can be vertically concatenated to form
 \begin{equation}\label{eqn:socDynamic3} \begin{aligned}
 	A_{ij}\mathbf{y} &= \mathbf{b}_{ij} \ \forall i,j \\
-	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2
+	\tilde{A}_2\mathbf{y} &= \tilde{\mathbf{b}}_2.
 \end{aligned} \end{equation}
 Now that the state of charge is defined, the next constraint ensures that the minimum battery state of charge remains both above the minimum threshold, $h_{\text{min}}$, and below the battery capacity, $h_{\text{max}}$. These constraints are given as
 \begin{equation}
@@ -40,7 +40,7 @@ or
  		h_{\text{min}}\\
  		h_{\text{max}}\\	
 	\end{bmatrix} \ \forall ij\\
-		A_5\mathbf{y} &\le \mathbf{b}_5
+		A_5\mathbf{y} &\le \mathbf{b}_5.
 \end{aligned} \end{equation}
 \par The final constraint has to do with the assumption that we desire to use the model for one day to predict the expected cost over a month. To do this, the state of charge at the end of the day must equal the state of charge at the beginning. Let $h_{i,\text{end}}$ be the final daily state of charge for bus $i$. This is constrained to be the same as the beginning state of charge as
 \begin{equation} \label{eqn:hEqual1} \begin{aligned}

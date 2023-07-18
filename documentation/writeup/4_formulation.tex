@@ -79,11 +79,11 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 	The variable $\sigma_{ijk}$ is used in several scenarios. The first is to ensure that buses without charge assignments have a charge time of zero by constraining $s_{ij}$ and $c_{ij}$ to be the same value. This is done by letting
 	\begin{equation}\label{eqn:A3}\begin{aligned}
 	s_{ij} - c_{ij} &\le M\sum_{k}\sigma_{ijk} \\
-		\begin{bmatrix} 1_s & -1_c & -M_{\sigma_1} & \hdots & -M_{\sigma_k} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j 
+		\begin{bmatrix} 1_s & -1_c & -M_{\sigma_1} & \hdots & -M_{\sigma_k} \end{bmatrix}\begin{bmatrix}s_{ij} \\ c_{ij} \\ \sigma_{ij1} \\ \vdots \\ \sigma_{ijk} \end{bmatrix} &\le 0 \ \forall i,j, 
 \end{aligned} \end{equation}
 	where $M$ is the maximum difference between $s_{ij}$ and $c_{ij}$, or the number of seconds in a day, also referred to as $\text{nTime}$, and $M_\sigma$ represents multiple values of $M$ at locations corresponding to each $\sigma_{ijk}$. The constraints in \eqref{eqn:A3} can be appropriately zero padded and stacked for all $i,j$ to form the linear expression
 	\begin{equation} 
-		A_3\mathbf{y} \le \mathbf{b}_3
+		A_3\mathbf{y} \le \mathbf{b}_3.
 	\end{equation}
 	\par The values in $\boldsymbol{\sigma}$, $\mathbf{c}$, and $\mathbf{s}$ form a complete charge plan representation were $c_{ij}$ and $s_{ij}$ describe time periods when a bus will charge and $\sigma_{ijk}$ gives which charger to use. (see Fig. \ref{fig:busTime4}).
 \input{\rootdirectorytwo/media/4_formulation/busTime4}
@@ -92,9 +92,9 @@ where $1_{ijk}$ represents a $1$ at the location corresponding to $\sigma_{ijk}$
 We desire to encode these constraints so that they may be included in our MILP. First, let $l_{\left( ij, \ i^{`}j^{`}\right )}$ be a binary decision variable that is $1$ when $c_{i^{'}j^{'}} > s_{ij}$, and $0$ when $c_{ij} > s_{i^{'}j^{'}}$ so that the overlap constriants can be expressed as 
 	\begin{equation} \label{eqn:overlapConstraints2}\begin{aligned}
 	c_{i^{`}j^{`}} - s_{ij}  &> -Ml_{\left( ij, \ i^{`}j^{`}\right )} \\
-	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{\left( ij, \ i^{`}j^{`}\right )}) \\
+	c_{ij}-s_{i^{`}j^{`}} &>  -M(1 - l_{\left( ij, \ i^{`}j^{`}\right )}). 
 \end{aligned}\end{equation}
-	Note that this constraint is only necessary when buses $i$ and $i^{'}$ are assigned to the same charger, so that both $\sigma_{i'j'k}$ and $\sigma_{ijk}$ are equal to 1 which can be done by modifying the switching technique from Eqn. \eqref{eqn:overlapConstraints2} so that the overlap constraints are trivially satisfied when either $\sigma_{i'j'k}$ or $\sigma_{ijk}$ is equal to zero. The equations in Eqn. \eqref{eqn:overlapConstraints2} can be relaxed by letting 
+	Note that this constraint is only necessary when buses $i$ and $i^{'}$ are assigned to the same charger, so that both $\sigma_{i'j'k}$ and $\sigma_{ijk}$ are equal to 1 which can be done by modifying the switching technique from Eqn. \eqref{eqn:overlapConstraints2} so that the overlap constraints are trivially satisfied when either $\sigma_{i'j'k}$ or $\sigma_{ijk}$ is equal to zero. The expressions in \eqref{eqn:overlapConstraints2} can be relaxed by letting 
 \begin{equation}\label{eqn:overlapConstraints3}\begin{aligned}
 	c_{i^{'}j^{'}} - s_{ij} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - Ml_{\left( ij, \ i^{`}j^{`}\right )} \ \forall k \\
 	c_{ij} - s_{i^{'}j^{'}} &> M\left[(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) - 2\right] - M(1 - l_{\left( ij, \ i^{`}j^{`}\right )})\ \forall k \\
@@ -117,7 +117,7 @@ so that when $(\sigma_{i^{'}j^{'}k} + \sigma_{ijk}) < 2$, \eqref{eqn:overlapCons
 		\begin{bmatrix} 
 			2M \\ 
 			3M \\
-		\end{bmatrix} \forall k
+		\end{bmatrix} \forall k.
 	\end{aligned} \end{equation}
 	The constraints in \eqref{eqn:overlapConstraints4} can be repeated for all $\left ( (i,j), \ (i^{'},j^{'}) \right ) \in \mathcal{S}$ and concatenated into a single matrix expression
 	\begin{equation}\begin{aligned} 

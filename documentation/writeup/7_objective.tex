@@ -1,7 +1,7 @@
 \section{Objective Function\label{sec:objective}}
 This work adopts uses an objective function which implements the rate schedule from \cite{rocky_mountain_power_rocky_2021}. The rate schedule in \cite{rocky_mountain_power_rocky_2021} is based on of two primary components: power and energy.  
 \par Power is billed per kW for the highest 15 minute average power over a fixed period of time. It is common practice for power providers to use a higher rate during ``on-peak'' periods when power is in higher demand and use a lower rate during ``off-peak'' hours, which account for all other time periods. 
-\par The rate schedule given in \cite{rocky_mountain_power_rocky_2021} assesses a fee for a user's maximum average power during on-peak hours, called the On-Peak Power charge, and a user's overall maximum average power, called a facilities charge as shown in figure \ref{fig:charges}. 
+\par The rate schedule given in \cite{rocky_mountain_power_rocky_2021} assesses a fee for a user's maximum average power during on-peak hours, called the On-Peak Power charge, and a user's overall maximum average power, called a facilities charge as shown in Fig. \ref{fig:charges}. 
 \par Energy fees are also assessed per kWh of energy consumed with a higher rate for energy consumed during on-peak hours and a lower rate for energy consumed during off-peak hours.
 \input{\rootdirectorytwo/media/7_objective/charges.tex}
 \subsection{Power Charges}
@@ -10,7 +10,7 @@ It is necessary to compute the maximum power both overall and for on-peak period
 	p_j^{\text{total}} &\le q_{\text{on}} \ \forall j \in \mathcal{S}_{\text{on}} \\
 	\begin{bmatrix} 1 & -1\end{bmatrix} \begin{bmatrix}p_j^{\text{total}} \\ q_{\text{on}} \end{bmatrix} &\le 0 \ \forall j \in \mathcal{S}_{\text{on}}\\
 		A_{11}\mathbf{y} &\le \mathbf{0} \\
-		A_{11}\mathbf{y} &\le \mathbf{b}_{11}
+		A_{11}\mathbf{y} &\le \mathbf{b}_{11}.
 \end{aligned} \end{equation}
 Because an increased value in $q_{\text{on}}$ is directly related to an increase in cost, the optimizer will minimize $q_{\text{on}}$ until it is equal to the maximum value in $\{p_j^{\text{total}} \ \forall j \in \mathcal{S}_{\text{on}}\}$. A similar procedure can be used to derive a set of constraints for the overall maximum average power, denoted $q_{\text{all}}$, and is represented as
 \begin{equation} \begin{aligned}
@@ -21,7 +21,7 @@ The charges for power are then expressed as
 \begin{equation} \begin{aligned}
 	\text{power cost} &= q_{\text{on}}\cdot u_{\text{p-on}} + q_{\text{all}} \cdot u_{\text{p-all}} \\
 			  &= \begin{bmatrix}u_{\text{p-on}} & u_{\text{p-all}} \end{bmatrix}\begin{bmatrix}q_{\text{on}} \\ q_{\text{all}} \end{bmatrix} \\
-		          &= \mathbf{u}_{\text{p}}^T\mathbf{y}
+		          &= \mathbf{u}_{\text{p}}^T\mathbf{y},
 \end{aligned}\end{equation}
 where $u_{\text{p-on}}$ is the rate per kW for on-peak power use, or the demand charge and $u_{\text{p-all}}$ is the rate per kW for the overall maximum 15 minute average.
 \subsection{Energy Charges}
@@ -38,14 +38,14 @@ Let $u_{\text{e-on}}$ and $u_{\text{e-off}}$ represent the on-peak and off-peak 
 \begin{equation} \begin{aligned}
 	\text{Energy Cost} &= \left(\mathbf{1}_{\text{on}}\cdot u_{\text{e-on}}\cdot\Delta T \right )^T\mathbf{p}_{\text{total}} + \left(\mathbf{1}_{\text{off}}\cdot u_{\text{e-off}}\cdot\Delta T \right )^T\mathbf{p}_{\text{total}} \\
 			   &= \left(\mathbf{u}_{\text{e-on}} + \mathbf{u}_{\text{e-off}}\right )^T\mathbf{p}_{\text{total}}\\
-			   &= \mathbf{u}_{\text{e}}^T\mathbf{y}
+			   &= \mathbf{u}_{\text{e}}^T\mathbf{y}.
 \end{aligned} \end{equation}
 \subsection{Cost Function and Final Problem}
 The entire cost function is given as the sum of the energy and power costs such that
 \begin{equation}\begin{aligned}
 	\text{Cost} &= \mathbf{u}_{\text{p}}^T\mathbf{y} + \mathbf{u}_{\text{e}}^T\mathbf{y} \\
 	            &= \left( \mathbf{u}_{\text{p}} + \mathbf{u}_{\text{e}} \right )^T\mathbf{y} \\
-		    &= \mathbf{v}^T\mathbf{y}
+		    &= \mathbf{v}^T\mathbf{y}.
 \end{aligned}\end{equation}
 The complete problem can now be formulated as
 \begin{equation}\label{eqn:objective:final}\begin{matrix}
