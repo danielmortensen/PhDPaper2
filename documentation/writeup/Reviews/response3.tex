@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage{xcolor}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\input{responseTemplate}
+
+
+\begin{document}
+\schmoozeeditor{Dr. Azim Eskandarian}
+\begin{buttkissing}
+	\reviewerclaims The introduction shall be reorganized in a more concise way, and the motivation together with the main contribution of this work shall be highlighted.
+	\kissbutt Thank you for the feedback!  We have reformatted the introduction to more concisely communicate both the motivation and the contributions of our work.
+	\reviewerclaims The authors shall clearly describe the proposed solution approach, based on the established bin packing model.
+	\kissbutt We agree that this paper should include a description of how a bin packing approach can be used to find an intelligent charge schedule. Section II specifically talks about how this is done and defines relevent constraints that are later encorporated into the MILP solver. We have also included a paragraph in the introduction to Section II which describes how the proposed method utilizes a bin packing approach to compute the charge schedules.
+	\reviewerclaims In the results section, a numerical comparison using a small instance with only 5 buses and 5 chargers seems too weak as the charging resource is sufficient compared with the charging demand (number of buses), and the results are not convincing.
+	\kissbutt We agree that results for the proposed method should be given for scenarios with more buses. The results in Section VI-B discuss how performance changes with the number of buses. In Fig. 11 we see that the monthly cost increases quasi-linearly with the number of buses and outperforms two other methods.
+	\reviewerclaims The authors did not correct the grammar errors and typos according to the reviewing comments in the revised manuscript.
+	\kissbutt We have carefully revised the manuscript and removed a number of spelling errors in addition to the examples given by the reviewer. The manuscript is much better, thank you for the feedback!
+\end{buttkissing} 
+
+\begin{buttkissing}
+	\reviewerclaims  There are still some paper writing mistakes, the authors should read the whole manuscript again, and make it more clearly and readable.
+	\kissbutt The reviewer brings up a good point. We have revised the paper to improve readability by making the introduction more concise. We have also removed a number of spelling errors. Thank you for your help!
+\end{buttkissing}
+\end{document}
